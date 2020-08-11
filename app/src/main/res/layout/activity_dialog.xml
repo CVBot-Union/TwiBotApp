@@ -2,7 +2,8 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:keepScreenOn="true" >
 <LinearLayout
     android:orientation="vertical"
     android:layout_width="match_parent"
@@ -14,17 +15,38 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_margin="60dp"
+        android:layout_margin="30dp"
         android:gravity="start"
         android:text="@string/dialog_string"
-        android:textSize="20sp" />
-    <ImageView
-        android:id="@+id/twi_img"
+        android:textSize="20sp"
+        android:textColor="#000000"/>
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewpager2"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
         android:layout_gravity="center"
-        android:layout_width="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="5dp"
+        android:visibility="gone"/>
+    <TextView
+        android:id="@+id/img_page"
+        android:gravity="center"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="30dp"
-        android:src="@mipmap/ic_launcher"/>
+        android:textSize="12sp"
+        android:layout_marginBottom="5dp"
+        android:visibility="gone"/>
+    <WebView
+        android:id="@+id/twi_video"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="5dp"
+        android:visibility="gone"
+        tools:ignore="WebViewLayout" />
 
     <LinearLayout
         android:gravity="center"
@@ -39,12 +61,12 @@
         android:text="@string/copy_button"
         tools:ignore="ButtonStyle" />
     <Button
-        android:id="@+id/download_img"
+        android:id="@+id/download_media"
         android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
-        android:text="@string/download_img"
+        android:text="@string/download_media"
         tools:ignore="ButtonStyle" />
     </LinearLayout>
 </LinearLayout>
