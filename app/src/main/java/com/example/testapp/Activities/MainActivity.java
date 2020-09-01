@@ -1,4 +1,4 @@
-package com.example.testapp;
+package com.example.testapp.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,6 +20,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.testapp.R;
 
 import org.litepal.LitePal;
 import org.litepal.annotation.Column;

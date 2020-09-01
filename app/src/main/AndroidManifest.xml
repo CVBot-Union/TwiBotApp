@@ -6,28 +6,41 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_DOWNLOAD_MANAGER" />
+
     <application
         android:name="org.litepal.LitePalApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:requestLegacyExternalStorage="true"
-        android:usesCleartextTraffic="true"
-        android:theme="@style/AppTheme">
-        <activity
-            android:name=".DialogActivity"
-            android:launchMode="singleTask"
-            android:hardwareAccelerated="true" />
-        <activity android:name=".MainActivity"
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
+        <receiver android:name=".NetWorkStateReceiver">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+        <activity android:name=".TweetList"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".Activities.DialogActivity"
+            android:hardwareAccelerated="true"
+            android:launchMode="singleTask" />
+        <activity
+            android:name=".Activities.MainActivity"
+            android:launchMode="singleTask">
+        </activity>
+
     </application>
 
 </manifest>

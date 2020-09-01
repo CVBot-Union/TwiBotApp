@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="TweetCard">
+        <attr name="name" format="string" />
+        <attr name="text" format="string" />
+        <attr name="type" format="string" />
+        <attr name="time" format="string" />
+    </declare-styleable>
+
+</resources>

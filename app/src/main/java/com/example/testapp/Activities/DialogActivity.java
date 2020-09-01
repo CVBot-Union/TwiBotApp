@@ -1,4 +1,4 @@
-package com.example.testapp;
+package com.example.testapp.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,6 +30,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.testapp.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
