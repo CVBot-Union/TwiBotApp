@@ -32,8 +32,16 @@ public class TweetList extends AppCompatActivity {
         TwitterMedia media = new TwitterMedia("1","https://pbs.twimg.com/profile_images/1206156308602163200/MO4FkO4N_400x400.jpg",TwitterMedia.IMAGE,"https://pbs.twimg.com/profile_images/1206156308602163200/MO4FkO4N_400x400.jpg");
         ArrayList<TwitterMedia> newList = new ArrayList<>();
         newList.add(media);
+        newList.add(media);
+        newList.add(media);
         TwitterStatus status = new TwitterStatus("11:14","1","测试",user,newList);
 
+        dataSet.add(status);
+        dataSet.add(status);
+        dataSet.add(status);
+        dataSet.add(status);
+        dataSet.add(status);
+        dataSet.add(status);
         dataSet.add(status);
 
         tweetList = (RecyclerView) findViewById(R.id.tweet_list_recycler_view);

@@ -35,9 +35,11 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
     public static final int SERVER_ERROR = 3;
 
     public boolean isConnected = true;
+    public Handler handler;
 
     public TweetCardAdapter(ArrayList<TwitterStatus> tweets){
         this.tweets = tweets;
+        handler = new Handler();
     }
 
     public static class TweetCardViewHolder extends RecyclerView.ViewHolder{
@@ -83,7 +85,12 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
                                     tweets.get(position).media.get(picturePosition - 1).cached_image_preview = bitmap;
                                     break;
                             }
-                            notifyItemChanged(position);
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    notifyItemChanged(position);
+                                }
+                            });
                             inputStream.close();
                         }
                     } catch (IOException e) {
