@@ -19,13 +19,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <receiver android:name=".NetWorkStateReceiver">
+        <receiver android:name=".NetworkStateReceiver">
             <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
-                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.net.conn.CONNECTIVITY_STATE"/>
             </intent-filter>
         </receiver>
-        <activity android:name=".TweetList"
+        <activity android:name=".Activities.TweetList"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,13 +32,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Activities.DialogActivity"
+            android:name=".Activities.SingleTweet"
             android:hardwareAccelerated="true"
             android:launchMode="singleTask" />
-        <activity
-            android:name=".Activities.MainActivity"
-            android:launchMode="singleTask">
-        </activity>
 
     </application>
 

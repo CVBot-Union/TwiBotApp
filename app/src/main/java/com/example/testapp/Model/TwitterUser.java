@@ -31,7 +31,6 @@ public class TwitterUser{
         this.name = name;
         this.screen_name = screen_name;
         this.nameInGroup = nameInGroup;
-        this.nameInGroup = nameInGroup;
         this.profile_image_url = profile_image_url;
     }
 }
