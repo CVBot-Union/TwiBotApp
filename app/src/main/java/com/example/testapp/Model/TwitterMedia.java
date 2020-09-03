@@ -8,7 +8,7 @@ import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 
-public class TwitterMedia{
+public class TwitterMedia implements Parcelable{
     public final static int AVATAR=0;
     public final static int IMAGE=1;
     public final static int VIDEO=2;
@@ -30,4 +30,40 @@ public class TwitterMedia{
         this.type=type;
         this.reviewImageURL=reviewImageURL;
     }
+
+    protected TwitterMedia(Parcel in) {
+        id = in.readString();
+        url = in.readString();
+        reviewImageURL = in.readString();
+        type = in.readInt();
+        cached_image_preview = in.readParcelable(Bitmap.class.getClassLoader());
+        cached_image = in.readParcelable(Bitmap.class.getClassLoader());
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(url);
+        dest.writeString(reviewImageURL);
+        dest.writeInt(type);
+        dest.writeParcelable(cached_image_preview, flags);
+        dest.writeParcelable(cached_image, flags);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<TwitterMedia> CREATOR = new Creator<TwitterMedia>() {
+        @Override
+        public TwitterMedia createFromParcel(Parcel in) {
+            return new TwitterMedia(in);
+        }
+
+        @Override
+        public TwitterMedia[] newArray(int size) {
+            return new TwitterMedia[size];
+        }
+    };
 }

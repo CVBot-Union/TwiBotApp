@@ -1,10 +1,13 @@
 package com.example.testapp.Model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 
-public class TwitterStatus{
+public class TwitterStatus implements Parcelable {
     //推文类型
     public final static int NORMAL=0;
     public final static int REPLY=1;
@@ -41,6 +44,54 @@ public class TwitterStatus{
         this.media = media;
         this.text = text;
     }
+
+    protected TwitterStatus(Parcel in) {
+        created_at = in.readString();
+        id = in.readString();
+        text = in.readString();
+        user = in.readParcelable(TwitterUser.class.getClassLoader());
+        in_reply_to_status_id = in.readString();
+        in_reply_to_user_id = in.readString();
+        in_reply_to_screen_name = in.readString();
+        quoted_status_id = in.readString();
+        location = in.readString();
+        hashtags = in.createStringArrayList();
+        user_mentions = in.createTypedArrayList(TwitterUser.CREATOR);
+        media = in.createTypedArrayList(TwitterMedia.CREATOR);
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(created_at);
+        dest.writeString(id);
+        dest.writeString(text);
+        dest.writeParcelable(user, flags);
+        dest.writeString(in_reply_to_status_id);
+        dest.writeString(in_reply_to_user_id);
+        dest.writeString(in_reply_to_screen_name);
+        dest.writeString(quoted_status_id);
+        dest.writeString(location);
+        dest.writeStringList(hashtags);
+        dest.writeTypedList(user_mentions);
+        dest.writeTypedList(media);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<TwitterStatus> CREATOR = new Creator<TwitterStatus>() {
+        @Override
+        public TwitterStatus createFromParcel(Parcel in) {
+            return new TwitterStatus(in);
+        }
+
+        @Override
+        public TwitterStatus[] newArray(int size) {
+            return new TwitterStatus[size];
+        }
+    };
 
     public String getCreated_at(){
         return created_at;
