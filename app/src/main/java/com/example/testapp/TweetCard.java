@@ -47,10 +47,12 @@ public class TweetCard extends CardView{
 
     public void setBtn1OnClickListener(OnClickListener listener){
         this.btn1Listener = listener;
+        btn1.setOnClickListener(btn1Listener);
     }
 
     public void setVideoOnClickListener(OnClickListener listener){
         this.videoListener = listener;
+        videoSet.setOnClickListener(videoListener);
     }
 
     public TweetCard(@NonNull Context context,View view) {
@@ -126,7 +128,6 @@ public class TweetCard extends CardView{
         if(tweet != null) {
             tweetStatusTextView.setVisibility(VISIBLE);
             tweetStatusTextView.setText(tweet);
-            System.out.println(tweet);
         }
     }
 

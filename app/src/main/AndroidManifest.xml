@@ -21,7 +21,8 @@
         android:usesCleartextTraffic="true">
         <receiver android:name=".NetworkStateReceiver">
             <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_STATE"/>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
         <activity android:name=".Activities.TweetList"
@@ -31,10 +32,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".Activities.SingleTweet"
-            android:hardwareAccelerated="true"
-            android:launchMode="singleTask" />
 
     </application>
 
