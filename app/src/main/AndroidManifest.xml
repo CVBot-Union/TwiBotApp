@@ -21,7 +21,7 @@
         android:usesCleartextTraffic="true">
         <receiver android:name=".NetworkStateReceiver">
             <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+                <action android:name="android.net.conn.CONNECTIVITY_STATE"/>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>

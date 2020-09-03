@@ -10,7 +10,7 @@ public class TwitterUser implements Parcelable{
     public String id;
     public String name;
     public String screen_name;
-    public String nameInGroup;
+    public String name_in_group;
     @Nullable public String location;
     @Nullable public String followers_count;
     @Nullable public String friends_count;
@@ -23,14 +23,14 @@ public class TwitterUser implements Parcelable{
         this.id = id;
         this.name = name;
         this.screen_name = screen_name;
-        this.nameInGroup = nameInGroup;
+        this.name_in_group = nameInGroup;
     }
 
     public TwitterUser(String id,String name,String screen_name,String nameInGroup,String profile_image_url){
         this.id = id;
         this.name = name;
         this.screen_name = screen_name;
-        this.nameInGroup = nameInGroup;
+        this.name_in_group = nameInGroup;
         this.profile_image_url = profile_image_url;
     }
 
@@ -38,7 +38,7 @@ public class TwitterUser implements Parcelable{
         id = in.readString();
         name = in.readString();
         screen_name = in.readString();
-        nameInGroup = in.readString();
+        name_in_group = in.readString();
         location = in.readString();
         followers_count = in.readString();
         friends_count = in.readString();
@@ -53,7 +53,7 @@ public class TwitterUser implements Parcelable{
         dest.writeString(id);
         dest.writeString(name);
         dest.writeString(screen_name);
-        dest.writeString(nameInGroup);
+        dest.writeString(name_in_group);
         dest.writeString(location);
         dest.writeString(followers_count);
         dest.writeString(friends_count);

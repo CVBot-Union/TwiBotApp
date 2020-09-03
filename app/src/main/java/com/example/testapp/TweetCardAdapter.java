@@ -3,14 +3,10 @@ package com.example.testapp;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,15 +15,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.testapp.Model.TwitterMedia;
 import com.example.testapp.Model.TwitterStatus;
-import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Map;
 
 public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.TweetCardViewHolder> {
 
@@ -124,7 +117,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
             }
         });
 
-        holder.tweetCard.setName(tweets.get(position).getUser().nameInGroup);
+        holder.tweetCard.setName(tweets.get(position).getUser().name_in_group);
 
         holder.tweetCard.setTweetText(tweets.get(position).getText());
 
