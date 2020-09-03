@@ -3,6 +3,6 @@
     <dbname value="TwiData" />
     <version value="1" />
     <list>
-        <mapping class="com.example.testapp.Activities.MainActivity.TwiData" />
+        <mapping class="com.example.testapp.Activities.TweetList.TwiData" />
     </list>
 </litepal>

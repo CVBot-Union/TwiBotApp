@@ -47,7 +47,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class DialogActivity extends AppCompatActivity {
+public class SingleTweet extends AppCompatActivity {
     private String twiContent, videoPath;
     private String[] imgPaths;
     public static Map<String, Bitmap> cachedBmp = new HashMap<>();
@@ -58,7 +58,7 @@ public class DialogActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_dialog);
+        setContentView(R.layout.activity_single_tweet);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             //申请WRITE_EXTERNAL_STORAGE权限
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
@@ -101,7 +101,7 @@ public class DialogActivity extends AppCompatActivity {
                 ClipboardManager clipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
                 assert clipboardManager != null;
                 clipboardManager.setPrimaryClip(ClipData.newPlainText(null,textView.getText()));
-                Toast.makeText(DialogActivity.this,"复制成功",Toast.LENGTH_SHORT).show();
+                Toast.makeText(SingleTweet.this,"复制成功",Toast.LENGTH_SHORT).show();
             }
         });
         Button download_button = findViewById(R.id.download_media);
@@ -113,22 +113,22 @@ public class DialogActivity extends AppCompatActivity {
                     String scheme = imgPath.split(":")[0];
                     switch(scheme) {
                         case "file":
-                            Toast.makeText(DialogActivity.this, "文件已存在于\n"+imgPath, Toast.LENGTH_LONG).show();
+                            Toast.makeText(SingleTweet.this, "文件已存在于\n"+imgPath, Toast.LENGTH_LONG).show();
                             break;
                         case "http":
                         case "https":
                             Bitmap bitmap = cachedBmp.get(imgPath);
-                            Toast.makeText(DialogActivity.this, "图片"+(i+1)+"保存"+saveBitmap2file(bitmap, i), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SingleTweet.this, "图片"+(i+1)+"保存"+saveBitmap2file(bitmap, i), Toast.LENGTH_SHORT).show();
                             break;
                         default:
-                            Toast.makeText(DialogActivity.this, "图片URI格式错误", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SingleTweet.this, "图片URI格式错误", Toast.LENGTH_SHORT).show();
                     }
                 }
                 if(!videoPath.equals("")) {
                     String scheme = videoPath.split(":")[0];
                     switch(scheme) {
                         case "file":
-                            Toast.makeText(DialogActivity.this, "文件已存在于\n"+videoPath, Toast.LENGTH_LONG).show();
+                            Toast.makeText(SingleTweet.this, "文件已存在于\n"+videoPath, Toast.LENGTH_LONG).show();
                             break;
                         case "http":
                         case "https":
@@ -136,13 +136,13 @@ public class DialogActivity extends AppCompatActivity {
                             String fileName = tmp[tmp.length-1];
                             File file1 = new File(Environment.getExternalStorageDirectory().getPath()+"/DCIM/TwiBot/"+fileName);
                             if(!file1.exists()) {
-                                Toast.makeText(DialogActivity.this, "正在下载视频", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(SingleTweet.this, "正在下载视频", Toast.LENGTH_SHORT).show();
                                 downloadVideo(videoPath, fileName);
                             }
-                            else Toast.makeText(DialogActivity.this,"文件已存在于\n"+file1.getPath(), Toast.LENGTH_SHORT).show();
+                            else Toast.makeText(SingleTweet.this,"文件已存在于\n"+file1.getPath(), Toast.LENGTH_SHORT).show();
                             break;
                         default:
-                            Toast.makeText(DialogActivity.this, "视频URI格式错误", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SingleTweet.this, "视频URI格式错误", Toast.LENGTH_SHORT).show();
                     }
                 }
                 //Log.d("DialogActivity","下载");
@@ -211,7 +211,7 @@ public class DialogActivity extends AppCompatActivity {
             bmp.compress(Bitmap.CompressFormat.JPEG,100, fos);
             fos.flush();
             fos.close();
-            DialogActivity.this.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + filePath)));
+            SingleTweet.this.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + filePath)));
             this.imgPaths[index] = "file://" + filePath;
             return "成功";
         } catch(Exception e){
@@ -232,7 +232,7 @@ public class DialogActivity extends AppCompatActivity {
             downloadManager.enqueue(request);
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(DialogActivity.this, "视频下载失败", Toast.LENGTH_SHORT).show();
+            Toast.makeText(SingleTweet.this, "视频下载失败", Toast.LENGTH_SHORT).show();
         }
     }
 
