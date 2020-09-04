@@ -68,6 +68,14 @@ public class TweetCard extends CardView{
         loadAttr();
     }
 
+    protected CharSequence getStatusText(){
+        if(tweetStatusTextView.getText() != null){
+            return tweetStatusTextView.getText();
+        } else {
+            return null;
+        }
+    }
+
     protected void initAttr(Context context, AttributeSet attrs){
         TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.TweetCard);
         tweetText = ta.getString(R.styleable.TweetCard_text);

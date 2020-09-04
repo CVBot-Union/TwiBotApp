@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.TweetCardViewHolder> {
 
-    private ArrayList<TwitterStatus> tweets;
+    public ArrayList<TwitterStatus> tweets;
 
     public static final int GET_DATA_SUCCESS = 1;
     public static final int NETWORK_ERROR = 2;

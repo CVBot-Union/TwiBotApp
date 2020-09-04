@@ -1,6 +1,7 @@
 package com.example.testapp.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
@@ -8,6 +9,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ScrollView;
 
 import com.example.testapp.Model.TwitterMedia;
@@ -18,7 +21,10 @@ import com.example.testapp.R;
 import com.example.testapp.RefreshTask;
 import com.example.testapp.TweetCardAdapter;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class TweetList extends AppCompatActivity {
@@ -28,13 +34,14 @@ public class TweetList extends AppCompatActivity {
     private RecyclerView.LayoutManager layoutManager;
     private SwipeRefreshLayout refreshLayout;
     private NetworkStateReceiver networkStateReceiver;
+    private ChipGroup chipGroup;
+    private Chip all;
 
     private MaterialToolbar mdToolbar;
 
     private ScrollView tweetListScrollView;
 
     private ArrayList<TwitterStatus> dataSet = new ArrayList<>();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,16 +69,38 @@ public class TweetList extends AppCompatActivity {
         dataSet.add(status);
         dataSet.add(status);
         dataSet.add(status);
+
+        String groupName = "蔷薇之心";
+
+        ArrayList<String> userList = new ArrayList<>();
+        userList.add("相葉あいな");
+        userList.add("工藤晴香");
+        userList.add("中島由貴");
+        userList.add("櫻川めぐ");
+        userList.add("志崎樺音");
         //end 模拟数据
 
         initView();
+        initRecyclerView();
 
-        layoutManager = new LinearLayoutManager(this);
+        mdToolbar.setTitle(groupName);//待更改
 
-        tweetListView.setLayoutManager(layoutManager);
-        tAdapter = new TweetCardAdapter(dataSet,this);
-        tweetListView.setAdapter(tAdapter);
-        ((SimpleItemAnimator) tweetListView.getItemAnimator()).setSupportsChangeAnimations(false);
+        final TwitterStatus newStatus = status;
+        for(String twitterUser:userList){//待更改
+            Chip chip = (Chip) getLayoutInflater().inflate(R.layout.chip_view,chipGroup,false);
+            chip.setText(twitterUser);
+            chip.setId(ViewCompat.generateViewId());
+            chipGroup.addView(chip);
+        }
+
+        chipGroup.setOnCheckedChangeListener(new ChipGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(ChipGroup group, int checkedId) {
+                dataSet = new ArrayList<>();
+                dataSet.add(newStatus);
+                initRecyclerView();
+            }
+        });
     }
 
     @Override
@@ -80,9 +109,29 @@ public class TweetList extends AppCompatActivity {
         unregisterReceiver(networkStateReceiver);
     }
 
+    private void initRecyclerView(){
+        layoutManager = new LinearLayoutManager(this){
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                try {
+                    super.onLayoutChildren(recycler, state);
+                } catch (IndexOutOfBoundsException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        };
+
+        tweetListView.setLayoutManager(layoutManager);
+        tAdapter = new TweetCardAdapter(dataSet,this);
+        tweetListView.setAdapter(tAdapter);
+        ((SimpleItemAnimator) tweetListView.getItemAnimator()).setSupportsChangeAnimations(false);
+    }
+
     private void initView(){
         tweetListView = (RecyclerView) findViewById(R.id.tweet_list_recycler_view);
         mdToolbar = (MaterialToolbar) findViewById(R.id.top_app_bar);
+        chipGroup = (ChipGroup) findViewById(R.id.group_chip_group);
     }
 
     private void initBackground() {

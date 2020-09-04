@@ -204,7 +204,7 @@
                         style="@style/Widget.AppCompat.Button.Borderless.Colored"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="复制到翻译"
+                        android:text="复制到翻译区"
                         android:textColor="@color/colorPrimary" />
                 </LinearLayout>
 
@@ -251,7 +251,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="8dp"
-                    android:text="完成翻译" />
+                    android:text="翻译并保存" />
 
             </LinearLayout>
         </LinearLayout>

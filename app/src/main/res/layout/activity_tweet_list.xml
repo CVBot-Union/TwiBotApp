@@ -21,26 +21,24 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <LinearLayout
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/group_chip_group"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_height="match_parent"
+                android:paddingHorizontal="8dp"
+                app:checkedChip="@id/all_chip"
+                app:singleLine="true"
+                app:singleSelection="true"
+                app:selectionRequired="true">
 
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/chipGroup"
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/all_chip"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chip4"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="8dp"
-                        android:padding="8dp"
-                        android:text="全部"
-                        app:checkedIconVisible="false" />
-                </com.google.android.material.chip.ChipGroup>
-            </LinearLayout>
+                    android:layout_height="wrap_content"
+                    android:text="全部"
+                    app:checkedIconVisible="false" />
+            </com.google.android.material.chip.ChipGroup>
         </HorizontalScrollView>
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -63,6 +61,7 @@
             </LinearLayout>
 
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

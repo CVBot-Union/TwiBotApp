@@ -8,11 +8,4 @@
         <attr name="time" format="string" />
     </declare-styleable>
 
-    <declare-styleable name="TweetDetailCard">
-        <attr name="name" format="string" />
-        <attr name="text" format="string" />
-        <attr name="type" format="string" />
-        <attr name="time" format="string" />
-    </declare-styleable>
-
 </resources>
