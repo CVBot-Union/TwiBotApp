@@ -73,7 +73,7 @@ public class TweetList extends AppCompatActivity {
         String groupName = "蔷薇之心";
 
         ArrayList<String> userList = new ArrayList<>();
-        userList.add("相葉あいな");
+        userList.add("相羽あいな");
         userList.add("工藤晴香");
         userList.add("中島由貴");
         userList.add("櫻川めぐ");
