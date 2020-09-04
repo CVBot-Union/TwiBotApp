@@ -39,7 +39,7 @@ public class TweetList extends AppCompatActivity {
 
     private MaterialToolbar mdToolbar;
 
-    private ScrollView tweetListScrollView;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private ArrayList<TwitterStatus> dataSet = new ArrayList<>();
     @Override
@@ -101,6 +101,17 @@ public class TweetList extends AppCompatActivity {
                 initRecyclerView();
             }
         });
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                swipeRefreshLayout.setRefreshing(true);
+                dataSet = new ArrayList<>();
+                dataSet.add(newStatus);
+                initRecyclerView();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
     }
 
     @Override
@@ -132,6 +143,7 @@ public class TweetList extends AppCompatActivity {
         tweetListView = (RecyclerView) findViewById(R.id.tweet_list_recycler_view);
         mdToolbar = (MaterialToolbar) findViewById(R.id.top_app_bar);
         chipGroup = (ChipGroup) findViewById(R.id.group_chip_group);
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
     }
 
     private void initBackground() {
