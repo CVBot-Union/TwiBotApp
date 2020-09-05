@@ -1,4 +1,4 @@
-package com.example.testapp;
+package com.example.testapp.Adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -15,6 +15,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.testapp.Model.TwitterMedia;
 import com.example.testapp.Model.TwitterStatus;
+import com.example.testapp.R;
+import com.example.testapp.TweetCard;
 
 import java.io.IOException;
 import java.io.InputStream;

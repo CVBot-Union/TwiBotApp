@@ -17,6 +17,8 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.material.imageview.ShapeableImageView;
+
 public class TweetCard extends CardView{
     public static int IMAGE = 0;
     public static int VIDEO = 1;
@@ -26,7 +28,7 @@ public class TweetCard extends CardView{
     private String tweetTypeText;
     private String tweetTimeText;
 
-    private ImageView avatarImg; //头像
+    private ShapeableImageView avatarImg; //头像
     private TextView nameTextView; //姓名
     private TextView tweetTypeTextView; //推文类型
     private TextView tweetTimeTextView; //发推时间
@@ -92,7 +94,7 @@ public class TweetCard extends CardView{
         } else {
             thisView = LayoutInflater.from(context).inflate(R.layout.tweet_card,this,true);
         }
-        avatarImg = (ImageView) thisView.findViewById(R.id.avatar_img);
+        avatarImg = (ShapeableImageView) thisView.findViewById(R.id.avatar_img);
         nameTextView = (TextView) thisView.findViewById(R.id.name_text);
         tweetTypeTextView = (TextView) thisView.findViewById(R.id.tweet_type_text);
         tweetTimeTextView = (TextView) thisView.findViewById(R.id.tweet_time);

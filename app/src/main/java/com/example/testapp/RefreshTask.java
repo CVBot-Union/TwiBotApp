@@ -6,6 +6,8 @@ import android.widget.Toast;
 
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.example.testapp.Adapters.TweetCardAdapter;
+
 import java.lang.ref.WeakReference;
 
 public class RefreshTask extends AsyncTask<String,Void,Boolean> {

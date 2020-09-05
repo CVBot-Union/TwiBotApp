@@ -23,7 +23,7 @@ import com.example.testapp.Model.TwitterUser;
 import com.example.testapp.NetworkStateReceiver;
 import com.example.testapp.R;
 import com.example.testapp.RefreshTask;
-import com.example.testapp.TweetCardAdapter;
+import com.example.testapp.Adapters.TweetCardAdapter;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -109,6 +109,7 @@ public class TweetList extends AppCompatActivity {
             }
         });
 
+        //待更改
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
