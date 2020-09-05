@@ -8,11 +8,15 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.IntentFilter;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
 
+import com.example.testapp.DBModel.DBTwitterMedia;
+import com.example.testapp.DBModel.DBTwitterStatus;
+import com.example.testapp.DBModel.DBTwitterUser;
 import com.example.testapp.Model.TwitterMedia;
 import com.example.testapp.Model.TwitterStatus;
 import com.example.testapp.Model.TwitterUser;
@@ -23,6 +27,9 @@ import com.example.testapp.TweetCardAdapter;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+
+import org.litepal.LitePal;
+import org.litepal.LitePalDB;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -153,6 +160,13 @@ public class TweetList extends AppCompatActivity {
         //intentFilter.addAction("android.net.conn.CONNECTIVITY_STATE");
         networkStateReceiver = new NetworkStateReceiver();
         registerReceiver(networkStateReceiver, intentFilter);
+        //数据库初始化，暂时不要取消注释，避免在手机里倒垃圾
+        //LitePalDB litePalDB = new LitePalDB("twitterData", 1);
+        //litePalDB.addClassName(DBTwitterStatus.class.getName());
+        //litePalDB.addClassName(DBTwitterUser.class.getName());
+        //litePalDB.addClassName(DBTwitterMedia.class.getName());
+        //LitePal.use(litePalDB);
+        //SQLiteDatabase db = LitePal.getDatabase();
     }
 
     private void netRefresh() {

@@ -106,7 +106,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
         card.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("clicked");
+                System.out.println("clicked on "+position);
             }
         });
 
@@ -158,7 +158,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
                             });
                             holder.tweetCard.setTweetImage(tweets.get(position).media.size(), i, media.cached_image_preview);
                         } else {
-                            downloadImage(TwitterMedia.IMAGE,media.reviewImageURL, position, i);
+                            downloadImage(TwitterMedia.IMAGE,media.previewImageURL, position, i);
                         }
                         break;
                     case TwitterMedia.VIDEO:
@@ -173,7 +173,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
                             holder.tweetCard.setVideoBackground(media.cached_image_preview);
                             break;
                         } else {
-                            downloadImage(TwitterMedia.VIDEO,media.reviewImageURL,position,1);
+                            downloadImage(TwitterMedia.VIDEO,media.previewImageURL,position,1);
                         }
                         break;
                 }

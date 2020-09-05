@@ -15,7 +15,7 @@ public class TwitterMedia implements Parcelable{
 
     public String id;
     public String url;
-    public String reviewImageURL;
+    public String previewImageURL;
     public int type;
     @Nullable public Bitmap cached_image_preview;
     @Nullable public Bitmap cached_image;
@@ -24,17 +24,17 @@ public class TwitterMedia implements Parcelable{
 
     }
 
-    public TwitterMedia(String id,String url,int type,String reviewImageURL){
+    public TwitterMedia(String id,String url,int type,String previewImageURL){
         this.id=id;
         this.url=url;
         this.type=type;
-        this.reviewImageURL=reviewImageURL;
+        this.previewImageURL=previewImageURL;
     }
 
     protected TwitterMedia(Parcel in) {
         id = in.readString();
         url = in.readString();
-        reviewImageURL = in.readString();
+        previewImageURL = in.readString();
         type = in.readInt();
         cached_image_preview = in.readParcelable(Bitmap.class.getClassLoader());
         cached_image = in.readParcelable(Bitmap.class.getClassLoader());
@@ -44,7 +44,7 @@ public class TwitterMedia implements Parcelable{
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(id);
         dest.writeString(url);
-        dest.writeString(reviewImageURL);
+        dest.writeString(previewImageURL);
         dest.writeInt(type);
         dest.writeParcelable(cached_image_preview, flags);
         dest.writeParcelable(cached_image, flags);

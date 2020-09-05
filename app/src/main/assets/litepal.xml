@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <litepal>
-    <dbname value="TwiData" />
-    <version value="1" />
+    <dbname value="twitterData" />
+    <version value="2" />
     <list>
-        <mapping class="com.example.testapp.Activities.TweetList.TwiData" />
+        <mapping class="com.example.testapp.DBModel.DBTwitterStatus" />
+        <mapping class="com.example.testapp.DBModel.DBTwitterMedia" />
+        <mapping class="com.example.testapp.DBModel.DBTwitterUser" />
     </list>
 </litepal>
