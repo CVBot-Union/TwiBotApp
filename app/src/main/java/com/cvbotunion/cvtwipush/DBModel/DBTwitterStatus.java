@@ -1,7 +1,7 @@
-package com.example.testapp.DBModel;
+package com.cvbotunion.cvtwipush.DBModel;
 
-import com.example.testapp.Model.TwitterMedia;
-import com.example.testapp.Model.TwitterStatus;
+import com.cvbotunion.cvtwipush.Model.TwitterMedia;
+import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 
 import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
@@ -11,6 +11,7 @@ import java.util.ArrayList;
 /**
  * Model class of the database, which corresponds to class TwitterStatus.
  */
+
 public class DBTwitterStatus extends LitePalSupport {
     private String tid;  //即为TwitterStatus的id，避免与数据库自动创建的primary key "id"重名
 

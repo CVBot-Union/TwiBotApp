@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.testapp">
+    package="com.cvbotunion.cvtwipush">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -19,9 +19,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".Activities.ImageViewer"></activity>
+        <activity android:name="com.cvbotunion.cvtwipush.Activities.ImageViewer"></activity>
 
-        <receiver android:name=".NetworkStateReceiver">
+        <receiver android:name="com.cvbotunion.cvtwipush.Utils.NetworkStateReceiver">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_STATE" />
 
@@ -30,7 +30,7 @@
         </receiver>
 
         <activity
-            android:name=".Activities.TweetList"
+            android:name="com.cvbotunion.cvtwipush.Activities.TweetList"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

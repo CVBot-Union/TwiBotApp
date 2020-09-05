@@ -1,4 +1,4 @@
-package com.example.testapp.Activities;
+package com.cvbotunion.cvtwipush.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,7 +31,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.testapp.R;
+import com.cvbotunion.cvtwipush.R;
 
 import java.io.File;
 import java.io.FileOutputStream;

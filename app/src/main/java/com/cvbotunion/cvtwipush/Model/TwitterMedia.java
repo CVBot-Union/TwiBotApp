@@ -1,12 +1,10 @@
-package com.example.testapp.Model;
+package com.cvbotunion.cvtwipush.Model;
 
 import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.Nullable;
-
-import java.util.ArrayList;
 
 public class TwitterMedia implements Parcelable{
     public final static int AVATAR=0;

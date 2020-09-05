@@ -1,4 +1,4 @@
-package com.example.testapp;
+package com.cvbotunion.cvtwipush.Utils;
 
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;

@@ -1,4 +1,4 @@
-package com.example.testapp;
+package com.cvbotunion.cvtwipush.CustomViews;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
+import com.cvbotunion.cvtwipush.R;
 import com.google.android.material.imageview.ShapeableImageView;
 
 public class TweetCard extends CardView{
