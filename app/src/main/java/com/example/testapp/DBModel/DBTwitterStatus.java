@@ -28,11 +28,11 @@ public class DBTwitterStatus extends LitePalSupport {
     private String quoted_status_id;
     private String location;
     private ArrayList<String> hashtags;
-    private ArrayList<DBTwitterUser> user_mentions;
-    private ArrayList<DBTwitterMedia> media;
+    private ArrayList<DBTwitterUser> user_mentions=new ArrayList<>();
+    private ArrayList<DBTwitterMedia> media=new ArrayList<>();
 
     public TwitterStatus toTwitterStatus() {
-        if(media == null)
+        if(media.isEmpty())
             return new TwitterStatus(created_at, tid, text, user.toTwitterUser());
         else {
             int i=0;

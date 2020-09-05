@@ -161,7 +161,7 @@ public class TweetList extends AppCompatActivity {
         networkStateReceiver = new NetworkStateReceiver();
         registerReceiver(networkStateReceiver, intentFilter);
         //数据库初始化，暂时不要取消注释，避免在手机里倒垃圾
-        //LitePalDB litePalDB = new LitePalDB("twitterData", 1);
+        //LitePalDB litePalDB = new LitePalDB("twitterData", 2);
         //litePalDB.addClassName(DBTwitterStatus.class.getName());
         //litePalDB.addClassName(DBTwitterUser.class.getName());
         //litePalDB.addClassName(DBTwitterMedia.class.getName());
