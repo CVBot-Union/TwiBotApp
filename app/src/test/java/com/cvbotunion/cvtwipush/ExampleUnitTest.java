@@ -1,4 +1,4 @@
-package com.example.testapp;
+package com.cvbotunion.cvtwipush;
 
 import org.junit.Test;
 

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">TestApp</string>
+    <string name="app_name">CV-TwiPush</string>
     <string name="dialog_string">推文内容</string>
     <string name="copy_button">复制推文</string>
     <string name="download_media">下载媒体</string>

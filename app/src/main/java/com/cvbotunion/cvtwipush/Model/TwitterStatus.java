@@ -1,4 +1,4 @@
-package com.example.testapp.Model;
+package com.cvbotunion.cvtwipush.Model;
 
 import android.os.Parcel;
 import android.os.Parcelable;

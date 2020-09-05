@@ -1,6 +1,6 @@
-package com.example.testapp.DBModel;
+package com.cvbotunion.cvtwipush.DBModel;
 
-import com.example.testapp.Model.TwitterUser;
+import com.cvbotunion.cvtwipush.Model.TwitterUser;
 
 import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;

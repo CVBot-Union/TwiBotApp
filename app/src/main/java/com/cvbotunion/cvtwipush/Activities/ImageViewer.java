@@ -1,17 +1,16 @@
-package com.example.testapp.Activities;
+package com.cvbotunion.cvtwipush.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
-import com.example.testapp.R;
+import com.cvbotunion.cvtwipush.R;
 
-public class TweetDetail extends AppCompatActivity {
+public class ImageViewer extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tweet_detail);
-
+        setContentView(R.layout.activity_image_viewer);
     }
 }

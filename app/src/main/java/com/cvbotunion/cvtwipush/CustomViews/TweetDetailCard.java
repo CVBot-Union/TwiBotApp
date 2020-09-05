@@ -1,4 +1,4 @@
-package com.example.testapp;
+package com.cvbotunion.cvtwipush.CustomViews;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -9,6 +9,7 @@ import android.widget.Button;
 
 import androidx.annotation.NonNull;
 
+import com.cvbotunion.cvtwipush.R;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 

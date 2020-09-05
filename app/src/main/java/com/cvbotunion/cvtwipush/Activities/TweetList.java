@@ -1,4 +1,4 @@
-package com.example.testapp.Activities;
+package com.cvbotunion.cvtwipush.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
@@ -8,30 +8,19 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.IntentFilter;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ScrollView;
 
-import com.example.testapp.DBModel.DBTwitterMedia;
-import com.example.testapp.DBModel.DBTwitterStatus;
-import com.example.testapp.DBModel.DBTwitterUser;
-import com.example.testapp.Model.TwitterMedia;
-import com.example.testapp.Model.TwitterStatus;
-import com.example.testapp.Model.TwitterUser;
-import com.example.testapp.NetworkStateReceiver;
-import com.example.testapp.R;
-import com.example.testapp.RefreshTask;
-import com.example.testapp.TweetCardAdapter;
+import com.cvbotunion.cvtwipush.Model.TwitterMedia;
+import com.cvbotunion.cvtwipush.Model.TwitterStatus;
+import com.cvbotunion.cvtwipush.Model.TwitterUser;
+import com.cvbotunion.cvtwipush.Utils.NetworkStateReceiver;
+import com.cvbotunion.cvtwipush.R;
+import com.cvbotunion.cvtwipush.Utils.RefreshTask;
+import com.cvbotunion.cvtwipush.Adapters.TweetCardAdapter;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
-import org.litepal.LitePal;
-import org.litepal.LitePalDB;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class TweetList extends AppCompatActivity {
@@ -109,6 +98,7 @@ public class TweetList extends AppCompatActivity {
             }
         });
 
+        //待更改
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {

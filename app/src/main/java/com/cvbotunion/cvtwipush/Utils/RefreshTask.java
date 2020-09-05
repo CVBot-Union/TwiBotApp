@@ -1,10 +1,12 @@
-package com.example.testapp;
+package com.cvbotunion.cvtwipush.Utils;
 
 import android.content.Context;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.cvbotunion.cvtwipush.Adapters.TweetCardAdapter;
 
 import java.lang.ref.WeakReference;
 

@@ -1,4 +1,4 @@
-package com.example.testapp.Model;
+package com.cvbotunion.cvtwipush.Model;
 
 import android.graphics.Bitmap;
 import android.os.Parcel;

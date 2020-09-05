@@ -1,4 +1,4 @@
-package com.example.testapp;
+package com.cvbotunion.cvtwipush.Adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -13,8 +13,10 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.testapp.Model.TwitterMedia;
-import com.example.testapp.Model.TwitterStatus;
+import com.cvbotunion.cvtwipush.Model.TwitterMedia;
+import com.cvbotunion.cvtwipush.Model.TwitterStatus;
+import com.cvbotunion.cvtwipush.R;
+import com.cvbotunion.cvtwipush.CustomViews.TweetCard;
 
 import java.io.IOException;
 import java.io.InputStream;
