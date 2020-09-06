@@ -59,7 +59,7 @@
                             android:layout_weight="1"
                             android:fontFamily="sans-serif-medium"
                             android:text="姓名"
-                            android:textSize="20dp"/>
+                            android:textSize="20sp"/>
 
                         <TextView
                             android:id="@+id/tweet_type_text"
@@ -68,7 +68,7 @@
                             android:layout_weight="1"
                             android:fontFamily="sans-serif"
                             android:text="类型"
-                            android:textSize="14dp"
+                            android:textSize="14sp"
                             android:visibility="gone"/>
                     </LinearLayout>
 
@@ -78,7 +78,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
                         android:text="00:00"
-                        android:textSize="14dp"/>
+                        android:textSize="14sp"/>
 
                 </LinearLayout>
             </LinearLayout>

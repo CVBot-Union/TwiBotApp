@@ -1,18 +1,23 @@
 package com.cvbotunion.cvtwipush.Adapters;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.cvbotunion.cvtwipush.Activities.TweetDetail;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.R;
@@ -55,9 +60,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
     @Override
     public TweetCardAdapter.TweetCardViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.tweet_card,parent,false);
-        CardView tweetCard = (CardView) view.findViewById(R.id.tweet_card);
-        TweetCardViewHolder tweetCardViewHolder = new TweetCardViewHolder(view);
-        return tweetCardViewHolder;
+        return new TweetCardViewHolder(view);
     }
 
     public void downloadImage(final int type,final String path, final int position,@Nullable final Integer picturePosition) {
@@ -103,19 +106,36 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
     }
 
     @Override
-    public void onBindViewHolder(@NonNull TweetCardAdapter.TweetCardViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final TweetCardAdapter.TweetCardViewHolder holder, final int position) {
         CardView card = holder.itemView.findViewById(R.id.tweet_card);
         card.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("clicked on "+position);
+                Toast.makeText(v.getContext(),"clicked on "+position, Toast.LENGTH_SHORT).show();
+                //参数传递
+                Intent intent = new Intent(v.getContext(), TweetDetail.class);
+                v.getContext().startActivity(intent);
             }
         });
 
         holder.tweetCard.setBtn1OnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("clicked");
+                TwitterStatus tweet = tweets.get(position);
+                ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData mClipData = ClipData.newPlainText("tweet", tweet.getFullText());
+                clipboardManager.setPrimaryClip(mClipData);
+                //保存媒体
+                String result = "成功";
+                if(!tweet.media.isEmpty()){
+                    for(TwitterMedia singleMedia:tweet.media) {
+                        if(!singleMedia.saveToFile(v.getContext())) {
+                            result = "失败";
+                            break;
+                        }
+                    }
+                }
+                Toast.makeText(v.getContext(), "保存"+result, Toast.LENGTH_SHORT).show();
             }
         });
 

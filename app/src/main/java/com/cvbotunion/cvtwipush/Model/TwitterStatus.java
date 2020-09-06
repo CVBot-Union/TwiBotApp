@@ -22,27 +22,44 @@ public class TwitterStatus implements Parcelable {
     @Nullable public String in_reply_to_screen_name;
     @Nullable public String quoted_status_id;
     @Nullable public String location;
-    @Nullable public ArrayList<String> hashtags;
-    @Nullable public ArrayList<TwitterUser> user_mentions;
-    @Nullable public ArrayList<TwitterMedia> media;
+    @Nullable public ArrayList<String> hashtags=new ArrayList<>();
+    @Nullable public ArrayList<TwitterUser> user_mentions=new ArrayList<>();
+    @Nullable public ArrayList<TwitterMedia> media=new ArrayList<>();
 
     public TwitterStatus(){
 
     }
 
-    public TwitterStatus(String created_at, String id, String text, TwitterUser user){
+    public TwitterStatus(String created_at, String id, @Nullable String text, TwitterUser user){
         this.created_at = created_at;
         this.id = id;
         this.user = user;
         this.text = text;
     }
 
-    public TwitterStatus(String created_at, String id, String text, TwitterUser user, ArrayList<TwitterMedia> media){
+    public TwitterStatus(String created_at, String id, @Nullable String text, TwitterUser user, @Nullable String in_reply_to_status_id){
+        this.created_at = created_at;
+        this.id = id;
+        this.user = user;
+        this.text = text;
+        this.in_reply_to_status_id = in_reply_to_status_id;
+    }
+
+    public TwitterStatus(String created_at, String id, @Nullable String text, TwitterUser user, ArrayList<TwitterMedia> media){
         this.created_at = created_at;
         this.id = id;
         this.user = user;
         this.media = media;
         this.text = text;
+    }
+
+    public TwitterStatus(String created_at, String id, @Nullable String text, TwitterUser user, ArrayList<TwitterMedia> media, @Nullable String in_reply_to_status_id){
+        this.created_at = created_at;
+        this.id = id;
+        this.user = user;
+        this.media = media;
+        this.text = text;
+        this.in_reply_to_status_id = in_reply_to_status_id;
     }
 
     protected TwitterStatus(Parcel in) {
@@ -117,6 +134,22 @@ public class TwitterStatus implements Parcelable {
         } else {
             return NORMAL;
         }
+    }
+
+    //有待修改
+    public String getFullText() {
+        switch (getTweetType()){
+            case REPLY:
+                break;
+            case QUOTE:
+                break;
+            default:
+                break;
+        }
+        if(text == null)
+            return user.name+"\n"+created_at;
+        else
+            return user.name+"\n"+created_at+"\n"+text;
     }
 
     @Nullable

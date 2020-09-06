@@ -34,15 +34,15 @@ public class DBTwitterStatus extends LitePalSupport {
 
     public TwitterStatus toTwitterStatus() {
         if(media.isEmpty())
-            return new TwitterStatus(created_at, tid, text, user.toTwitterUser());
+            return new TwitterStatus(created_at, tid, text, user.toTwitterUser(), in_reply_to_status_id);
         else {
-            int i=0;
+            int i = 0;
             ArrayList<TwitterMedia> media1 = new ArrayList<>();
-            for(DBTwitterMedia m:media) {
+            for (DBTwitterMedia m : media) {
                 media1.set(i, m.toTwitterMedia());
                 i++;
             }
-            return new TwitterStatus(created_at, tid, text, user.toTwitterUser(), media1);
+            return new TwitterStatus(created_at, tid, text, user.toTwitterUser(), media1, in_reply_to_status_id);
         }
     }
 }

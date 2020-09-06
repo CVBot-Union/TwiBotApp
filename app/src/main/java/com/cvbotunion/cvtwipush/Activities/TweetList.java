@@ -1,13 +1,17 @@
 package com.cvbotunion.cvtwipush.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.Manifest;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
@@ -28,33 +32,27 @@ public class TweetList extends AppCompatActivity {
     private RecyclerView tweetListView;
     private TweetCardAdapter tAdapter;
     private RecyclerView.LayoutManager layoutManager;
-    private SwipeRefreshLayout refreshLayout;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private NetworkStateReceiver networkStateReceiver;
     private ChipGroup chipGroup;
     private Chip all;
 
     private MaterialToolbar mdToolbar;
 
-    private SwipeRefreshLayout swipeRefreshLayout;
-
     private ArrayList<TwitterStatus> dataSet = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tweet_list);
+        //动态权限申请
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        }
         initBackground();
 
-        refreshLayout = findViewById(R.id.swipe_refresh_layout);
-        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                netRefresh();
-            }
-        });
-
         //start 模拟数据
-        TwitterUser user = new TwitterUser("1","sb","sbsb","SB","https://pbs.twimg.com/profile_images/1206156308602163200/MO4FkO4N_400x400.jpg");
-        TwitterMedia media = new TwitterMedia("1","https://pbs.twimg.com/profile_images/1206156308602163200/MO4FkO4N_400x400.jpg",TwitterMedia.IMAGE,"https://pbs.twimg.com/profile_images/1206156308602163200/MO4FkO4N_400x400.jpg");
+        TwitterUser user = new TwitterUser("1","sb","sbsb","SB","http://101.200.184.98:8080/media/MO4FkO4N_400x400.jpg");
+        TwitterMedia media = new TwitterMedia("1","http://101.200.184.98:8080/media/MO4FkO4N_400x400.jpg",TwitterMedia.IMAGE,"http://101.200.184.98:8080/media/MO4FkO4N_400x400.jpg");
         ArrayList<TwitterMedia> newList = new ArrayList<>();
         newList.add(media);
         newList.add(media);
@@ -98,15 +96,12 @@ public class TweetList extends AppCompatActivity {
             }
         });
 
-        //待更改
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                swipeRefreshLayout.setRefreshing(true);
-                dataSet = new ArrayList<>();
-                dataSet.add(newStatus);
+                netRefresh(chipGroup.getCheckedChipId());
                 initRecyclerView();
-                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
@@ -151,16 +146,12 @@ public class TweetList extends AppCompatActivity {
         networkStateReceiver = new NetworkStateReceiver();
         registerReceiver(networkStateReceiver, intentFilter);
         //数据库初始化，暂时不要取消注释，避免在手机里倒垃圾
-        //LitePalDB litePalDB = new LitePalDB("twitterData", 2);
-        //litePalDB.addClassName(DBTwitterStatus.class.getName());
-        //litePalDB.addClassName(DBTwitterUser.class.getName());
-        //litePalDB.addClassName(DBTwitterMedia.class.getName());
-        //LitePal.use(litePalDB);
         //SQLiteDatabase db = LitePal.getDatabase();
     }
 
-    private void netRefresh() {
-        RefreshTask task = new RefreshTask(this, refreshLayout, tAdapter);
+    private void netRefresh(int checkedId) {
+        RefreshTask task = new RefreshTask(this, swipeRefreshLayout, dataSet);
+        task.setCheckedId(checkedId);
         task.execute();
     }
 }

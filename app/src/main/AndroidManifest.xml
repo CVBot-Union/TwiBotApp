@@ -19,9 +19,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name="com.cvbotunion.cvtwipush.Activities.ImageViewer"></activity>
+        <activity android:name=".Activities.ImageViewer" />
 
-        <receiver android:name="com.cvbotunion.cvtwipush.Utils.NetworkStateReceiver">
+        <receiver android:name=".Utils.NetworkStateReceiver">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_STATE" />
 
@@ -30,7 +30,7 @@
         </receiver>
 
         <activity
-            android:name="com.cvbotunion.cvtwipush.Activities.TweetList"
+            android:name=".Activities.TweetList"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,6 +38,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".Activities.TweetDetail"
+            android:launchMode="singleTask" />
     </application>
 
 </manifest>
