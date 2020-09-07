@@ -10,7 +10,6 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,6 +21,7 @@ import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.R;
 import com.cvbotunion.cvtwipush.CustomViews.TweetCard;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -111,7 +111,6 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
         card.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(v.getContext(),"clicked on "+position, Toast.LENGTH_SHORT).show();
                 //参数传递
                 Intent intent = new Intent(v.getContext(), TweetDetail.class);
                 v.getContext().startActivity(intent);
@@ -135,7 +134,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
                         }
                     }
                 }
-                Toast.makeText(v.getContext(), "保存"+result, Toast.LENGTH_SHORT).show();
+                Snackbar.make(v, "保存"+result, Snackbar.LENGTH_SHORT).show();
             }
         });
 

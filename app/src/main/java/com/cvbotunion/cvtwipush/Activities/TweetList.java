@@ -1,6 +1,7 @@
 package com.cvbotunion.cvtwipush.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
@@ -29,6 +30,7 @@ import java.util.ArrayList;
 
 public class TweetList extends AppCompatActivity {
 
+    private CoordinatorLayout coordinatorLayout;
     private RecyclerView tweetListView;
     private TweetCardAdapter tAdapter;
     private RecyclerView.LayoutManager layoutManager;
@@ -132,6 +134,7 @@ public class TweetList extends AppCompatActivity {
     }
 
     private void initView(){
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.tweet_list_parent_view);
         tweetListView = (RecyclerView) findViewById(R.id.tweet_list_recycler_view);
         mdToolbar = (MaterialToolbar) findViewById(R.id.top_app_bar);
         chipGroup = (ChipGroup) findViewById(R.id.group_chip_group);
@@ -150,7 +153,7 @@ public class TweetList extends AppCompatActivity {
     }
 
     private void netRefresh(int checkedId) {
-        RefreshTask task = new RefreshTask(this, swipeRefreshLayout, dataSet);
+        RefreshTask task = new RefreshTask(coordinatorLayout, swipeRefreshLayout, dataSet);
         task.setCheckedId(checkedId);
         task.execute();
     }

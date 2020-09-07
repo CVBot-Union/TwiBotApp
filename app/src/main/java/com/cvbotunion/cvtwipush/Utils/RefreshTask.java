@@ -2,28 +2,28 @@ package com.cvbotunion.cvtwipush.Utils;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.widget.Toast;
 
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.cvbotunion.cvtwipush.Adapters.TweetCardAdapter;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.Model.TwitterUser;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 public class RefreshTask extends AsyncTask<String,Void,Boolean> {
-    private WeakReference<Context> contextRef;
+    private WeakReference<CoordinatorLayout> parentViewRef;
     private WeakReference<SwipeRefreshLayout> refreshLayoutRef;
     private ArrayList<TwitterStatus> dataSet;
     //用于在特定chip下刷新
     private int checkedId;
 
-    public RefreshTask(Context context, SwipeRefreshLayout refreshLayout, ArrayList<TwitterStatus> dataSet) {
+    public RefreshTask(CoordinatorLayout coordinatorLayout, SwipeRefreshLayout refreshLayout, ArrayList<TwitterStatus> dataSet) {
         super();
-        this.contextRef=new WeakReference<>(context);
+        this.parentViewRef=new WeakReference<>(coordinatorLayout);
         this.refreshLayoutRef=new WeakReference<>(refreshLayout);
         this.dataSet=dataSet;
     }
@@ -58,6 +58,6 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
     protected void onPostExecute(Boolean result) {
         refreshLayoutRef.get().setRefreshing(false);
         if(!result)
-            Toast.makeText(contextRef.get(), "刷新失败", Toast.LENGTH_SHORT).show();
+            Snackbar.make(parentViewRef.get(), "刷新失败", Snackbar.LENGTH_SHORT).show();
     }
 }
