@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activities.TweetDetail">
+    tools:context=".Activities.TweetDetail"
+    android:transitionName="activityOption">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -19,6 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?android:attr/colorBackground"
+            android:elevation="1dp"
             android:theme="@style/Theme.MaterialComponents.Light.NoActionBar.Bridge"
             app:navigationIcon="?attr/homeAsUpIndicator"
             app:titleTextColor="#505050" />

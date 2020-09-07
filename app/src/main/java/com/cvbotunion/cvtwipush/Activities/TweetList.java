@@ -1,6 +1,8 @@
 package com.cvbotunion.cvtwipush.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -10,11 +12,27 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.content.Context;
 import android.Manifest;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.ListPopupWindow;
+import android.widget.PopupMenu;
+import android.widget.PopupWindow;
+import android.widget.TextView;
 
+import com.cvbotunion.cvtwipush.CustomViews.GroupPopupWindow;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.Model.TwitterUser;
@@ -25,6 +43,8 @@ import com.cvbotunion.cvtwipush.Adapters.TweetCardAdapter;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -40,12 +60,14 @@ public class TweetList extends AppCompatActivity {
     private Chip all;
 
     private MaterialToolbar mdToolbar;
+    private TextView title;
 
     private ArrayList<TwitterStatus> dataSet = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tweet_list);
+
         //动态权限申请
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
@@ -79,7 +101,21 @@ public class TweetList extends AppCompatActivity {
         initView();
         initRecyclerView();
 
-        mdToolbar.setTitle(groupName);//待更改
+
+        title.setText(groupName);//待更改
+        mdToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                int menuID = item.getItemId();
+                if (menuID == R.id.group_menu_item){
+                    View view = getLayoutInflater().inflate(R.layout.group_switch_menu,null);
+                    GroupPopupWindow popupWindow = new GroupPopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,true);
+                    popupWindow.showAsDropDown(findViewById(R.id.group_menu_item),0, 0, Gravity.END);
+                    dimBehind(popupWindow);
+                }
+                return true;
+            }
+        });
 
         final TwitterStatus newStatus = status;
         for(String twitterUser:userList){//待更改
@@ -104,6 +140,7 @@ public class TweetList extends AppCompatActivity {
             public void onRefresh() {
                 netRefresh(chipGroup.getCheckedChipId());
                 initRecyclerView();
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
@@ -137,6 +174,7 @@ public class TweetList extends AppCompatActivity {
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.tweet_list_parent_view);
         tweetListView = (RecyclerView) findViewById(R.id.tweet_list_recycler_view);
         mdToolbar = (MaterialToolbar) findViewById(R.id.top_app_bar);
+        title = (TextView) findViewById(R.id.title);
         chipGroup = (ChipGroup) findViewById(R.id.group_chip_group);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
     }
@@ -149,6 +187,11 @@ public class TweetList extends AppCompatActivity {
         networkStateReceiver = new NetworkStateReceiver();
         registerReceiver(networkStateReceiver, intentFilter);
         //数据库初始化，暂时不要取消注释，避免在手机里倒垃圾
+        //LitePalDB litePalDB = new LitePalDB("twitterData", 1);
+        //litePalDB.addClassName(DBTwitterStatus.class.getName());
+        //litePalDB.addClassName(DBTwitterUser.class.getName());
+        //litePalDB.addClassName(DBTwitterMedia.class.getName());
+        //LitePal.use(litePalDB);
         //SQLiteDatabase db = LitePal.getDatabase();
     }
 
@@ -156,5 +199,37 @@ public class TweetList extends AppCompatActivity {
         RefreshTask task = new RefreshTask(coordinatorLayout, swipeRefreshLayout, dataSet);
         task.setCheckedId(checkedId);
         task.execute();
+    }
+
+    public static void dimBehind(PopupWindow popupWindow) {
+        View container;
+        if (popupWindow.getBackground() == null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                container = (View) popupWindow.getContentView().getParent();
+            } else {
+                container = popupWindow.getContentView();
+            }
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                container = (View) popupWindow.getContentView().getParent().getParent();
+            } else {
+                container = (View) popupWindow.getContentView().getParent();
+            }
+        }
+        Context context = popupWindow.getContentView().getContext();
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        WindowManager.LayoutParams p = (WindowManager.LayoutParams) container.getLayoutParams();
+        p.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+        p.dimAmount = 0.3f;
+        wm.updateViewLayout(container, p);
+    }
+
+    public int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
     }
 }

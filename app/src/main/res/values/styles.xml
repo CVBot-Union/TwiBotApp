@@ -8,11 +8,13 @@
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:statusBarColor">?android:attr/colorBackground</item>
         <item name="colorControlNormal">@android:color/white</item>
+        <item name="android:windowContentTransitions">true</item>
     </style>
 
     <style name="roundedImageViewRounded">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
     </style>
+
 
 </resources>

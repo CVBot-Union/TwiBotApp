@@ -2,6 +2,7 @@ package com.cvbotunion.cvtwipush.Model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -34,32 +35,50 @@ public class TwitterStatus implements Parcelable {
         this.created_at = created_at;
         this.id = id;
         this.user = user;
-        this.text = text;
+        if(text != null) {
+            this.text = text;
+        }
     }
 
-    public TwitterStatus(String created_at, String id, @Nullable String text, TwitterUser user, @Nullable String in_reply_to_status_id){
-        this.created_at = created_at;
-        this.id = id;
-        this.user = user;
-        this.text = text;
-        this.in_reply_to_status_id = in_reply_to_status_id;
+    public TwitterStatus(String created_at, String id, @Nullable String text, TwitterUser user,int type, @Nullable String parent_status_id){
+        this(created_at,id,text,user);
+        switch(type) {
+            case REPLY:
+                this.in_reply_to_status_id = parent_status_id;
+                break;
+            case QUOTE:
+                this.quoted_status_id = parent_status_id;
+                break;
+            default:
+                Log.i("info", "未指定父推文类型");
+                break;
+        }
     }
 
     public TwitterStatus(String created_at, String id, @Nullable String text, TwitterUser user, ArrayList<TwitterMedia> media){
-        this.created_at = created_at;
-        this.id = id;
-        this.user = user;
+        this(created_at,id,text,user);
         this.media = media;
-        this.text = text;
+        if(text != null) {
+            this.text = text;
+        }
     }
 
-    public TwitterStatus(String created_at, String id, @Nullable String text, TwitterUser user, ArrayList<TwitterMedia> media, @Nullable String in_reply_to_status_id){
-        this.created_at = created_at;
-        this.id = id;
-        this.user = user;
-        this.media = media;
-        this.text = text;
-        this.in_reply_to_status_id = in_reply_to_status_id;
+    public TwitterStatus(String created_at, String id, @Nullable String text, TwitterUser user, ArrayList<TwitterMedia> media, int type,String parent_status_id){
+        this(created_at,id,text,user,media);
+        if(text != null) {
+            this.text = text;
+        }
+        switch(type){
+            case REPLY:
+                this.in_reply_to_status_id = parent_status_id;
+                break;
+            case QUOTE:
+                this.quoted_status_id = parent_status_id;
+                break;
+            default:
+                Log.i("info","未指定父推文类型");
+                break;
+        }
     }
 
     protected TwitterStatus(Parcel in) {
@@ -185,6 +204,15 @@ public class TwitterStatus implements Parcelable {
     @Nullable
     public ArrayList<TwitterMedia> getMedia(){
         return media;
+    }
+
+    public void clearMediaCache(){
+        if(media != null){
+            for(TwitterMedia singleMedia:media){
+                singleMedia.cached_image_preview=null;
+                singleMedia.cached_image=null;
+            }
+        }
     }
 }
 

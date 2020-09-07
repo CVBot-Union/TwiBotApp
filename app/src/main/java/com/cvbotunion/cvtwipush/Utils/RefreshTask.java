@@ -44,7 +44,7 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
             TwitterMedia media = new TwitterMedia("2","http://101.200.184.98:8080/media/aqua.jpg",TwitterMedia.IMAGE,"http://101.200.184.98:8080/media/aqua.jpg");
             ArrayList<TwitterMedia> newList = new ArrayList<>();
             newList.add(media);
-            TwitterStatus twitter=new TwitterStatus("12:34", "2", "新增项", user, newList, "123456");
+            TwitterStatus twitter=new TwitterStatus("12:34", "2", "新增项", user, newList, TwitterStatus.REPLY,"123456");
             dataSet.add(0, twitter);
             Thread.sleep(1000);
         } catch (InterruptedException e) {

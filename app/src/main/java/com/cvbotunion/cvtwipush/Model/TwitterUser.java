@@ -27,11 +27,18 @@ public class TwitterUser implements Parcelable{
     }
 
     public TwitterUser(String id,String name,String screen_name,String nameInGroup,String profile_image_url){
-        this.id = id;
-        this.name = name;
-        this.screen_name = screen_name;
-        this.name_in_group = nameInGroup;
+        this(id,name,screen_name,nameInGroup);
         this.profile_image_url = profile_image_url;
+    }
+
+    public TwitterUser(String id,String name,String screen_name,String nameInGroup,String profile_image_url,Bitmap cached_profile_image_preview){
+        this(id,name,screen_name,nameInGroup,profile_image_url);
+        this.cached_profile_image_preview = cached_profile_image_preview;
+    }
+
+    public TwitterUser(String id,String name,String screen_name,String nameInGroup,String profile_image_url,Bitmap cached_profile_image_preview, Bitmap cached_profile_image){
+        this(id,name,screen_name,nameInGroup,profile_image_url,cached_profile_image_preview);
+        this.cached_profile_image = cached_profile_image;
     }
 
     protected TwitterUser(Parcel in) {

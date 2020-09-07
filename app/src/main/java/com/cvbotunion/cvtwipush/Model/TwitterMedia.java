@@ -38,6 +38,15 @@ public class TwitterMedia implements Parcelable{
         this.previewImageURL=previewImageURL;
     }
 
+    public TwitterMedia(String id,String url,int type,String previewImageURL,Bitmap cached_image_preview){
+        this(id,url,type,previewImageURL);
+        this.cached_image_preview=cached_image_preview;
+    }
+    public TwitterMedia(String id,String url,int type,String previewImageURL,Bitmap cached_image_preview,Bitmap cached_image){
+        this(id,url,type,previewImageURL);
+        this.cached_image = cached_image;
+    }
+
     protected TwitterMedia(Parcel in) {
         id = in.readString();
         url = in.readString();

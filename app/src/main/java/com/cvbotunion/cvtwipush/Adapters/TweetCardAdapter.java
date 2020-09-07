@@ -6,14 +6,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cvbotunion.cvtwipush.Activities.TweetDetail;
@@ -63,7 +67,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
         return new TweetCardViewHolder(view);
     }
 
-    public void downloadImage(final int type,final String path, final int position,@Nullable final Integer picturePosition) {
+    protected void downloadImage(final int type,final String path, final int position,@Nullable final Integer picturePosition) {
         if(isConnected) {
             new Thread() {
                 @Override
@@ -107,13 +111,18 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
 
     @Override
     public void onBindViewHolder(@NonNull final TweetCardAdapter.TweetCardViewHolder holder, final int position) {
-        CardView card = holder.itemView.findViewById(R.id.tweet_card);
+        final CardView card = holder.itemView.findViewById(R.id.tweet_card);
         card.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //参数传递
+                AppCompatActivity activity = (AppCompatActivity) context;
                 Intent intent = new Intent(v.getContext(), TweetDetail.class);
-                v.getContext().startActivity(intent);
+                Bundle bundle = new Bundle();
+                bundle.putString("twitterStatusID",tweets.get(position).getId());
+                intent.putExtras(bundle);
+                ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(activity,card,"activityOption");
+                v.getContext().startActivity(intent,optionsCompat.toBundle());
             }
         });
 
