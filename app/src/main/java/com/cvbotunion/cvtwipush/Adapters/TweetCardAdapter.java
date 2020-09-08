@@ -60,6 +60,8 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
         }
     }
 
+
+
     @NonNull
     @Override
     public TweetCardAdapter.TweetCardViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

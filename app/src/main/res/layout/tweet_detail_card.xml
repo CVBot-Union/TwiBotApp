@@ -3,15 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/tweet_card"
+        android:id="@+id/tweet_detail_card"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:checkable="true"
         android:clickable="true"
-        android:focusable="true"
         app:cardBackgroundColor="?android:attr/colorBackground"
         app:cardCornerRadius="0dp"
         app:cardElevation="0dp"
@@ -22,7 +21,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <LinearLayout
@@ -203,12 +202,13 @@
                     android:orientation="horizontal">
 
                     <Button
-                        android:id="@+id/copy_only_btn"
+                        android:id="@+id/copy_to_input"
                         style="@style/Widget.AppCompat.Button.Borderless.Colored"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="复制到翻译区"
-                        android:textColor="@color/colorPrimary" />
+                        android:textColor="@color/colorPrimary"
+                        android:visibility="gone"/>
                 </LinearLayout>
 
                 <Button
@@ -226,15 +226,16 @@
                 android:id="@+id/translation_text_field"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_weight="1"
-                android:hint="翻译">
+                android:hint="翻译"
+                android:visibility="gone">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/translation_edit_textview"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="start"
                     android:inputType="textMultiLine" />

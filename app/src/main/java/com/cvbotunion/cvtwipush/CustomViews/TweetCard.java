@@ -71,7 +71,7 @@ public class TweetCard extends CardView{
         loadAttr();
     }
 
-    protected CharSequence getStatusText(){
+    public CharSequence getStatusText(){
         if(tweetStatusTextView.getText() != null){
             return tweetStatusTextView.getText();
         } else {

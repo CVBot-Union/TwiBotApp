@@ -15,10 +15,10 @@ import com.google.android.material.textfield.TextInputLayout;
 
 public class TweetDetailCard extends TweetCard {
 
-    private Button copyToTextField;
-    private Button doneButton;
-    private TextInputLayout translationTextInputLayout;
-    private TextInputEditText translationTextInputEditText;
+    public Button copyToTextField;
+    public Button doneButton;
+    public TextInputLayout translationTextInputLayout;
+    public TextInputEditText translationTextInputEditText;
 
     private Boolean firstLaunch = true;
 
@@ -27,7 +27,7 @@ public class TweetDetailCard extends TweetCard {
     public TweetDetailCard(@NonNull final Context context, View view) {
         super(context, view);
         doneButton = view.findViewById(R.id.done_btn);
-        copyToTextField = view.findViewById(R.id.copy_only_btn);
+        copyToTextField = view.findViewById(R.id.copy_to_input);
         copyToTextField.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -5,7 +5,6 @@
     android:id="@+id/tweet_list_parent_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".Activities.TweetList"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent">
@@ -14,6 +13,7 @@
         layout="@layout/group_action_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"

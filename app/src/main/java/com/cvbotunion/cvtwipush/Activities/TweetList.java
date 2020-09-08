@@ -195,7 +195,7 @@ public class TweetList extends AppCompatActivity {
         //SQLiteDatabase db = LitePal.getDatabase();
     }
 
-    private void netRefresh(int checkedId) {
+    public void netRefresh(int checkedId) {
         RefreshTask task = new RefreshTask(coordinatorLayout, swipeRefreshLayout, dataSet);
         task.setCheckedId(checkedId);
         task.execute();
