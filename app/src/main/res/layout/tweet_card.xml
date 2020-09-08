@@ -88,7 +88,7 @@
             <LinearLayout
                 android:id="@+id/img_set_layout"
                 android:layout_width="match_parent"
-                android:layout_height="149dp"
+                android:layout_height="200dp"
                 android:orientation="horizontal"
                 android:visibility="gone">
 

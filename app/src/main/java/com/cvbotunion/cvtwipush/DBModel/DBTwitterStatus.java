@@ -33,16 +33,36 @@ public class DBTwitterStatus extends LitePalSupport {
     private ArrayList<DBTwitterMedia> media=new ArrayList<>();
 
     public TwitterStatus toTwitterStatus() {
-        if(media.isEmpty())
-            return new TwitterStatus(created_at, tid, text, user.toTwitterUser(), in_reply_to_status_id);
-        else {
+        if(media == null){
+            if(in_reply_to_status_id != null) {
+                return new TwitterStatus(created_at, tid, text, user.toTwitterUser(), TwitterStatus.REPLY, in_reply_to_status_id);
+            } else if (quoted_status_id != null){
+                return new TwitterStatus(created_at, tid, text, user.toTwitterUser(), TwitterStatus.QUOTE, quoted_status_id);
+            } else {
+                return new TwitterStatus(created_at, tid, text, user.toTwitterUser());
+            }
+        } else if(media.isEmpty()) {
+            if(in_reply_to_status_id != null) {
+                return new TwitterStatus(created_at, tid, text, user.toTwitterUser(), TwitterStatus.REPLY, in_reply_to_status_id);
+            } else if (quoted_status_id != null){
+                return new TwitterStatus(created_at, tid, text, user.toTwitterUser(), TwitterStatus.QUOTE, quoted_status_id);
+            } else {
+                return new TwitterStatus(created_at, tid, text, user.toTwitterUser());
+            }
+        } else {
             int i = 0;
             ArrayList<TwitterMedia> media1 = new ArrayList<>();
             for (DBTwitterMedia m : media) {
                 media1.set(i, m.toTwitterMedia());
                 i++;
             }
-            return new TwitterStatus(created_at, tid, text, user.toTwitterUser(), media1, in_reply_to_status_id);
+            if(in_reply_to_status_id != null) {
+                return new TwitterStatus(created_at, tid, text, user.toTwitterUser(),media1,TwitterStatus.REPLY, in_reply_to_status_id);
+            } else if (quoted_status_id != null){
+                return new TwitterStatus(created_at, tid, text, user.toTwitterUser(),media1,TwitterStatus.QUOTE, quoted_status_id);
+            } else {
+                return new TwitterStatus(created_at, tid, text, user.toTwitterUser(),media1);
+            }
         }
     }
 }

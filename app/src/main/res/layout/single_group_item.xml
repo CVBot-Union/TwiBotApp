@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="16dp"
+    android:orientation="horizontal"
+    tools:ignore="MissingConstraints">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/group_image_view"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        android:scaleType="fitCenter"
+        app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+        tools:srcCompat="@drawable/ic_baseline_image_24" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|left"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/group_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:fontFamily="sans-serif-black"
+            android:text="组名"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/job_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:text="职务" />
+
+    </LinearLayout>
+
+
+</LinearLayout>
