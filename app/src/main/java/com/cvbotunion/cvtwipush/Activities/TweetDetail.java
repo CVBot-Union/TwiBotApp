@@ -29,7 +29,7 @@ public class TweetDetail extends AppCompatActivity {
     private MaterialToolbar mdToolbar;
     public SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView.LayoutManager layoutManager;
-    private RecyclerView tweetDetailList;
+    private RecyclerView tweetDetailRecyclerView;
     private TweetDetailCardAdapter tAdapter;
 
     private String statusID;
@@ -58,8 +58,8 @@ public class TweetDetail extends AppCompatActivity {
     }
 
     private void initView(){
-        tweetDetailList = findViewById(R.id.tweet_detail_recycler_view);
-        mdToolbar = findViewById(R.id.detail_top_app_bar);
+        tweetDetailRecyclerView = findViewById(R.id.tweet_detail_recycler_view);
+        mdToolbar = findViewById(R.id.detail_top_tool_bar);
         //setSupportActionBar(mdToolbar);
         mdToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,13 +80,13 @@ public class TweetDetail extends AppCompatActivity {
 
     private void initRecyclerView(){
         layoutManager = new LinearLayoutManager(this);
-        tweetDetailList.setLayoutManager(layoutManager);
+        tweetDetailRecyclerView.setLayoutManager(layoutManager);
         Collections.reverse(dataSet);
         tAdapter = new TweetDetailCardAdapter(dataSet,this);
-        tweetDetailList.setAdapter(tAdapter);
-        tweetDetailList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        ((SimpleItemAnimator) tweetDetailList.getItemAnimator()).setSupportsChangeAnimations(false);
-        tweetDetailList.scrollToPosition(dataSet.size()-1);
+        tweetDetailRecyclerView.setAdapter(tAdapter);
+        tweetDetailRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        ((SimpleItemAnimator) tweetDetailRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
+        tweetDetailRecyclerView.scrollToPosition(dataSet.size()-1);
 
     }
 

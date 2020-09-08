@@ -51,7 +51,7 @@ import java.util.ArrayList;
 public class TweetList extends AppCompatActivity {
 
     private CoordinatorLayout coordinatorLayout;
-    private RecyclerView tweetListView;
+    private RecyclerView tweetListRecyclerView;
     private TweetCardAdapter tAdapter;
     private RecyclerView.LayoutManager layoutManager;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -164,15 +164,15 @@ public class TweetList extends AppCompatActivity {
             }
         };
 
-        tweetListView.setLayoutManager(layoutManager);
+        tweetListRecyclerView.setLayoutManager(layoutManager);
         tAdapter = new TweetCardAdapter(dataSet,this);
-        tweetListView.setAdapter(tAdapter);
-        ((SimpleItemAnimator) tweetListView.getItemAnimator()).setSupportsChangeAnimations(false);
+        tweetListRecyclerView.setAdapter(tAdapter);
+        ((SimpleItemAnimator) tweetListRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
     }
 
     private void initView(){
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.tweet_list_parent_view);
-        tweetListView = (RecyclerView) findViewById(R.id.tweet_list_recycler_view);
+        tweetListRecyclerView = (RecyclerView) findViewById(R.id.tweet_list_recycler_view);
         mdToolbar = (MaterialToolbar) findViewById(R.id.top_app_bar);
         title = (TextView) findViewById(R.id.title);
         chipGroup = (ChipGroup) findViewById(R.id.group_chip_group);
