@@ -23,9 +23,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".Activities.VideoViewer"
+        <activity
+            android:name=".Activities.VideoViewer"
             android:configChanges="orientation|screenSize|keyboardHidden"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <activity android:name=".Activities.ImageViewer" />
 
         <receiver android:name="com.cvbotunion.cvtwipush.Utils.NetworkStateReceiver">

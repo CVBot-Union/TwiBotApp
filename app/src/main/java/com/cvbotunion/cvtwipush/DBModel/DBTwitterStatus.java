@@ -2,6 +2,7 @@ package com.cvbotunion.cvtwipush.DBModel;
 
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
+import com.cvbotunion.cvtwipush.Model.TwitterUser;
 
 import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
@@ -32,16 +33,32 @@ public class DBTwitterStatus extends LitePalSupport {
     private ArrayList<DBTwitterUser> user_mentions=new ArrayList<>();
     private ArrayList<DBTwitterMedia> media=new ArrayList<>();
 
-    public TwitterStatus toTwitterStatus() {
-        if(media == null){
-            if(in_reply_to_status_id != null) {
-                return new TwitterStatus(created_at, tid, text, user.toTwitterUser(), TwitterStatus.REPLY, in_reply_to_status_id);
-            } else if (quoted_status_id != null){
-                return new TwitterStatus(created_at, tid, text, user.toTwitterUser(), TwitterStatus.QUOTE, quoted_status_id);
-            } else {
-                return new TwitterStatus(created_at, tid, text, user.toTwitterUser());
+    public DBTwitterStatus(TwitterStatus twitter) {
+        this.created_at = twitter.created_at;
+        this.text = twitter.text;
+        this.user = new DBTwitterUser(twitter.user);
+        this.in_reply_to_status_id = twitter.in_reply_to_status_id;
+        this.quoted_status_id = twitter.quoted_status_id;
+        this.location = twitter.location;
+        this.hashtags = twitter.hashtags;
+        if(twitter.user_mentions != null && !twitter.user_mentions.isEmpty()) {
+            int j=0;
+            for(TwitterUser u : twitter.user_mentions) {
+                this.user_mentions.set(j, new DBTwitterUser(u));
+                j++;
             }
-        } else if(media.isEmpty()) {
+        }
+        if(twitter.media != null && !twitter.media.isEmpty()) {
+            int k=0;
+            for(TwitterMedia m : twitter.media) {
+                this.media.set(k, new DBTwitterMedia(m));
+                k++;
+            }
+        }
+    }
+
+    public TwitterStatus toTwitterStatus() {
+        if((media == null) || media.isEmpty()){
             if(in_reply_to_status_id != null) {
                 return new TwitterStatus(created_at, tid, text, user.toTwitterUser(), TwitterStatus.REPLY, in_reply_to_status_id);
             } else if (quoted_status_id != null){

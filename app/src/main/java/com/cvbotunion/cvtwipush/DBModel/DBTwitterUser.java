@@ -22,6 +22,18 @@ public class DBTwitterUser extends LitePalSupport {
     private String statuses_count;
     private String profile_image_url;
 
+    public DBTwitterUser(TwitterUser user) {
+        this.tid = user.id;
+        this.name = user.name;
+        this.screen_name = user.screen_name;
+        this.name_in_group = user.name_in_group;
+        this.location = user.location;
+        this.followers_count = user.followers_count;
+        this.friends_count = user.friends_count;
+        this.statuses_count = user.statuses_count;
+        this.profile_image_url = user.profile_image_url;
+    }
+
     public TwitterUser toTwitterUser() {
         return new TwitterUser(tid, name, screen_name, name_in_group, profile_image_url);
     }
