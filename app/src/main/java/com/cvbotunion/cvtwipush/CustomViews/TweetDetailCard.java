@@ -4,8 +4,11 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -16,6 +19,7 @@ import com.google.android.material.textfield.TextInputLayout;
 public class TweetDetailCard extends TweetCard {
 
     public Button copyToTextField;
+    public Button copyTranslation;
     public Button doneButton;
     public TextInputLayout translationTextInputLayout;
     public TextInputEditText translationTextInputEditText;
@@ -33,12 +37,6 @@ public class TweetDetailCard extends TweetCard {
             public void onClick(View v) {
                 if(getStatusText() != null) {
                     translationTextInputEditText.setText(getStatusText());
-                    ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-                    ClipData mClipData = ClipData.newPlainText("tweet", getStatusText());
-                    clipboardManager.setPrimaryClip(mClipData);
-                    if(translationTextInputEditText.getText() != null) {
-                        translationTextInputEditText.setSelection(translationTextInputEditText.getText().toString().length());
-                    }
                     firstLaunch = false;
                 }
             }
@@ -50,6 +48,18 @@ public class TweetDetailCard extends TweetCard {
             public void onClick(View v) {
                 if(firstLaunch && isTranslationMode){
                     translationTextInputEditText.setText("");
+                }
+            }
+        });
+        copyTranslation = view.findViewById(R.id.copy_translation_only);
+        copyTranslation.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(translationTextInputEditText.getText() != null) {
+                    ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData mClipData = ClipData.newPlainText("translation", translationTextInputEditText.getText());
+                    clipboardManager.setPrimaryClip(mClipData);
+                    Toast.makeText(v.getContext(), "已复制", Toast.LENGTH_SHORT).show();
                 }
             }
         });

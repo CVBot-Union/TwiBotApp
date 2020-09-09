@@ -38,7 +38,17 @@
             android:elevation="0dp"
             app:menu="@menu/media_viewer_menu"
             app:navigationIcon="?attr/homeAsUpIndicator"
-            app:titleTextColor="#505050" />
+            app:titleTextColor="#FFFFFF" >
+
+            <TextView
+                android:id="@+id/page_num"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="页数"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp" />
+        </com.google.android.material.appbar.MaterialToolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 

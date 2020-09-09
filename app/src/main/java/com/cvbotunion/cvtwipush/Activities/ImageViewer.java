@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.cvbotunion.cvtwipush.Adapters.ImagePagerAdapter;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
@@ -23,6 +24,7 @@ public class ImageViewer extends AppCompatActivity {
     private MaterialToolbar toolbar;
     private ViewPager2 viewPager2;
     private ImagePagerAdapter imagePagerAdapter;
+    private TextView pageNum;
 
     private TwitterStatus status;
     private ArrayList<String> mediaIdArrayList;
@@ -52,6 +54,7 @@ public class ImageViewer extends AppCompatActivity {
             }
         });
         viewPager2 = (ViewPager2) findViewById(R.id.image_view_pager);
+        pageNum = (TextView) findViewById(R.id.page_num);
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
         assert bundle != null;
@@ -71,6 +74,7 @@ public class ImageViewer extends AppCompatActivity {
         media.add(new TwitterMedia("1","http://101.200.184.98:8080/media/MO4FkO4N_400x400.jpg",1,"test"));
         media.add(new TwitterMedia("1","http://101.200.184.98:8080/media/MO4FkO4N_400x400.jpg",1,"test"));
         //end 模拟数据
+        pageNum.setText("共 "+media.size()+" 页");
         imagePagerAdapter = new ImagePagerAdapter(this,media);
         viewPager2.setAdapter(imagePagerAdapter);
     }

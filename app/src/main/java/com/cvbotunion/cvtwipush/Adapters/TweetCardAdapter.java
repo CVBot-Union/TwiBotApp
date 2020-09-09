@@ -131,24 +131,22 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
             @Override
             public void onClick(View v) {
                 TwitterStatus tweet = tweets.get(position);
-                ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-                if(tweet.getFullText() != null) {
+                if (tweet.getFullText() != null) {
+                    ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
                     ClipData mClipData = ClipData.newPlainText("tweet", tweet.getFullText());
                     clipboardManager.setPrimaryClip(mClipData);
                 }
-                //保存媒体
                 String result = "成功";
-                if(tweet.media != null) {
-                    if (!tweet.media.isEmpty()) {
-                        for (TwitterMedia singleMedia : tweet.media) {
-                            if (!singleMedia.saveToFile(v.getContext())) {
-                                result = "失败";
-                                break;
-                            }
+                //保存媒体
+                if (tweet.media != null && !tweet.media.isEmpty()) {
+                    for (TwitterMedia singleMedia : tweet.media) {
+                        if (!singleMedia.saveToFile(v.getContext())) {
+                            result = "失败";
+                            break;
                         }
                     }
-                    Snackbar.make(v, "保存" + result, Snackbar.LENGTH_SHORT).show();
                 }
+                Snackbar.make(v, "保存" + result, Snackbar.LENGTH_SHORT).show();
             }
         });
 
@@ -166,7 +164,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
             default:
                 break;
         }
-
+        
         holder.tweetCard.setTime(tweets.get(position).getCreated_at());
 
         if(tweets.get(position).user.cached_profile_image_preview != null){
@@ -176,8 +174,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
         }
 
         int i=1;
-        if(tweets.get(position).media != null) {
-            if (!tweets.get(position).media.isEmpty()) {
+        if(tweets.get(position).media != null && !tweets.get(position).media.isEmpty()) {
                 if (tweets.get(position).media.size() <= 4 && tweets.get(position).media.get(0).type == TwitterMedia.IMAGE) {
                     holder.tweetCard.tweetImageInit(tweets.get(position).media.size());
                 }
@@ -219,7 +216,6 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
                     }
                     i += 1;
                 }
-            }
         }
     }
 

@@ -135,7 +135,6 @@ public class TweetList extends AppCompatActivity {
             public void onRefresh() {
                 netRefresh(chipGroup.getCheckedChipId());
                 initRecyclerView();
-                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }

@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -125,17 +126,15 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                 }
                 //保存媒体
                 String result = "成功";
-                if(tweet.media != null) {
-                    if (!tweet.media.isEmpty()) {
-                        for (TwitterMedia singleMedia : tweet.media) {
-                            if (!singleMedia.saveToFile(v.getContext())) {
-                                result = "失败";
-                                break;
-                            }
+                if(tweet.media != null && !tweet.media.isEmpty()) {
+                    for (TwitterMedia singleMedia : tweet.media) {
+                        if (!singleMedia.saveToFile(v.getContext())) {
+                            result = "失败";
+                            break;
                         }
                     }
-                    Snackbar.make(v, "保存" + result, Snackbar.LENGTH_SHORT).show();
                 }
+                Toast.makeText(v.getContext(), "保存" + result, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -163,8 +162,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
         }
 
         int i=1;
-        if(tweets.get(position).media != null) {
-            if (!tweets.get(position).media.isEmpty()) {
+        if(tweets.get(position).media != null && !tweets.get(position).media.isEmpty()) {
                 if (tweets.get(position).media.size() <= 4 && tweets.get(position).media.get(0).type == TwitterMedia.IMAGE) {
                     holder.tweetCard.tweetImageInit(tweets.get(position).media.size());
                 }
@@ -206,7 +204,6 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                     }
                     i += 1;
                 }
-            }
         }
 
         card.setOnClickListener(new View.OnClickListener() {
@@ -230,41 +227,35 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
             holder.tweetCard.translationTextInputLayout.setVisibility(View.VISIBLE);
             holder.tweetCard.copyToTextField.setVisibility(View.VISIBLE);
             holder.tweetCard.doneButton.setVisibility(View.VISIBLE);
-            holder.tweetCard.doneButton.setOnClickListener(
-                    new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if(holder.tweetCard.getStatusText() != null) {
-                                ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-                                if(holder.tweetCard.getStatusText() != null) {
-                                    ClipData mClipData = ClipData.newPlainText("tweet", holder.tweetCard.getStatusText());
-                                    clipboardManager.setPrimaryClip(mClipData);
-                                }
+            holder.tweetCard.setOnClickDoneButtonListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    TwitterStatus tweet = tweets.get(tweets.size()-1);
+                    if(tweet.getFullText() != null) {
+                        ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData mClipData = ClipData.newPlainText("tweetAndTranslation", getFullText(tweet, holder.tweetCard));
+                        clipboardManager.setPrimaryClip(mClipData);
+                    }
+                    String result = "成功";
+                    if(tweet.media != null && !tweet.media.isEmpty()){
+                        for (TwitterMedia singleMedia : tweet.media) {
+                            if (!singleMedia.saveToFile(v.getContext())) {
+                                result = "失败";
+                                break;
                             }
-                            if(tweets.get(position).media != null){
-                                if(!tweets.get(position).media.isEmpty()){
-                                    for(TwitterMedia singleMedia:tweets.get(position).media){
-                                        if(singleMedia.type==TwitterMedia.IMAGE){
-                                            saveImage();
-                                        } else {
-                                            saveVideo();
-                                        }
-                                    }
-                                }
-                            }
-                            Snackbar.make(holder.tweetCard.doneButton,"保存成功",1000).show();
                         }
                     }
-            );
+                    Toast.makeText(v.getContext(),"保存"+result,Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 
-    public void saveImage(){
-
-    }
-
-    public void saveVideo(){
-
+    public String getFullText(TwitterStatus tweet, TweetDetailCard card) {
+        if(tweet.text == null)
+            return tweet.user.name+"\n"+tweet.created_at;
+        else
+            return tweet.user.name+"\n"+tweet.created_at+"\n"+card.getTranslatedText()+"\n\n"+tweet.text;
     }
 
     @Override
