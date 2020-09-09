@@ -109,7 +109,11 @@ public class TweetList extends AppCompatActivity {
                 int menuID = item.getItemId();
                 if (menuID == R.id.group_menu_item){
                     View view = getLayoutInflater().inflate(R.layout.group_switch_menu,null);
-                    GroupPopupWindow popupWindow = new GroupPopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,true);
+                    GroupPopupWindow popupWindow = new GroupPopupWindow(
+                            view, ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            true,
+                            null);//待更改
                     popupWindow.showAsDropDown(findViewById(R.id.group_menu_item),0, 0, Gravity.END);
                     dimBehind(popupWindow);
                 }

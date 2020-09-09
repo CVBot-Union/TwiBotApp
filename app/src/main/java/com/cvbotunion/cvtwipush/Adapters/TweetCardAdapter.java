@@ -68,6 +68,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
         return new TweetCardViewHolder(view);
     }
 
+    //建议移动到RefreshTask中
     protected void downloadImage(final int type,final String path, final int position,@Nullable final Integer picturePosition) {
         if(isConnected) {
             new Thread() {
