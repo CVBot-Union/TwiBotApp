@@ -184,7 +184,7 @@ public class TweetList extends AppCompatActivity {
         intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
         //自定义广播
         //intentFilter.addAction("android.net.conn.CONNECTIVITY_STATE");
-        networkStateReceiver = new NetworkStateReceiver();
+        networkStateReceiver = new NetworkStateReceiver(tweetListRecyclerView);
         registerReceiver(networkStateReceiver, intentFilter);
         //数据库初始化，暂时不要取消注释，避免在手机里倒垃圾
         //LitePalDB litePalDB = new LitePalDB("twitterData", 1);
@@ -201,7 +201,7 @@ public class TweetList extends AppCompatActivity {
         task.execute();
     }
 
-    public static void dimBehind(PopupWindow popupWindow) {
+    public void dimBehind(PopupWindow popupWindow) {
         View container;
         if (popupWindow.getBackground() == null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
@@ -222,14 +222,9 @@ public class TweetList extends AppCompatActivity {
         p.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND;
         p.dimAmount = 0.3f;
         wm.updateViewLayout(container, p);
-    }
-
-    public int getStatusBarHeight() {
-        int result = 0;
-        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            result = getResources().getDimensionPixelSize(resourceId);
-        }
-        return result;
+        popupWindow.setTouchable(true);
+        popupWindow.setFocusable(true);
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.update();
     }
 }

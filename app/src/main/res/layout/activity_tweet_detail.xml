@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".Activities.TweetDetail">
+    tools:context=".Activities.TweetDetail"
+    android:transitionName="activityOption">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/tweet_detail_app_bar"
@@ -34,7 +35,6 @@
         android:id="@+id/tweet_detail_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:transitionName="activityOption"
         android:focusableInTouchMode="true">
 
         <androidx.recyclerview.widget.RecyclerView

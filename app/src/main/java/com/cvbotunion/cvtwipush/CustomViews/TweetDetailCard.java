@@ -4,8 +4,10 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
@@ -36,6 +38,10 @@ public class TweetDetailCard extends TweetCard {
                     ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
                     ClipData mClipData = ClipData.newPlainText("tweet", getStatusText());
                     clipboardManager.setPrimaryClip(mClipData);
+                    if(translationTextInputEditText.getText() != null) {
+                        translationTextInputEditText.setSelection(translationTextInputEditText.getText().toString().length());
+                    }
+                    firstLaunch = false;
                 }
             }
         });

@@ -37,7 +37,6 @@ public class GroupPopupWindow extends PopupWindow {
                 dismiss();
             }
         });
-        setBackgroundDrawable(new BitmapDrawable(context.getResources(), (Bitmap) null));
         setOutsideTouchable(true);
     }
 

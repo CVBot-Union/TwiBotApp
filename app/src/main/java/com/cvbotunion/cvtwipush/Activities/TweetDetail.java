@@ -53,8 +53,13 @@ public class TweetDetail extends AppCompatActivity {
         dataSet.add(status);
         //end 模拟数据
 
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+        statusID = bundle.getString("twitterStatusId");
+
         initView();
         initRecyclerView();
+
     }
 
     private void initView(){
@@ -87,14 +92,5 @@ public class TweetDetail extends AppCompatActivity {
         tweetDetailRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         ((SimpleItemAnimator) tweetDetailRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
         tweetDetailRecyclerView.scrollToPosition(dataSet.size()-1);
-
     }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
-        Bundle bundle = intent.getExtras();
-        statusID = bundle.getString("twitterStatusID");
-    }
-
 }

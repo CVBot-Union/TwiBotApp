@@ -20,6 +20,7 @@ import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.cvbotunion.cvtwipush.Activities.ImageViewer;
 import com.cvbotunion.cvtwipush.Activities.TweetDetail;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
@@ -59,8 +60,6 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
             this.tweetCard = new TweetCard(itemView.getContext(),itemView);
         }
     }
-
-
 
     @NonNull
     @Override
@@ -121,7 +120,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
                 AppCompatActivity activity = (AppCompatActivity) context;
                 Intent intent = new Intent(v.getContext(), TweetDetail.class);
                 Bundle bundle = new Bundle();
-                bundle.putString("twitterStatusID",tweets.get(position).getId());
+                bundle.putString("twitterStatusId",tweets.get(position).getId());
                 intent.putExtras(bundle);
                 ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(activity,card,"activityOption");
                 v.getContext().startActivity(intent,optionsCompat.toBundle());
@@ -178,14 +177,18 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
                 holder.tweetCard.tweetImageInit(tweets.get(position).media.size());
             }
 
-            for (TwitterMedia media : tweets.get(position).media) {
+            for (final TwitterMedia media : tweets.get(position).media) {
                 switch (media.type) {
                     case TwitterMedia.IMAGE:
                         if (media.cached_image_preview != null) {
                             holder.tweetCard.setImageOnClickListener(tweets.get(position).media.size(), i, new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-
+                                    Intent intent = new Intent(v.getContext(), ImageViewer.class);
+                                    Bundle bundle = new Bundle();
+                                    bundle.putString("twitterMediaIdArrayList",media.id);
+                                    intent.putExtras(bundle);
+                                    v.getContext().startActivity(intent);
                                 }
                             });
                             holder.tweetCard.setTweetImage(tweets.get(position).media.size(), i, media.cached_image_preview);

@@ -67,7 +67,8 @@
                             android:layout_weight="1"
                             android:fontFamily="sans-serif"
                             android:text="类型"
-                            android:textSize="14dp" />
+                            android:textSize="14dp"
+                            android:visibility="gone" />
                     </LinearLayout>
 
                     <TextView
@@ -182,7 +183,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginVertical="16dp"
+                android:layout_marginTop="16dp"
                 android:text="这是一条Tweet"
                 android:visibility="visible"
                 android:autoLink="web"
@@ -191,7 +192,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
                 android:gravity="start"
                 android:orientation="horizontal">
 
@@ -200,10 +202,9 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:orientation="horizontal">
-
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/copy_to_input"
-                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="复制到翻译区"
@@ -211,14 +212,6 @@
                         android:visibility="gone"/>
                 </LinearLayout>
 
-                <Button
-                    android:id="@+id/quick_save_btn"
-                    style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:text="快速保存"
-                    android:textColor="@color/colorPrimary" />
 
             </LinearLayout>
 
@@ -237,15 +230,32 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:freezesText="true"
                     android:gravity="start"
                     android:inputType="textMultiLine" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
+                    android:layout_marginVertical="16dp"
                     android:gravity="right"
                     android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/quick_save_btn"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:text="仅保存" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/copy_translation_only"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:text="仅复制翻译" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/done_btn"

@@ -24,6 +24,7 @@ import androidx.core.app.ActivityOptionsCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.cvbotunion.cvtwipush.Activities.ImageViewer;
 import com.cvbotunion.cvtwipush.Activities.TweetDetail;
 import com.cvbotunion.cvtwipush.CustomViews.TweetCard;
 import com.cvbotunion.cvtwipush.CustomViews.TweetDetailCard;
@@ -118,11 +119,6 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
     @Override
     public void onBindViewHolder(@NonNull final TweetDetailCardAdapter.TweetDetailCardViewHolder holder, final int position) {
         final CardView card = holder.itemView.findViewById(R.id.tweet_detail_card);
-        card.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            }
-        });
 
         holder.tweetCard.setBtn1OnClickListener(new View.OnClickListener() {
             @Override
@@ -174,14 +170,18 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                 holder.tweetCard.tweetImageInit(tweets.get(position).media.size());
             }
 
-            for (TwitterMedia media : tweets.get(position).media) {
+            for (final TwitterMedia media : tweets.get(position).media) {
                 switch (media.type) {
                     case TwitterMedia.IMAGE:
                         if (media.cached_image_preview != null) {
                             holder.tweetCard.setImageOnClickListener(tweets.get(position).media.size(), i, new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-
+                                    Intent intent = new Intent(v.getContext(), ImageViewer.class);
+                                    Bundle bundle = new Bundle();
+                                    bundle.putString("twitterMediaIdArrayList",media.id);
+                                    intent.putExtras(bundle);
+                                    v.getContext().startActivity(intent);
                                 }
                             });
                             holder.tweetCard.setTweetImage(tweets.get(position).media.size(), i, media.cached_image_preview);
@@ -215,7 +215,9 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                 InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(holder.itemView.getWindowToken(), 0);
                 View view = ((Activity) context).getWindow().getCurrentFocus();
-                view.clearFocus();
+                if(view != null) {
+                    view.clearFocus();
+                }
             }
         });
 

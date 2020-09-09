@@ -6,6 +6,13 @@
     android:layout_height="match_parent"
     tools:context=".Activities.ImageViewer">
 
+    <com.dueeeke.videoplayer.player.VideoView
+        android:id="@+id/video_player_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/video_appBarLayout"
         android:layout_width="match_parent"
@@ -19,17 +26,11 @@
             style="@style/Widget.MaterialComponents.Toolbar.Primary"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?android:attr/colorBackground"
+            android:background="@null"
+            app:menu="@menu/media_viewer_menu"
             app:navigationIcon="?attr/homeAsUpIndicator"
             app:titleTextColor="#505050" />
 
     </com.google.android.material.appbar.AppBarLayout>
-
-    <com.dueeeke.videoplayer.player.VideoView
-        android:id="@+id/video_player_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
