@@ -90,7 +90,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:orientation="horizontal"
-                android:visibility="gone">
+                android:visibility="gone"
+                android:baselineAligned="false">
 
                 <LinearLayout
                     android:id="@+id/left_linear_layout"
@@ -110,7 +111,8 @@
                         android:foreground="?android:attr/selectableItemBackgroundBorderless"
                         android:scaleType="center"
                         android:src="@drawable/ic_baseline_image_24"
-                        android:visibility="gone" />
+                        android:visibility="gone"
+                        android:contentDescription="@string/twitteruser_avatar_description"/>
 
                     <ImageView
                         android:id="@+id/left_bottom_image"
@@ -121,6 +123,7 @@
                         android:foreground="?android:attr/selectableItemBackgroundBorderless"
                         android:scaleType="center"
                         android:src="@drawable/ic_baseline_image_24"
+                        android:contentDescription="@string/twittermedia_image_description"
                         android:visibility="gone" />
                 </LinearLayout>
 
@@ -139,6 +142,7 @@
                         android:layout_height="match_parent"
                         android:layout_marginBottom="1dp"
                         android:layout_weight="1"
+                        android:contentDescription="@string/twittermedia_image_description"
                         android:foreground="?android:attr/selectableItemBackgroundBorderless"
                         android:scaleType="center"
                         android:src="@drawable/ic_baseline_image_24"
@@ -150,6 +154,7 @@
                         android:layout_height="match_parent"
                         android:layout_marginTop="1dp"
                         android:layout_weight="1"
+                        android:contentDescription="@string/twittermedia_image_description"
                         android:foreground="?android:attr/selectableItemBackgroundBorderless"
                         android:scaleType="center"
                         android:src="@drawable/ic_baseline_image_24"
@@ -169,6 +174,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="194dp"
                     android:scaleType="centerCrop"
+                    android:contentDescription="@string/twittermedia_image_description"
                     android:foreground="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@color/colorBlack"
                     android:visibility="gone" />
@@ -179,6 +185,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:focusable="true"
+                    android:contentDescription="@string/twittermedia_image_description"
                     android:foreground="?android:attr/selectableItemBackgroundBorderless"
                     android:scaleType="center"
                     android:src="@drawable/ic_baseline_play_circle_filled_white_24"

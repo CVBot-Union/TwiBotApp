@@ -1,7 +1,6 @@
 package com.cvbotunion.cvtwipush.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
@@ -15,20 +14,14 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.content.Context;
 import android.Manifest;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.Gravity;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
-import android.widget.ListPopupWindow;
-import android.widget.PopupMenu;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
@@ -43,8 +36,6 @@ import com.cvbotunion.cvtwipush.Adapters.TweetCardAdapter;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -188,7 +179,7 @@ public class TweetList extends AppCompatActivity {
         intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
         //自定义广播
         //intentFilter.addAction("android.net.conn.CONNECTIVITY_STATE");
-        networkStateReceiver = new NetworkStateReceiver(tweetListRecyclerView);
+        networkStateReceiver = new NetworkStateReceiver();
         registerReceiver(networkStateReceiver, intentFilter);
         //数据库初始化，暂时不要取消注释，避免在手机里倒垃圾
         //LitePalDB litePalDB = new LitePalDB("twitterData", 1);
@@ -208,24 +199,18 @@ public class TweetList extends AppCompatActivity {
     public void dimBehind(PopupWindow popupWindow) {
         View container;
         if (popupWindow.getBackground() == null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-                container = (View) popupWindow.getContentView().getParent();
-            } else {
-                container = popupWindow.getContentView();
-            }
+            container = popupWindow.getContentView();
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                container = (View) popupWindow.getContentView().getParent().getParent();
-            } else {
-                container = (View) popupWindow.getContentView().getParent();
-            }
+            container = (View) popupWindow.getContentView().getParent();
         }
         Context context = popupWindow.getContentView().getContext();
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         WindowManager.LayoutParams p = (WindowManager.LayoutParams) container.getLayoutParams();
         p.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND;
         p.dimAmount = 0.3f;
-        wm.updateViewLayout(container, p);
+        if(wm != null) {
+            wm.updateViewLayout(container, p);
+        }
         popupWindow.setTouchable(true);
         popupWindow.setFocusable(true);
         popupWindow.setOutsideTouchable(true);

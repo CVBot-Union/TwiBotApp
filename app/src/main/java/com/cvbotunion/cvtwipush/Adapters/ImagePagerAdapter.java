@@ -8,13 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager2.widget.ViewPager2;
 
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.R;
@@ -24,7 +20,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 
 public class ImagePagerAdapter extends RecyclerView.Adapter<ImagePagerAdapter.ViewHolder> {
     private ArrayList<TwitterMedia> twitterMediaArrayList;
@@ -92,7 +87,7 @@ public class ImagePagerAdapter extends RecyclerView.Adapter<ImagePagerAdapter.Vi
         return twitterMediaArrayList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
 
         ViewHolder(View itemView) {

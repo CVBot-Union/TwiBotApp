@@ -7,7 +7,6 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 public class User implements Parcelable{
 

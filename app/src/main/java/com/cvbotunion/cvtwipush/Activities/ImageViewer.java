@@ -6,12 +6,10 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.ImageView;
 
 import com.cvbotunion.cvtwipush.Adapters.ImagePagerAdapter;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
@@ -56,6 +54,7 @@ public class ImageViewer extends AppCompatActivity {
         viewPager2 = (ViewPager2) findViewById(R.id.image_view_pager);
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
+        assert bundle != null;
         mediaIdArrayList = bundle.getStringArrayList("twitterMediaIdArrayList");
 
         //start 模拟数据

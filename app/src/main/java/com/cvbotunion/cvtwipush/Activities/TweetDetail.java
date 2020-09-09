@@ -7,14 +7,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 
-import com.cvbotunion.cvtwipush.Adapters.TweetCardAdapter;
 import com.cvbotunion.cvtwipush.Adapters.TweetDetailCardAdapter;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;

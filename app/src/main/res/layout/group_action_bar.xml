@@ -28,7 +28,7 @@
             android:layout_gravity="center"
             android:text="组名"
             android:textColor="#505050"
-            android:textSize="20dp" />
+            android:textSize="20sp" />
     </com.google.android.material.appbar.MaterialToolbar>
 
     <HorizontalScrollView

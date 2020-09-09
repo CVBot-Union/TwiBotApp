@@ -7,7 +7,6 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 public class RTGroup implements Parcelable {
     public String id;
@@ -76,7 +75,7 @@ public class RTGroup implements Parcelable {
         }
     }
 
-    public RTGroup(String id,String name,String avatarURL,@Nullable Bitmap avatar,ArrayList<User> members){
+    public RTGroup(String id, String name, String avatarURL, @Nullable Bitmap avatar, @Nullable ArrayList<User> members){
         this(id,name,avatarURL,avatar);
         if(members != null){
             this.members = members;

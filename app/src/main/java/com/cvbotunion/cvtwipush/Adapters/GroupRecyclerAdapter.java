@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,9 +19,7 @@ import com.cvbotunion.cvtwipush.CustomViews.GroupPopupWindow;
 import com.cvbotunion.cvtwipush.Model.RTGroup;
 import com.cvbotunion.cvtwipush.R;
 
-import java.security.acl.Group;
 import java.util.ArrayList;
-import java.util.Map;
 
 public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdapter.ViewHolder> {
     public Context context;

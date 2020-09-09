@@ -13,7 +13,6 @@ import org.litepal.LitePal;
 
 import java.util.List;
 import java.util.logging.LogManager;
-import java.util.logging.Logger;
 
 public class TwiPush extends Application {
 
@@ -52,6 +51,7 @@ public class TwiPush extends Application {
 
     private boolean shouldInit() {
         ActivityManager am = ((ActivityManager) getSystemService(Context.ACTIVITY_SERVICE));
+        assert am != null;
         List<ActivityManager.RunningAppProcessInfo> processInfos = am.getRunningAppProcesses();
         String mainProcessName = getApplicationInfo().processName;
         int myPid = Process.myPid();

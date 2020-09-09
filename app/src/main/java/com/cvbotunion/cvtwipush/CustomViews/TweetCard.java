@@ -194,12 +194,10 @@ public class TweetCard extends CardView{
                 rightTopImageView.setOnClickListener(listener);
                 break;
             case 3:
-                switch(size){
-                    case 3:
-                        rightBottomImageView.setOnClickListener(listener);
-                        break;
-                    default:
-                        leftBottomImageView.setOnClickListener(listener);
+                if (size == 3) {
+                    rightBottomImageView.setOnClickListener(listener);
+                } else {
+                    leftBottomImageView.setOnClickListener(listener);
                 }
             case 4:
                 rightBottomImageView.setOnClickListener(listener);
@@ -215,12 +213,10 @@ public class TweetCard extends CardView{
                 getImage(image,rightTopImageView);
                 break;
             case 3:
-                switch(size){
-                    case 3:
-                        getImage(image,rightBottomImageView);
-                        break;
-                    default:
-                        getImage(image,leftBottomImageView);
+                if (size == 3) {
+                    getImage(image, rightBottomImageView);
+                } else {
+                    getImage(image, leftBottomImageView);
                 }
             case 4:
                 getImage(image,rightBottomImageView);

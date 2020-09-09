@@ -27,6 +27,7 @@ public class VideoViewer extends AppCompatActivity {
         getWindow().getDecorView().setSystemUiVisibility(0);
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
+        assert bundle != null;
         video = bundle.getParcelable("videoMedia");
 
         playerView = findViewById(R.id.video_player_view);

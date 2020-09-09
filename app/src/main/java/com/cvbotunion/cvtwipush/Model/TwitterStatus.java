@@ -55,7 +55,7 @@ public class TwitterStatus implements Parcelable {
         }
     }
 
-    public TwitterStatus(String created_at, String id, @Nullable String text, TwitterUser user, ArrayList<TwitterMedia> media){
+    public TwitterStatus(String created_at, String id, @Nullable String text, TwitterUser user, @Nullable ArrayList<TwitterMedia> media){
         this(created_at,id,text,user);
         this.media = media;
         if(text != null) {
@@ -63,7 +63,7 @@ public class TwitterStatus implements Parcelable {
         }
     }
 
-    public TwitterStatus(String created_at, String id, @Nullable String text, TwitterUser user, ArrayList<TwitterMedia> media, int type,String parent_status_id){
+    public TwitterStatus(String created_at, String id, @Nullable String text, TwitterUser user, ArrayList<TwitterMedia> media, int type, @Nullable String parent_status_id){
         this(created_at,id,text,user,media);
         if(text != null) {
             this.text = text;

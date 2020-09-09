@@ -14,6 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:scaleType="centerInside"
+            android:contentDescription="@string/image_viewer_loading_description"
             app:srcCompat="@drawable/ic_baseline_image_24" />
     </androidx.core.widget.NestedScrollView>
 

@@ -11,7 +11,6 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -133,19 +132,23 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
             public void onClick(View v) {
                 TwitterStatus tweet = tweets.get(position);
                 ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData mClipData = ClipData.newPlainText("tweet", tweet.getFullText());
-                clipboardManager.setPrimaryClip(mClipData);
+                if(tweet.getFullText() != null) {
+                    ClipData mClipData = ClipData.newPlainText("tweet", tweet.getFullText());
+                    clipboardManager.setPrimaryClip(mClipData);
+                }
                 //保存媒体
                 String result = "成功";
-                if(!tweet.media.isEmpty()){
-                    for(TwitterMedia singleMedia:tweet.media) {
-                        if(!singleMedia.saveToFile(v.getContext())) {
-                            result = "失败";
-                            break;
+                if(tweet.media != null) {
+                    if (!tweet.media.isEmpty()) {
+                        for (TwitterMedia singleMedia : tweet.media) {
+                            if (!singleMedia.saveToFile(v.getContext())) {
+                                result = "失败";
+                                break;
+                            }
                         }
                     }
+                    Snackbar.make(v, "保存" + result, Snackbar.LENGTH_SHORT).show();
                 }
-                Snackbar.make(v, "保存"+result, Snackbar.LENGTH_SHORT).show();
             }
         });
 
@@ -173,47 +176,49 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
         }
 
         int i=1;
-        if(!tweets.get(position).media.isEmpty()) {
-            if(tweets.get(position).media.size()<=4 && tweets.get(position).media.get(0).type==TwitterMedia.IMAGE) {
-                holder.tweetCard.tweetImageInit(tweets.get(position).media.size());
-            }
-
-            for (final TwitterMedia media : tweets.get(position).media) {
-                switch (media.type) {
-                    case TwitterMedia.IMAGE:
-                        if (media.cached_image_preview != null) {
-                            holder.tweetCard.setImageOnClickListener(tweets.get(position).media.size(), i, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    Intent intent = new Intent(v.getContext(), ImageViewer.class);
-                                    Bundle bundle = new Bundle();
-                                    bundle.putString("twitterMediaIdArrayList",media.id);
-                                    intent.putExtras(bundle);
-                                    v.getContext().startActivity(intent);
-                                }
-                            });
-                            holder.tweetCard.setTweetImage(tweets.get(position).media.size(), i, media.cached_image_preview);
-                        } else {
-                            downloadImage(TwitterMedia.IMAGE,media.previewImageURL, position, i);
-                        }
-                        break;
-                    case TwitterMedia.VIDEO:
-                        holder.tweetCard.initVideo();
-                        if (media.cached_image_preview != null) {
-                            holder.tweetCard.setVideoOnClickListener(new View.OnClickListener(){
-                                @Override
-                                public void onClick(View v) {
-
-                                }
-                            });
-                            holder.tweetCard.setVideoBackground(media.cached_image_preview);
-                            break;
-                        } else {
-                            downloadImage(TwitterMedia.VIDEO,media.previewImageURL,position,1);
-                        }
-                        break;
+        if(tweets.get(position).media != null) {
+            if (!tweets.get(position).media.isEmpty()) {
+                if (tweets.get(position).media.size() <= 4 && tweets.get(position).media.get(0).type == TwitterMedia.IMAGE) {
+                    holder.tweetCard.tweetImageInit(tweets.get(position).media.size());
                 }
-                i += 1;
+
+                for (final TwitterMedia media : tweets.get(position).media) {
+                    switch (media.type) {
+                        case TwitterMedia.IMAGE:
+                            if (media.cached_image_preview != null) {
+                                holder.tweetCard.setImageOnClickListener(tweets.get(position).media.size(), i, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        Intent intent = new Intent(v.getContext(), ImageViewer.class);
+                                        Bundle bundle = new Bundle();
+                                        bundle.putString("twitterMediaIdArrayList", media.id);
+                                        intent.putExtras(bundle);
+                                        v.getContext().startActivity(intent);
+                                    }
+                                });
+                                holder.tweetCard.setTweetImage(tweets.get(position).media.size(), i, media.cached_image_preview);
+                            } else {
+                                downloadImage(TwitterMedia.IMAGE, media.previewImageURL, position, i);
+                            }
+                            break;
+                        case TwitterMedia.VIDEO:
+                            holder.tweetCard.initVideo();
+                            if (media.cached_image_preview != null) {
+                                holder.tweetCard.setVideoOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+
+                                    }
+                                });
+                                holder.tweetCard.setVideoBackground(media.cached_image_preview);
+                                break;
+                            } else {
+                                downloadImage(TwitterMedia.VIDEO, media.previewImageURL, position, 1);
+                            }
+                            break;
+                    }
+                    i += 1;
+                }
             }
         }
     }
