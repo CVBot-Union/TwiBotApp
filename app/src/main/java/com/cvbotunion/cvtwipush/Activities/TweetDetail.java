@@ -12,14 +12,16 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.cvbotunion.cvtwipush.Adapters.TweetDetailCardAdapter;
+import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.Model.TwitterUser;
 import com.cvbotunion.cvtwipush.R;
 import com.google.android.material.appbar.MaterialToolbar;
 
+import org.litepal.LitePal;
+
 import java.util.ArrayList;
-import java.util.Collections;
 
 public class TweetDetail extends AppCompatActivity {
     private MaterialToolbar mdToolbar;
@@ -39,19 +41,16 @@ public class TweetDetail extends AppCompatActivity {
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
         statusID = bundle.getString("twitterStatusId");
+        DBTwitterStatus dbStatus = LitePal.where("tid = ?", statusID).findFirst(DBTwitterStatus.class);
 
-        //start 模拟数据
-        TwitterUser user = new TwitterUser("1","sb","sbsb","SB","http://101.200.184.98:8080/media/MO4FkO4N_400x400.jpg");
-        TwitterMedia media = new TwitterMedia("1","http://101.200.184.98:8080/rami.jpg",TwitterMedia.IMAGE,"http://101.200.184.98:8080/rami.jpg");
-        ArrayList<TwitterMedia> newList = new ArrayList<>();
-        newList.add(media);
-        newList.add(media);
-        newList.add(media);
-        TwitterStatus status1 = new TwitterStatus("11:14","1","测试",user,newList);
-        TwitterStatus status2 = new TwitterStatus("11:15","2","这是一条回复",user,newList, TwitterStatus.REPLY, "12345");
-        dataSet.add(status1);
-        dataSet.add(status2);
-        //end 模拟数据
+        TwitterStatus status = dbStatus.toTwitterStatus();
+        dataSet.add(status);
+        if(status.getTweetType() == TwitterStatus.REPLY) {
+            //dbStatus = LitePal.where("tid = ?", status.in_reply_to_status_id).findFirst(DBTwitterStatus.class);
+            //TwitterStatus replyToStatus = dbStatus.toTwitterStatus();
+            TwitterStatus replyToStatus = new TwitterStatus("11:15", "2", "被回复推文", status.user, status.media);
+            dataSet.add(0, replyToStatus);
+        }
 
         initView();
         initRecyclerView();
@@ -83,7 +82,6 @@ public class TweetDetail extends AppCompatActivity {
     private void initRecyclerView(){
         layoutManager = new LinearLayoutManager(this);
         tweetDetailRecyclerView.setLayoutManager(layoutManager);
-        //Collections.reverse(dataSet);
         tAdapter = new TweetDetailCardAdapter(dataSet,this);
         tweetDetailRecyclerView.setAdapter(tAdapter);
         tweetDetailRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));

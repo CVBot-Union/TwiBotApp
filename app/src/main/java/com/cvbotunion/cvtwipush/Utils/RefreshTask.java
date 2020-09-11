@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.Model.TwitterUser;
@@ -43,8 +44,11 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
             TwitterMedia media = new TwitterMedia("2","http://101.200.184.98:8080/media/aqua.jpg",TwitterMedia.IMAGE,"http://101.200.184.98:8080/media/aqua.jpg");
             ArrayList<TwitterMedia> newList = new ArrayList<>();
             newList.add(media);
-            TwitterStatus twitter=new TwitterStatus("12:34", "2", "新增项", user, newList, TwitterStatus.REPLY,"123456");
-            dataSet.add(0, twitter);
+
+            TwitterStatus tweet=new TwitterStatus("12:34", "2", "新增项", user, newList, TwitterStatus.REPLY,"123456");
+            DBTwitterStatus dbStatus=new DBTwitterStatus(tweet);
+            dbStatus.save();
+            dataSet.add(0, tweet);
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();

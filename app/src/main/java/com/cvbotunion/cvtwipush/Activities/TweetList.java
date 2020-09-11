@@ -14,6 +14,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.content.Context;
 import android.Manifest;
 import android.content.IntentFilter;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -24,8 +25,12 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cvbotunion.cvtwipush.CustomViews.GroupPopupWindow;
+import com.cvbotunion.cvtwipush.DBModel.DBTwitterMedia;
+import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
+import com.cvbotunion.cvtwipush.DBModel.DBTwitterUser;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.Model.TwitterUser;
@@ -36,6 +41,9 @@ import com.cvbotunion.cvtwipush.Adapters.TweetCardAdapter;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+
+import org.litepal.LitePal;
+import org.litepal.LitePalDB;
 
 import java.util.ArrayList;
 
@@ -54,6 +62,8 @@ public class TweetList extends AppCompatActivity {
     private TextView title;
 
     private ArrayList<TwitterStatus> dataSet = new ArrayList<>();
+    SQLiteDatabase db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +83,11 @@ public class TweetList extends AppCompatActivity {
         newList.add(media);
         newList.add(media);
         TwitterStatus status = new TwitterStatus("11:14","1","测试",user,newList);
+
+        //由于不同推文可能会使用同一个media，所以没有给它设置UNIQUE字段，
+        //  使用DBTwitterMedia.save()方法前请通过statusId和tid字段进行查重
+        DBTwitterStatus dbTweet = new DBTwitterStatus(status);
+        dbTweet.save();
 
         dataSet.add(status);
         dataSet.add(status);
@@ -137,11 +152,15 @@ public class TweetList extends AppCompatActivity {
                 initRecyclerView();
             }
         });
+        DBTwitterStatus status1 = LitePal.find(DBTwitterStatus.class, 1);
+        TwitterStatus status2 = status1.toTwitterStatus();
+        Toast.makeText(this, status2.user.profile_image_url, Toast.LENGTH_LONG).show();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        db.close();
         unregisterReceiver(networkStateReceiver);
     }
 
@@ -180,13 +199,12 @@ public class TweetList extends AppCompatActivity {
         //intentFilter.addAction("android.net.conn.CONNECTIVITY_STATE");
         networkStateReceiver = new NetworkStateReceiver();
         registerReceiver(networkStateReceiver, intentFilter);
-        //数据库初始化，暂时不要取消注释，避免在手机里倒垃圾
-        //LitePalDB litePalDB = new LitePalDB("twitterData", 1);
-        //litePalDB.addClassName(DBTwitterStatus.class.getName());
-        //litePalDB.addClassName(DBTwitterUser.class.getName());
-        //litePalDB.addClassName(DBTwitterMedia.class.getName());
-        //LitePal.use(litePalDB);
-        //SQLiteDatabase db = LitePal.getDatabase();
+        LitePalDB litePalDB = new LitePalDB("twitterData", 4);
+        litePalDB.addClassName(DBTwitterStatus.class.getName());
+        litePalDB.addClassName(DBTwitterUser.class.getName());
+        litePalDB.addClassName(DBTwitterMedia.class.getName());
+        LitePal.use(litePalDB);
+        db = LitePal.getDatabase();
     }
 
     public void netRefresh(int checkedId) {

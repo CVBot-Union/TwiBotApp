@@ -171,12 +171,14 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                     switch (media.type) {
                         case TwitterMedia.IMAGE:
                             if (media.cached_image_preview != null) {
+                                final int page = i-1;
                                 holder.tweetCard.setImageOnClickListener(tweets.get(position).media.size(), i, new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
                                         Intent intent = new Intent(v.getContext(), ImageViewer.class);
                                         Bundle bundle = new Bundle();
-                                        bundle.putString("twitterMediaIdArrayList", media.id);
+                                        bundle.putInt("page", page);
+                                        bundle.putString("twitterStatusId", tweets.get(position).id);
                                         intent.putExtras(bundle);
                                         v.getContext().startActivity(intent);
                                     }

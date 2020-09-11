@@ -13,12 +13,15 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.cvbotunion.cvtwipush.Adapters.ImagePagerAdapter;
+import com.cvbotunion.cvtwipush.DBModel.DBTwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
-import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.R;
 import com.google.android.material.appbar.MaterialToolbar;
 
+import org.litepal.LitePal;
+
 import java.util.ArrayList;
+import java.util.List;
 
 public class ImageViewer extends AppCompatActivity {
     private MaterialToolbar toolbar;
@@ -26,8 +29,8 @@ public class ImageViewer extends AppCompatActivity {
     private ImagePagerAdapter imagePagerAdapter;
     private TextView pageNum;
 
-    private TwitterStatus status;
-    private ArrayList<String> mediaIdArrayList;
+    private int page;
+    private ArrayList<TwitterMedia> mediaList = new ArrayList<>();
     private ArrayList<Bitmap> images;
 
     @Override
@@ -55,12 +58,7 @@ public class ImageViewer extends AppCompatActivity {
         });
         viewPager2 = (ViewPager2) findViewById(R.id.image_view_pager);
         pageNum = (TextView) findViewById(R.id.page_num);
-        Intent intent = getIntent();
-        Bundle bundle = intent.getExtras();
-        assert bundle != null;
-        mediaIdArrayList = bundle.getStringArrayList("twitterMediaIdArrayList");
-
-        //start 模拟数据
+        initData();
         initViewPager();
     }
 
@@ -68,14 +66,22 @@ public class ImageViewer extends AppCompatActivity {
 
     }
 
+    public void initData() {
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+        page = bundle.getInt("page");
+        String statusId = bundle.getString("twitterStatusId");
+        List<DBTwitterMedia> dbMediaList = LitePal.where("statusId = ?", statusId).find(DBTwitterMedia.class);
+        for(DBTwitterMedia m:dbMediaList) {
+            mediaList.add(m.toTwitterMedia());
+        }
+    }
+
     public void initViewPager(){
         images = new ArrayList<>();
-        ArrayList<TwitterMedia> media = new ArrayList<>();
-        media.add(new TwitterMedia("1","http://101.200.184.98:8080/media/MO4FkO4N_400x400.jpg",1,"test"));
-        media.add(new TwitterMedia("1","http://101.200.184.98:8080/media/MO4FkO4N_400x400.jpg",1,"test"));
-        //end 模拟数据
-        pageNum.setText("共 "+media.size()+" 页");
-        imagePagerAdapter = new ImagePagerAdapter(this,media);
+        pageNum.setText("共 "+mediaList.size()+" 页");
+        imagePagerAdapter = new ImagePagerAdapter(this, mediaList);
         viewPager2.setAdapter(imagePagerAdapter);
+        viewPager2.setCurrentItem(page);
     }
 }
