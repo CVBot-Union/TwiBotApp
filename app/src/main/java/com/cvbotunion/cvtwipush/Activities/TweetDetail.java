@@ -13,9 +13,7 @@ import android.view.View;
 
 import com.cvbotunion.cvtwipush.Adapters.TweetDetailCardAdapter;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
-import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
-import com.cvbotunion.cvtwipush.Model.TwitterUser;
 import com.cvbotunion.cvtwipush.R;
 import com.google.android.material.appbar.MaterialToolbar;
 
@@ -48,7 +46,7 @@ public class TweetDetail extends AppCompatActivity {
         if(status.getTweetType() == TwitterStatus.REPLY) {
             //dbStatus = LitePal.where("tid = ?", status.in_reply_to_status_id).findFirst(DBTwitterStatus.class);
             //TwitterStatus replyToStatus = dbStatus.toTwitterStatus();
-            TwitterStatus replyToStatus = new TwitterStatus("11:15", "2", "被回复推文", status.user, status.media);
+            TwitterStatus replyToStatus = new TwitterStatus("11:15", "3", "被回复推文", status.user, status.media);
             dataSet.add(0, replyToStatus);
         }
 
@@ -60,7 +58,6 @@ public class TweetDetail extends AppCompatActivity {
     private void initView(){
         tweetDetailRecyclerView = findViewById(R.id.tweet_detail_recycler_view);
         mdToolbar = findViewById(R.id.detail_top_tool_bar);
-        //setSupportActionBar(mdToolbar);
         mdToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -71,7 +68,6 @@ public class TweetDetail extends AppCompatActivity {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                //netRefresh(chipGroup.getCheckedChipId());
                 swipeRefreshLayout.setRefreshing(true);
                 initRecyclerView();
                 swipeRefreshLayout.setRefreshing(false);

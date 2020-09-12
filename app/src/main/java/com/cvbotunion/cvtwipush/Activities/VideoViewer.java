@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.R;
@@ -47,6 +48,9 @@ public class VideoViewer extends AppCompatActivity {
     }
 
     public void saveVideo(){
-
+        String result = "成功";
+        if(!video.saveToFile(this))
+            result = "失败";
+        Toast.makeText(this, "保存"+result, Toast.LENGTH_SHORT).show();
     }
 }

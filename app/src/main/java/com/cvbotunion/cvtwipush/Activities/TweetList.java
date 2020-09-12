@@ -84,10 +84,12 @@ public class TweetList extends AppCompatActivity {
         newList.add(media);
         TwitterStatus status = new TwitterStatus("11:14","1","测试",user,newList);
 
-        //由于不同推文可能会使用同一个media，所以没有给它设置UNIQUE字段，
+        //由于不同推文可能会使用同一个media，所以没有给media设置UNIQUE字段，
         //  使用DBTwitterMedia.save()方法前请通过statusId和tid字段进行查重
-        DBTwitterStatus dbTweet = new DBTwitterStatus(status);
-        dbTweet.save();
+        if(LitePal.where("tid = ?", status.id).find(DBTwitterStatus.class).isEmpty()) {
+            DBTwitterStatus dbTweet = new DBTwitterStatus(status);
+            dbTweet.save();
+        }
 
         dataSet.add(status);
         dataSet.add(status);
@@ -138,6 +140,7 @@ public class TweetList extends AppCompatActivity {
         chipGroup.setOnCheckedChangeListener(new ChipGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(ChipGroup group, int checkedId) {
+
                 dataSet = new ArrayList<>();
                 dataSet.add(newStatus);
                 initRecyclerView();
@@ -152,9 +155,6 @@ public class TweetList extends AppCompatActivity {
                 initRecyclerView();
             }
         });
-        DBTwitterStatus status1 = LitePal.find(DBTwitterStatus.class, 1);
-        TwitterStatus status2 = status1.toTwitterStatus();
-        Toast.makeText(this, status2.user.profile_image_url, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -173,7 +173,6 @@ public class TweetList extends AppCompatActivity {
                 } catch (IndexOutOfBoundsException e) {
                     e.printStackTrace();
                 }
-
             }
         };
 
@@ -199,6 +198,7 @@ public class TweetList extends AppCompatActivity {
         //intentFilter.addAction("android.net.conn.CONNECTIVITY_STATE");
         networkStateReceiver = new NetworkStateReceiver();
         registerReceiver(networkStateReceiver, intentFilter);
+
         LitePalDB litePalDB = new LitePalDB("twitterData", 4);
         litePalDB.addClassName(DBTwitterStatus.class.getName());
         litePalDB.addClassName(DBTwitterUser.class.getName());

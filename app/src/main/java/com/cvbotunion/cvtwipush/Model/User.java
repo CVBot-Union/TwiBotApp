@@ -16,7 +16,7 @@ public class User implements Parcelable{
     @Nullable public Bitmap avatar;
     public ArrayList<RTGroup.Job> jobs;
 
-    User(String id, String name, @Nullable String avatarURL,@Nullable Bitmap avatar, @Nullable ArrayList<RTGroup.Job> jobs){
+    public User(String id, String name, @Nullable String avatarURL,@Nullable Bitmap avatar, @Nullable ArrayList<RTGroup.Job> jobs){
         this.id = id;
         this.name = name;
         if (avatarURL != null){

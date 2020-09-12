@@ -23,7 +23,6 @@ public class GroupPopupWindow extends PopupWindow {
     private ImageView avatar;
     private ImageButton exit;
     private RecyclerView groupList;
-    public ArrayList<RTGroup.Job> jobs;
     public GroupRecyclerAdapter grAdapter;
     public User user;
 
@@ -49,7 +48,7 @@ public class GroupPopupWindow extends PopupWindow {
             }
         }
 
-        grAdapter = new GroupRecyclerAdapter(context,this,jobs);
+        grAdapter = new GroupRecyclerAdapter(context,this,user.jobs);
         groupList.setAdapter(grAdapter);
     }
 

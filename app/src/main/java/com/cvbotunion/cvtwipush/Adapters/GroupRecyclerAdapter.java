@@ -61,17 +61,17 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
                 popupWindow.dismiss();
                 Intent intent = new Intent(context, TweetList.class);
                 Bundle bundle = new Bundle();
-                bundle.putString("groupId",jobs.get(position).group.id);
+                bundle.putString("groupId",jobs.get(position).getGroup().id);
                 intent.putExtras(bundle);
                 ((AppCompatActivity) context).startActivityForResult(intent,1);
                 ((AppCompatActivity) context).finish();
             }
         });
-        if(jobs.get(position).group.avatar != null){
-            holder.groupImageView.setImageBitmap(jobs.get(position).group.avatar);
+        if(jobs.get(position).getGroup().avatar != null){
+            holder.groupImageView.setImageBitmap(jobs.get(position).getGroup().avatar);
         }
-        if(jobs.get(position).group.name != null) {
-            holder.groupName.setText(jobs.get(position).group.name);
+        if(jobs.get(position).getGroup().name != null) {
+            holder.groupName.setText(jobs.get(position).getGroup().name);
         }
         if(jobs.get(position).job != null) {
             holder.myJobInGroup.setText(jobs.get(position).job);

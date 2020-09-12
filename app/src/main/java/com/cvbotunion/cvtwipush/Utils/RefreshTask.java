@@ -11,6 +11,8 @@ import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.Model.TwitterUser;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.litepal.LitePal;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
@@ -40,14 +42,16 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
     protected Boolean doInBackground(String... params) {
         //实际应用中，此处与服务器通信以获取数据
         try {
-            TwitterUser user = new TwitterUser("2","大亏","sbsb","大亏","http://101.200.184.98:8080/media/aqua.jpg");
+            TwitterUser user = new TwitterUser("2","大亏","aqua","大亏","http://101.200.184.98:8080/media/aqua.jpg");
             TwitterMedia media = new TwitterMedia("2","http://101.200.184.98:8080/media/aqua.jpg",TwitterMedia.IMAGE,"http://101.200.184.98:8080/media/aqua.jpg");
-            ArrayList<TwitterMedia> newList = new ArrayList<>();
-            newList.add(media);
+            ArrayList<TwitterMedia> mediaList = new ArrayList<>();
+            mediaList.add(media);
 
-            TwitterStatus tweet=new TwitterStatus("12:34", "2", "新增项", user, newList, TwitterStatus.REPLY,"123456");
-            DBTwitterStatus dbStatus=new DBTwitterStatus(tweet);
-            dbStatus.save();
+            TwitterStatus tweet=new TwitterStatus("12:34", "2", "新增项", user, mediaList, TwitterStatus.REPLY,"123456");
+            if(LitePal.where("tid = ?", tweet.id).find(DBTwitterStatus.class).isEmpty()) {
+                DBTwitterStatus dbStatus = new DBTwitterStatus(tweet);
+                dbStatus.save();
+            }
             dataSet.add(0, tweet);
             Thread.sleep(1000);
         } catch (InterruptedException e) {
