@@ -13,6 +13,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Context;
 import android.Manifest;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
@@ -25,12 +26,12 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.cvbotunion.cvtwipush.CustomViews.GroupPopupWindow;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterMedia;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterUser;
+import com.cvbotunion.cvtwipush.Model.RTGroup;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.Model.TwitterUser;
@@ -46,6 +47,7 @@ import org.litepal.LitePal;
 import org.litepal.LitePalDB;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class TweetList extends AppCompatActivity {
 
@@ -62,6 +64,8 @@ public class TweetList extends AppCompatActivity {
     private TextView title;
 
     private ArrayList<TwitterStatus> dataSet = new ArrayList<>();
+    private RTGroup group;
+    private ArrayList<String> followingName;
     SQLiteDatabase db;
 
     @Override
@@ -74,6 +78,83 @@ public class TweetList extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         }
         initBackground();
+        initData();
+        initView();
+        initRecyclerView();
+
+        //title.setText(group.name);
+        String groupName = "蔷薇之心";
+        title.setText(groupName);//待更改
+
+        mdToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                int menuID = item.getItemId();
+                if (menuID == R.id.group_menu_item){
+                    View view = getLayoutInflater().inflate(R.layout.group_switch_menu,null);
+                    GroupPopupWindow popupWindow = new GroupPopupWindow(
+                            view, ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            true,
+                            null);//待更改
+                    popupWindow.showAsDropDown(findViewById(R.id.group_menu_item),0, 0, Gravity.END);
+                    dimBehind(popupWindow);
+                }
+                return true;
+            }
+        });
+
+        for(String twitterUserName:followingName){//待更改
+            Chip chip = (Chip) getLayoutInflater().inflate(R.layout.chip_view,chipGroup,false);
+            chip.setText(twitterUserName);
+            chip.setId(ViewCompat.generateViewId());
+            chipGroup.addView(chip);
+        }
+        chipGroup.setOnCheckedChangeListener(new ChipGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(ChipGroup group, int checkedId) {
+                //待更改
+                initRecyclerView();
+            }
+        });
+
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                netRefresh(chipGroup.getCheckedChipId());
+                initRecyclerView();
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        db.close();
+        unregisterReceiver(networkStateReceiver);
+    }
+
+    private  void initData() {
+        //List<DBTwitterStatus> dbStatusList = LitePal.findAll(DBTwitterStatus.class);
+        //for(DBTwitterStatus s : dbStatusList) {
+            //"0"使得最新的放上面
+            //dataSet.add(0, s.toTwitterStatus());
+        //}
+
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+        String groupId;
+        if(bundle != null) {
+            groupId = bundle.getString("groupId");
+        }
+        else {
+            //groupId = ;
+        }
+        //groupId -> group
+        //for(TwitterUser u : group.following) {
+        //    followingName.add(u.name);
+        //}
 
         //start 模拟数据
         TwitterUser user = new TwitterUser("1","sb","sbsb","SB","http://101.200.184.98:8080/media/MO4FkO4N_400x400.jpg");
@@ -96,72 +177,13 @@ public class TweetList extends AppCompatActivity {
         dataSet.add(status);
         dataSet.add(status);
 
-        String groupName = "蔷薇之心";
-
-        ArrayList<String> userList = new ArrayList<>();
-        userList.add("相羽あいな");
-        userList.add("工藤晴香");
-        userList.add("中島由貴");
-        userList.add("櫻川めぐ");
-        userList.add("志崎樺音");
+        followingName = new ArrayList<>();
+        followingName.add("相羽あいな");
+        followingName.add("工藤晴香");
+        followingName.add("中島由貴");
+        followingName.add("櫻川めぐ");
+        followingName.add("志崎樺音");
         //end 模拟数据
-
-        initView();
-        initRecyclerView();
-
-
-        title.setText(groupName);//待更改
-        mdToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                int menuID = item.getItemId();
-                if (menuID == R.id.group_menu_item){
-                    View view = getLayoutInflater().inflate(R.layout.group_switch_menu,null);
-                    GroupPopupWindow popupWindow = new GroupPopupWindow(
-                            view, ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT,
-                            true,
-                            null);//待更改
-                    popupWindow.showAsDropDown(findViewById(R.id.group_menu_item),0, 0, Gravity.END);
-                    dimBehind(popupWindow);
-                }
-                return true;
-            }
-        });
-
-        final TwitterStatus newStatus = status;
-        for(String twitterUser:userList){//待更改
-            Chip chip = (Chip) getLayoutInflater().inflate(R.layout.chip_view,chipGroup,false);
-            chip.setText(twitterUser);
-            chip.setId(ViewCompat.generateViewId());
-            chipGroup.addView(chip);
-        }
-
-        chipGroup.setOnCheckedChangeListener(new ChipGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(ChipGroup group, int checkedId) {
-
-                dataSet = new ArrayList<>();
-                dataSet.add(newStatus);
-                initRecyclerView();
-            }
-        });
-
-        swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                netRefresh(chipGroup.getCheckedChipId());
-                initRecyclerView();
-            }
-        });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        db.close();
-        unregisterReceiver(networkStateReceiver);
     }
 
     private void initRecyclerView(){
