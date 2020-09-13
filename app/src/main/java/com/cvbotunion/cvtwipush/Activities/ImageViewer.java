@@ -11,7 +11,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.cvbotunion.cvtwipush.Adapters.ImagePagerAdapter;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterMedia;
@@ -32,6 +31,7 @@ public class ImageViewer extends AppCompatActivity {
 
     private int page;
     private ArrayList<TwitterMedia> mediaList = new ArrayList<>();
+    private ArrayList<Bitmap> images;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,11 +63,7 @@ public class ImageViewer extends AppCompatActivity {
     }
 
     public void saveImage(){
-        TwitterMedia currentMedia = mediaList.get(viewPager2.getCurrentItem());
-        String result = "成功";
-        if(!currentMedia.saveToFile(this))
-            result = "失败";
-        Toast.makeText(this, "保存"+result, Toast.LENGTH_SHORT).show();
+
     }
 
     public void initData() {
@@ -82,9 +78,17 @@ public class ImageViewer extends AppCompatActivity {
     }
 
     public void initViewPager(){
-        pageNum.setText("共 "+mediaList.size()+" 页");
+        images = new ArrayList<>();
+        pageNum.setText("第 "+ page + "/" + mediaList.size() + " 页");
         imagePagerAdapter = new ImagePagerAdapter(this, mediaList);
         viewPager2.setAdapter(imagePagerAdapter);
-        viewPager2.setCurrentItem(page, false);
+        viewPager2.setCurrentItem(page,false);
+        viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                pageNum.setText("第 "+ String.valueOf(position+1) + "/" + mediaList.size() + " 页");
+            }
+        });
     }
 }

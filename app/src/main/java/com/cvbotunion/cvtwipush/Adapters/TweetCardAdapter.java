@@ -112,6 +112,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
 
     @Override
     public void onBindViewHolder(@NonNull final TweetCardAdapter.TweetCardViewHolder holder, final int position) {
+        //卡片
         final CardView card = holder.itemView.findViewById(R.id.tweet_card);
         card.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,7 +127,6 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
                 v.getContext().startActivity(intent,optionsCompat.toBundle());
             }
         });
-
         holder.tweetCard.setBtn1OnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -150,10 +150,13 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
             }
         });
 
+        //姓名
         holder.tweetCard.setName(tweets.get(position).getUser().name_in_group);
 
+        //正文
         holder.tweetCard.setTweetText(tweets.get(position).getText());
 
+        //推文类型
         switch(tweets.get(position).getTweetType()){
             case TwitterStatus.REPLY:
                 holder.tweetCard.setType("回复");
@@ -164,15 +167,18 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
             default:
                 break;
         }
-        
+
+        //发推时间
         holder.tweetCard.setTime(tweets.get(position).getCreated_at());
 
+        //头像
         if(tweets.get(position).user.cached_profile_image_preview != null){
             holder.tweetCard.setAvatarImg(tweets.get(position).user.cached_profile_image_preview);
         } else {
             downloadImage(TwitterMedia.AVATAR,tweets.get(position).user.profile_image_url,position,null);
         }
 
+        //媒体
         int i=1;
         if(tweets.get(position).media != null && !tweets.get(position).media.isEmpty()) {
                 if (tweets.get(position).media.size() <= 4 && tweets.get(position).media.get(0).type == TwitterMedia.IMAGE) {
@@ -181,6 +187,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
 
                 for (final TwitterMedia media : tweets.get(position).media) {
                     switch (media.type) {
+                        //图片
                         case TwitterMedia.IMAGE:
                             if (media.cached_image_preview != null) {
                                 final int page = i-1;
@@ -200,6 +207,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
                                 downloadImage(TwitterMedia.IMAGE, media.previewImageURL, position, i);
                             }
                             break;
+                        //视频
                         case TwitterMedia.VIDEO:
                             holder.tweetCard.initVideo();
                             if (media.cached_image_preview != null) {
