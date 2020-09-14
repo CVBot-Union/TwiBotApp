@@ -16,20 +16,28 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.cvbotunion.cvtwipush.Activities.TweetList;
 import com.cvbotunion.cvtwipush.CustomViews.GroupPopupWindow;
+import com.cvbotunion.cvtwipush.DBModel.DBRTGroup;
 import com.cvbotunion.cvtwipush.Model.RTGroup;
 import com.cvbotunion.cvtwipush.R;
 
+import org.litepal.LitePal;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdapter.ViewHolder> {
     public Context context;
     public GroupPopupWindow popupWindow;
-    public ArrayList<RTGroup.Job> jobs;
+    public ArrayList<String> gidList = new ArrayList<>();
+    public ArrayList<RTGroup.Job> jobList = new ArrayList<>();
 
-    public GroupRecyclerAdapter(Context context, GroupPopupWindow popupWindow, ArrayList<RTGroup.Job> jobs){
+    public GroupRecyclerAdapter(Context context, GroupPopupWindow popupWindow, HashMap<String,RTGroup.Job> jobs){
         this.context = context;
         this.popupWindow = popupWindow;
-        this.jobs = jobs;
+        for(HashMap.Entry<String, RTGroup.Job> e : jobs.entrySet()) {
+            gidList.add(e.getKey());
+            jobList.add(e.getValue());
+        }
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
@@ -54,6 +62,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
 
     @Override
     public void onBindViewHolder(@NonNull GroupRecyclerAdapter.ViewHolder holder, final int position) {
+        RTGroup currentGroup = LitePal.where("gid = ?",gidList.get(position)).findFirst(DBRTGroup.class).toRTGroup();
         LinearLayout layout = (LinearLayout) holder.itemView.findViewById(R.id.group_item_layout);
         layout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,25 +70,25 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
                 popupWindow.dismiss();
                 Intent intent = new Intent(context, TweetList.class);
                 Bundle bundle = new Bundle();
-                bundle.putString("groupId",jobs.get(position).getGroup().id);
+                bundle.putString("groupId",gidList.get(position));
                 intent.putExtras(bundle);
                 ((AppCompatActivity) context).startActivityForResult(intent,1);
                 ((AppCompatActivity) context).finish();
             }
         });
-        if(jobs.get(position).getGroup().avatar != null){
-            holder.groupImageView.setImageBitmap(jobs.get(position).getGroup().avatar);
+        if(currentGroup.avatar != null){
+            holder.groupImageView.setImageBitmap(currentGroup.avatar);
         }
-        if(jobs.get(position).getGroup().name != null) {
-            holder.groupName.setText(jobs.get(position).getGroup().name);
+        if(currentGroup.name != null) {
+            holder.groupName.setText(currentGroup.name);
         }
-        if(jobs.get(position).job != null) {
-            holder.myJobInGroup.setText(jobs.get(position).job);
+        if(jobList.get(position) != null) {
+            holder.myJobInGroup.setText(jobList.get(position).jobName);
         }
     }
 
     @Override
     public int getItemCount() {
-        return jobs.size();
+        return gidList.size();
     }
 }

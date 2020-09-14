@@ -9,6 +9,7 @@ import org.litepal.crud.LitePalSupport;
  * Model class of the database, which corresponds to class TwitterUser.
  */
 public class DBTwitterUser extends LitePalSupport {
+    @Column(nullable = false)
     private String tid;  //见DBTwitterStatus的tid注释
     private String name;
 

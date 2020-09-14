@@ -227,6 +227,10 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
                     i += 1;
                 }
         }
+        else {
+            //无媒体的情况
+            holder.tweetCard.hideAllImageView();
+        }
     }
 
     @Override

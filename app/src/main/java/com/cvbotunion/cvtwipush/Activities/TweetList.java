@@ -28,13 +28,18 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.cvbotunion.cvtwipush.CustomViews.GroupPopupWindow;
+import com.cvbotunion.cvtwipush.DBModel.DBFollow;
+import com.cvbotunion.cvtwipush.DBModel.DBJob;
+import com.cvbotunion.cvtwipush.DBModel.DBRTGroup;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterMedia;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterUser;
+import com.cvbotunion.cvtwipush.DBModel.DBUser;
 import com.cvbotunion.cvtwipush.Model.RTGroup;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.Model.TwitterUser;
+import com.cvbotunion.cvtwipush.Model.User;
 import com.cvbotunion.cvtwipush.Utils.NetworkStateReceiver;
 import com.cvbotunion.cvtwipush.R;
 import com.cvbotunion.cvtwipush.Utils.RefreshTask;
@@ -67,6 +72,7 @@ public class TweetList extends AppCompatActivity {
 
     private ArrayList<TwitterStatus> dataSet = new ArrayList<>();
     private ArrayList<TwitterStatus> usedDataSet = new ArrayList<>();
+    private User currentUser;
     private RTGroup group;
     private ArrayList<String> followingName;
     private Map<Integer, String> idToName = new HashMap<>();
@@ -89,10 +95,7 @@ public class TweetList extends AppCompatActivity {
         initView();
         initRecyclerView();
 
-        //title.setText(group.name);
-        String groupName = "蔷薇之心";
-        title.setText(groupName);//待更改
-
+        title.setText(group.name);
         mdToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -103,7 +106,7 @@ public class TweetList extends AppCompatActivity {
                             view, ViewGroup.LayoutParams.MATCH_PARENT,
                             ViewGroup.LayoutParams.WRAP_CONTENT,
                             true,
-                            null);//待更改
+                            currentUser);
                     popupWindow.showAsDropDown(findViewById(R.id.group_menu_item),0, 0, Gravity.END);
                     dimBehind(popupWindow);
                 }
@@ -111,7 +114,7 @@ public class TweetList extends AppCompatActivity {
             }
         });
 
-        for(String twitterUserName:followingName){//待更改
+        for(String twitterUserName:followingName){
             Chip chip = (Chip) getLayoutInflater().inflate(R.layout.chip_view,chipGroup,false);
             chip.setText(twitterUserName);
             int viewId = ViewCompat.generateViewId();
@@ -157,37 +160,37 @@ public class TweetList extends AppCompatActivity {
     private  void initData() {
         //List<DBTwitterStatus> dbStatusList = LitePal.findAll(DBTwitterStatus.class);
         //for(DBTwitterStatus s : dbStatusList) {
-            //"0"使得最新的放上面
-            //dataSet.add(0, s.toTwitterStatus());
+        //"0"使得最新的放上面
+        //dataSet.add(0, s.toTwitterStatus());
         //}
         //usedDataSet = (ArrayList<TwitterStatus>) dataSet.clone();
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
-        String groupId;
-        if(bundle != null) {
-            groupId = bundle.getString("groupId");
+        if (bundle != null) {
+            String groupId = bundle.getString("groupId");
+            //group = LitePal.where("gid = ?",groupId).findFirst(DBRTGroup.class).toRTGroup();
+        } else {
+            //currentUser = LitePal.findFirst(DBUser.class).toUser();
+            //String firstGid = (String) currentUser.jobs.keySet().toArray()[0];
+            //group = LitePal.where("gid = ?",firstGid).findFirst(DBRTGroup.class).toRTGroup();
         }
-        else {
-            //groupId = ;
-        }
-        //groupId -> group
         //for(TwitterUser u : group.following) {
         //    followingName.add(u.name);
         //}
 
         //start 模拟数据
-        TwitterUser user = new TwitterUser("1","sb","sbsb","SB","http://101.200.184.98:8080/media/MO4FkO4N_400x400.jpg");
-        TwitterMedia media = new TwitterMedia("1","http://101.200.184.98:8080/media/MO4FkO4N_400x400.jpg",TwitterMedia.IMAGE,"http://101.200.184.98:8080/media/MO4FkO4N_400x400.jpg");
+        TwitterUser user = new TwitterUser("1", "sb", "sbsb", "SB", "http://101.200.184.98:8080/media/MO4FkO4N_400x400.jpg");
+        TwitterMedia media = new TwitterMedia("1", "http://101.200.184.98:8080/media/MO4FkO4N_400x400.jpg", TwitterMedia.IMAGE, "http://101.200.184.98:8080/media/MO4FkO4N_400x400.jpg");
         ArrayList<TwitterMedia> newList = new ArrayList<>();
         newList.add(media);
         newList.add(media);
         newList.add(media);
-        TwitterStatus status = new TwitterStatus("11:14","1","测试",user,newList);
+        TwitterStatus status = new TwitterStatus("11:14", "1", "测试", user, newList);
 
         //由于不同推文可能会使用同一个media，所以没有给media设置UNIQUE字段，
         //  使用DBTwitterMedia.save()方法前请通过statusId和tid字段进行查重
-        if(LitePal.where("tid = ?", status.id).find(DBTwitterStatus.class).isEmpty()) {
+        if (LitePal.where("tid = ?", status.id).find(DBTwitterStatus.class).isEmpty()) {
             DBTwitterStatus dbTweet = new DBTwitterStatus(status);
             dbTweet.save();
         }
@@ -198,12 +201,30 @@ public class TweetList extends AppCompatActivity {
         dataSet.add(status);
         usedDataSet = (ArrayList<TwitterStatus>) dataSet.clone();
 
+        ArrayList<TwitterUser> following = new ArrayList<>();
+        following.add(new TwitterUser("3", "相羽あいな", "aibaaiai", "相羽爱奈", "http://101.200.184.98:8080/aiai.jpg"));
+        following.add(new TwitterUser("4", "工藤晴香", "kudoharuka910", "工藤晴香", ""));
+        following.add(new TwitterUser("5", "中島由貴", "Yuki_Nakashim", "中岛由贵", ""));
+        following.add(new TwitterUser("6", "櫻川めぐ", "sakuragawa_megu", "樱川惠", ""));
+        following.add(new TwitterUser("7", "志崎樺音", "Kanon_Shizaki", "志崎桦音", ""));
+        group = new RTGroup("group1", "蔷薇之心", "", following);
         followingName = new ArrayList<>();
-        followingName.add("相羽あいな");
-        followingName.add("工藤晴香");
-        followingName.add("中島由貴");
-        followingName.add("櫻川めぐ");
-        followingName.add("志崎樺音");
+        for (TwitterUser u : group.following) {
+            followingName.add(u.name);
+        }
+        if (LitePal.where("gid = ?", group.id).find(DBRTGroup.class).isEmpty()) {
+            DBRTGroup dbrtGroup = new DBRTGroup(group);
+            dbrtGroup.save();
+        }
+
+        RTGroup.Job job = new RTGroup.Job("翻译/搬运", 1);
+        HashMap<String, RTGroup.Job> jobMap = new HashMap<>();
+        jobMap.put(group.id, job);
+        currentUser = new User("1", "用户1", null, null, jobMap);
+        if(LitePal.where("uid = ?", currentUser.id).find(DBUser.class).isEmpty()) {
+            DBUser dbUser = new DBUser(currentUser);
+            dbUser.save();
+        }
         //end 模拟数据
     }
 
@@ -242,10 +263,14 @@ public class TweetList extends AppCompatActivity {
         networkStateReceiver = new NetworkStateReceiver();
         registerReceiver(networkStateReceiver, intentFilter);
 
-        LitePalDB litePalDB = new LitePalDB("twitterData", 4);
+        LitePalDB litePalDB = new LitePalDB("twitterData", 6);
         litePalDB.addClassName(DBTwitterStatus.class.getName());
         litePalDB.addClassName(DBTwitterUser.class.getName());
         litePalDB.addClassName(DBTwitterMedia.class.getName());
+        litePalDB.addClassName(DBRTGroup.class.getName());
+        litePalDB.addClassName(DBUser.class.getName());
+        litePalDB.addClassName(DBJob.class.getName());
+        litePalDB.addClassName(DBFollow.class.getName());
         LitePal.use(litePalDB);
         db = LitePal.getDatabase();
     }

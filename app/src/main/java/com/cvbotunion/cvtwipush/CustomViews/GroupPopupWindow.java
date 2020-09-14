@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cvbotunion.cvtwipush.Adapters.GroupRecyclerAdapter;
@@ -47,7 +48,7 @@ public class GroupPopupWindow extends PopupWindow {
                 avatar.setImageBitmap(user.avatar);
             }
         }
-
+        groupList.setLayoutManager(new LinearLayoutManager(context));
         grAdapter = new GroupRecyclerAdapter(context,this,user.jobs);
         groupList.setAdapter(grAdapter);
     }

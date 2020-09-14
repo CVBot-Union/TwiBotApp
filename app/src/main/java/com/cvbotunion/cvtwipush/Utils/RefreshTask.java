@@ -46,9 +46,10 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
         try {
             TwitterUser user = new TwitterUser("3","相羽あいな","aibaaiai","相羽爱奈","http://101.200.184.98:8080/aiai.jpg");
             TwitterMedia media = new TwitterMedia("2","http://101.200.184.98:8080/media/aqua.jpg",TwitterMedia.IMAGE,"http://101.200.184.98:8080/media/aqua.jpg");
+            TwitterMedia media1 = new TwitterMedia("3","http://101.200.184.98:8080/nana.jpg",TwitterMedia.IMAGE,"http://101.200.184.98:8080/nana.jpg");
             ArrayList<TwitterMedia> mediaList = new ArrayList<>();
             mediaList.add(media);
-
+            mediaList.add(media1);
             TwitterStatus tweet=new TwitterStatus("12:34", "4", "新增项", user, mediaList, TwitterStatus.REPLY,"123456");
             if(LitePal.where("tid = ?", tweet.id).find(DBTwitterStatus.class).isEmpty()) {
                 DBTwitterStatus dbStatus = new DBTwitterStatus(tweet);

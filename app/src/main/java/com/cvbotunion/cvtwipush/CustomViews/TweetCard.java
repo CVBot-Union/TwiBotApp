@@ -148,6 +148,7 @@ public class TweetCard extends CardView{
     }
 
     public void tweetImageInit(int size){
+        hideAllImageView();
         imageSetLayout.setVisibility(VISIBLE);
         switch(size) {
             case 1:
@@ -223,14 +224,18 @@ public class TweetCard extends CardView{
         }
     }
 
-    public void hideImage(){
-        if(imageSetLayout != null) {
-            imageSetLayout.setVisibility(GONE);
-        }
+    public void hideAllImageView() {
+        imageSetLayout.setVisibility(GONE);
+        leftImageLayout.setVisibility(GONE);
+        leftTopImageView.setVisibility(GONE);
+        leftBottomImageView.setVisibility(GONE);
+        rightImageLayout.setVisibility(GONE);
+        rightTopImageView.setVisibility(GONE);
+        rightBottomImageView.setVisibility(GONE);
     }
 
     public void initVideo(){
-        hideImage();
+        hideAllImageView();
         videoSet.setVisibility(VISIBLE);
         defaultVideoBackground.setVisibility(VISIBLE);
         videoNotLoading.setVisibility(VISIBLE);

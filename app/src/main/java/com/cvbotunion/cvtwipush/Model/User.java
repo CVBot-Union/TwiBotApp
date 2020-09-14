@@ -6,7 +6,7 @@ import android.os.Parcelable;
 
 import androidx.annotation.Nullable;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 public class User implements Parcelable{
 
@@ -14,9 +14,9 @@ public class User implements Parcelable{
     public String name;
     @Nullable public String avatarURL;
     @Nullable public Bitmap avatar;
-    public ArrayList<RTGroup.Job> jobs;
+    public HashMap<String, RTGroup.Job> jobs = new HashMap<>();  //String : RTGroup.id
 
-    public User(String id, String name, @Nullable String avatarURL,@Nullable Bitmap avatar, @Nullable ArrayList<RTGroup.Job> jobs){
+    public User(String id, String name, @Nullable String avatarURL,@Nullable Bitmap avatar, HashMap<String,RTGroup.Job> jobs){
         this.id = id;
         this.name = name;
         if (avatarURL != null){
@@ -35,7 +35,7 @@ public class User implements Parcelable{
         name = in.readString();
         avatarURL = in.readString();
         avatar = in.readParcelable(Bitmap.class.getClassLoader());
-        jobs = in.createTypedArrayList(RTGroup.Job.CREATOR);
+        jobs = in.readHashMap(jobs.getClass().getClassLoader());
     }
 
     public static final Creator<User> CREATOR = new Creator<User>() {
@@ -61,6 +61,6 @@ public class User implements Parcelable{
         dest.writeString(name);
         dest.writeString(avatarURL);
         dest.writeParcelable(avatar, flags);
-        dest.writeTypedList(jobs);
+        dest.writeMap(jobs);
     }
 }
