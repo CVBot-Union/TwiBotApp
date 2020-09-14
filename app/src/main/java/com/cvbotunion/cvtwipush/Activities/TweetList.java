@@ -47,7 +47,9 @@ import org.litepal.LitePal;
 import org.litepal.LitePalDB;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TweetList extends AppCompatActivity {
 
@@ -64,9 +66,14 @@ public class TweetList extends AppCompatActivity {
     private TextView title;
 
     private ArrayList<TwitterStatus> dataSet = new ArrayList<>();
+    private ArrayList<TwitterStatus> usedDataSet = new ArrayList<>();
     private RTGroup group;
     private ArrayList<String> followingName;
-    SQLiteDatabase db;
+    private Map<Integer, String> idToName = new HashMap<>();
+    private SQLiteDatabase db;
+
+    public TweetList() {
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,13 +114,24 @@ public class TweetList extends AppCompatActivity {
         for(String twitterUserName:followingName){//待更改
             Chip chip = (Chip) getLayoutInflater().inflate(R.layout.chip_view,chipGroup,false);
             chip.setText(twitterUserName);
-            chip.setId(ViewCompat.generateViewId());
+            int viewId = ViewCompat.generateViewId();
+            chip.setId(viewId);
+            idToName.put(viewId, twitterUserName);
             chipGroup.addView(chip);
         }
         chipGroup.setOnCheckedChangeListener(new ChipGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(ChipGroup group, int checkedId) {
-                //待更改
+                usedDataSet.clear();
+                String checkedName = idToName.getOrDefault(checkedId, null);
+                if(checkedName == null)
+                    usedDataSet = (ArrayList<TwitterStatus>) dataSet.clone();
+                else {
+                    for (TwitterStatus s : dataSet) {
+                        if (s.user.name.equals(checkedName))
+                            usedDataSet.add(s);
+                    }
+                }
                 initRecyclerView();
             }
         });
@@ -132,6 +150,7 @@ public class TweetList extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         db.close();
+        idToName.clear();
         unregisterReceiver(networkStateReceiver);
     }
 
@@ -141,6 +160,7 @@ public class TweetList extends AppCompatActivity {
             //"0"使得最新的放上面
             //dataSet.add(0, s.toTwitterStatus());
         //}
+        //usedDataSet = (ArrayList<TwitterStatus>) dataSet.clone();
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
@@ -176,6 +196,7 @@ public class TweetList extends AppCompatActivity {
         dataSet.add(status);
         dataSet.add(status);
         dataSet.add(status);
+        usedDataSet = (ArrayList<TwitterStatus>) dataSet.clone();
 
         followingName = new ArrayList<>();
         followingName.add("相羽あいな");
@@ -199,7 +220,7 @@ public class TweetList extends AppCompatActivity {
         };
 
         tweetListRecyclerView.setLayoutManager(layoutManager);
-        tAdapter = new TweetCardAdapter(dataSet,this);
+        tAdapter = new TweetCardAdapter(usedDataSet,this);
         tweetListRecyclerView.setAdapter(tAdapter);
         ((SimpleItemAnimator) tweetListRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
     }
@@ -230,8 +251,9 @@ public class TweetList extends AppCompatActivity {
     }
 
     public void netRefresh(int checkedId) {
-        RefreshTask task = new RefreshTask(coordinatorLayout, swipeRefreshLayout, dataSet);
-        task.setCheckedId(checkedId);
+        RefreshTask task = new RefreshTask(coordinatorLayout, swipeRefreshLayout);
+        String checkedName = idToName.getOrDefault(checkedId, null);
+        task.setData(usedDataSet, dataSet, checkedName);
         task.execute();
     }
 

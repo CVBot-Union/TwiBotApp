@@ -55,6 +55,10 @@ public class TwitterUser implements Parcelable{
         cached_profile_image = in.readParcelable(Bitmap.class.getClassLoader());
     }
 
+    public void setNameInGroup(String name_in_group) {
+        this.name_in_group = name_in_group;
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(id);

@@ -19,18 +19,20 @@ import java.util.ArrayList;
 public class RefreshTask extends AsyncTask<String,Void,Boolean> {
     private WeakReference<CoordinatorLayout> parentViewRef;
     private WeakReference<SwipeRefreshLayout> refreshLayoutRef;
+    private ArrayList<TwitterStatus> usedDataSet;
     private ArrayList<TwitterStatus> dataSet;
     //用于在特定chip下刷新
-    private int checkedId;
+    private String checkedName;
 
-    public RefreshTask(CoordinatorLayout coordinatorLayout, SwipeRefreshLayout refreshLayout, ArrayList<TwitterStatus> dataSet) {
+    public RefreshTask(CoordinatorLayout coordinatorLayout, SwipeRefreshLayout refreshLayout) {
         super();
         this.parentViewRef=new WeakReference<>(coordinatorLayout);
         this.refreshLayoutRef=new WeakReference<>(refreshLayout);
-        this.dataSet=dataSet;
     }
-    public void setCheckedId(int checkedId) {
-        this.checkedId=checkedId;
+    public void setData(ArrayList<TwitterStatus> usedDataSet, ArrayList<TwitterStatus> dataSet, String checkedName) {
+        this.usedDataSet = usedDataSet;
+        this.dataSet = dataSet;
+        this.checkedName = checkedName;
     }
 
     @Override
@@ -42,16 +44,18 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
     protected Boolean doInBackground(String... params) {
         //实际应用中，此处与服务器通信以获取数据
         try {
-            TwitterUser user = new TwitterUser("2","大亏","aqua","大亏","http://101.200.184.98:8080/media/aqua.jpg");
+            TwitterUser user = new TwitterUser("3","相羽あいな","aibaaiai","相羽爱奈","http://101.200.184.98:8080/aiai.jpg");
             TwitterMedia media = new TwitterMedia("2","http://101.200.184.98:8080/media/aqua.jpg",TwitterMedia.IMAGE,"http://101.200.184.98:8080/media/aqua.jpg");
             ArrayList<TwitterMedia> mediaList = new ArrayList<>();
             mediaList.add(media);
 
-            TwitterStatus tweet=new TwitterStatus("12:34", "2", "新增项", user, mediaList, TwitterStatus.REPLY,"123456");
+            TwitterStatus tweet=new TwitterStatus("12:34", "4", "新增项", user, mediaList, TwitterStatus.REPLY,"123456");
             if(LitePal.where("tid = ?", tweet.id).find(DBTwitterStatus.class).isEmpty()) {
                 DBTwitterStatus dbStatus = new DBTwitterStatus(tweet);
                 dbStatus.save();
             }
+            if(checkedName == null || tweet.user.name.equals(checkedName))
+                usedDataSet.add(0, tweet);
             dataSet.add(0, tweet);
             Thread.sleep(1000);
         } catch (InterruptedException e) {
