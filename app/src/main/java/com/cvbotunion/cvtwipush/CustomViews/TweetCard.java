@@ -228,10 +228,15 @@ public class TweetCard extends CardView{
         imageSetLayout.setVisibility(GONE);
         leftImageLayout.setVisibility(GONE);
         leftTopImageView.setVisibility(GONE);
+        leftTopImageView.setImageResource(R.drawable.ic_baseline_image_24);
         leftBottomImageView.setVisibility(GONE);
+        leftBottomImageView.setImageResource(R.drawable.ic_baseline_image_24);
+
         rightImageLayout.setVisibility(GONE);
         rightTopImageView.setVisibility(GONE);
+        rightTopImageView.setImageResource(R.drawable.ic_baseline_image_24);
         rightBottomImageView.setVisibility(GONE);
+        rightBottomImageView.setImageResource(R.drawable.ic_baseline_image_24);
     }
 
     public void initVideo(){

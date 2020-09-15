@@ -1,10 +1,18 @@
 package com.cvbotunion.cvtwipush.Model;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class TwitterUser implements Parcelable{
     public String id;
@@ -57,6 +65,39 @@ public class TwitterUser implements Parcelable{
 
     public void setNameInGroup(String name_in_group) {
         this.name_in_group = name_in_group;
+    }
+
+    public void downloadAvatar(final RecyclerView.Adapter tAdapter, final Handler handler, @Nullable final Integer position) {
+        if(profile_image_url != null) {
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        URL url0 = new URL(profile_image_url);
+                        HttpURLConnection connection = (HttpURLConnection) url0.openConnection();
+                        connection.setRequestMethod("GET");
+                        connection.setConnectTimeout(10000);
+                        int code = connection.getResponseCode();
+                        if (code == 200) {
+                            InputStream inputStream = connection.getInputStream();
+                            cached_profile_image_preview = BitmapFactory.decodeStream(inputStream);
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if(position != null)
+                                        tAdapter.notifyItemChanged(position);
+                                    else
+                                        tAdapter.notifyDataSetChanged();
+                                }
+                            });
+                            inputStream.close();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }.start();
+        }
     }
 
     @Override

@@ -127,15 +127,11 @@ public class TweetList extends AppCompatActivity {
             public void onCheckedChanged(ChipGroup group, int checkedId) {
                 usedDataSet.clear();
                 String checkedName = idToName.getOrDefault(checkedId, null);
-                if(checkedName == null)
-                    usedDataSet = (ArrayList<TwitterStatus>) dataSet.clone();
-                else {
-                    for (TwitterStatus s : dataSet) {
-                        if (s.user.name.equals(checkedName))
-                            usedDataSet.add(s);
-                    }
+                for (TwitterStatus s : dataSet) {
+                    if (checkedName == null || s.user.name.equals(checkedName))
+                        usedDataSet.add(s);
                 }
-                initRecyclerView();
+                tAdapter.notifyDataSetChanged();
             }
         });
 
@@ -144,7 +140,6 @@ public class TweetList extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 netRefresh(chipGroup.getCheckedChipId());
-                initRecyclerView();
             }
         });
     }
@@ -276,7 +271,7 @@ public class TweetList extends AppCompatActivity {
     }
 
     public void netRefresh(int checkedId) {
-        RefreshTask task = new RefreshTask(coordinatorLayout, swipeRefreshLayout);
+        RefreshTask task = new RefreshTask(coordinatorLayout, swipeRefreshLayout, tAdapter);
         String checkedName = idToName.getOrDefault(checkedId, null);
         task.setData(usedDataSet, dataSet, checkedName);
         task.execute();

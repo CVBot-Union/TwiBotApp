@@ -4,8 +4,6 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -13,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityOptionsCompat;
@@ -27,10 +24,6 @@ import com.cvbotunion.cvtwipush.R;
 import com.cvbotunion.cvtwipush.CustomViews.TweetCard;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 
 public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.TweetCardViewHolder> {
@@ -65,49 +58,6 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
     public TweetCardAdapter.TweetCardViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.tweet_card,parent,false);
         return new TweetCardViewHolder(view);
-    }
-
-    //建议移动到RefreshTask中
-    protected void downloadImage(final int type,final String path, final int position,@Nullable final Integer picturePosition) {
-        if(isConnected) {
-            new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        //把传过来的路径转成URL
-                        URL url = new URL(path);
-                        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                        connection.setRequestMethod("GET");
-                        connection.setConnectTimeout(10000);
-                        int code = connection.getResponseCode();
-                        if (code == 200) {
-                            InputStream inputStream = connection.getInputStream();
-                            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                            switch (type) {
-                                case TwitterMedia.AVATAR:
-                                    tweets.get(position).user.cached_profile_image_preview = bitmap;
-                                    break;
-                                case TwitterMedia.VIDEO:
-                                    tweets.get(position).media.get(picturePosition - 1).cached_image_preview = bitmap;
-                                    break;
-                                default:
-                                    tweets.get(position).media.get(picturePosition - 1).cached_image_preview = bitmap;
-                                    break;
-                            }
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    notifyItemChanged(position);
-                                }
-                            });
-                            inputStream.close();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }.start();
-        }
     }
 
     @Override
@@ -175,7 +125,8 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
         if(tweets.get(position).user.cached_profile_image_preview != null){
             holder.tweetCard.setAvatarImg(tweets.get(position).user.cached_profile_image_preview);
         } else {
-            downloadImage(TwitterMedia.AVATAR,tweets.get(position).user.profile_image_url,position,null);
+            //downloadImage(TwitterMedia.AVATAR,tweets.get(position).user.profile_image_url,position,null);
+            tweets.get(position).user.downloadAvatar(this, handler, position);
         }
 
         //媒体
@@ -204,7 +155,8 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
                                 });
                                 holder.tweetCard.setTweetImage(tweets.get(position).media.size(), i, media.cached_image_preview);
                             } else {
-                                downloadImage(TwitterMedia.IMAGE, media.previewImageURL, position, i);
+                                //downloadImage(TwitterMedia.IMAGE, media.previewImageURL, position, i);
+                                media.downloadImage(this, handler,null);
                             }
                             break;
                         //视频
@@ -220,7 +172,8 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
                                 holder.tweetCard.setVideoBackground(media.cached_image_preview);
                                 break;
                             } else {
-                                downloadImage(TwitterMedia.VIDEO, media.previewImageURL, position, 1);
+                                //downloadImage(TwitterMedia.VIDEO, media.previewImageURL, position, 1);
+                                media.downloadImage(this, handler,null);
                             }
                             break;
                     }

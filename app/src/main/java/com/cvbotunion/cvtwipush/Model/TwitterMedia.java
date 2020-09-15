@@ -63,6 +63,37 @@ public class TwitterMedia implements Parcelable{
         cached_image = in.readParcelable(Bitmap.class.getClassLoader());
     }
 
+    public void downloadImage(final RecyclerView.Adapter tAdapter, final Handler handler, @Nullable final Integer position) {
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    URL url0 = new URL(previewImageURL);
+                    HttpURLConnection connection = (HttpURLConnection) url0.openConnection();
+                    connection.setRequestMethod("GET");
+                    connection.setConnectTimeout(10000);
+                    int code = connection.getResponseCode();
+                    if (code == 200) {
+                        InputStream inputStream = connection.getInputStream();
+                        cached_image_preview = BitmapFactory.decodeStream(inputStream);
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(position != null)
+                                    tAdapter.notifyItemChanged(position);
+                                else
+                                    tAdapter.notifyDataSetChanged();
+                            }
+                        });
+                        inputStream.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
     public boolean saveToFile(Context context) {
         boolean result = true;
         switch(type) {
