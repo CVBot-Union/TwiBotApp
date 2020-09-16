@@ -11,6 +11,7 @@ import com.xiaomi.mipush.sdk.MiPushClient;
 
 import org.litepal.LitePal;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.logging.LogManager;
 
@@ -19,10 +20,12 @@ public class TwiPush extends Application {
     public static final String APP_ID = "2882303761518650494";
     public static final String APP_KEY = "5831865030494";
     public static final String TAG = "com.cvbotunion.cvtwipush";
+    private static WeakReference<Context> contextRef;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        contextRef = new WeakReference<>(getApplicationContext());
         //初始化push推送服务
         if(shouldInit()) {
             MiPushClient.registerPush(this, APP_ID, APP_KEY);
@@ -61,5 +64,9 @@ public class TwiPush extends Application {
             }
         }
         return false;
+    }
+
+    public static Context getContext() {
+        return contextRef.get();
     }
 }

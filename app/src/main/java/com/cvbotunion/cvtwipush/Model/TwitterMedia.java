@@ -14,7 +14,10 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.cvbotunion.cvtwipush.TwiPush;
+
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +26,7 @@ import java.net.URL;
 
 public class TwitterMedia implements Parcelable{
     public final static String savePath = Environment.getExternalStorageDirectory().getPath() + "/DCIM/CVTwiPush/";
+    public final static File internalFilesDir = TwiPush.getContext().getFilesDir();
     public final static int AVATAR=0;
     public final static int IMAGE=1;
     public final static int VIDEO=2;
@@ -63,30 +67,98 @@ public class TwitterMedia implements Parcelable{
         cached_image = in.readParcelable(Bitmap.class.getClassLoader());
     }
 
-    public void downloadImage(final RecyclerView.Adapter tAdapter, final Handler handler, @Nullable final Integer position) {
+    public void loadImage(boolean isPreview, RecyclerView.Adapter tAdapter, Handler handler, @Nullable Integer position) {
+        if(isPreview && previewImageURL != null) {
+            File file = new File(internalFilesDir, Uri.parse(previewImageURL).getLastPathSegment());
+            if(file.exists())
+                readImageFromFile(true, tAdapter, handler, position);
+            else
+                downloadImage(true, tAdapter, handler, position);
+        }
+        else if(!isPreview && url != null) {
+            File file = new File(savePath, Uri.parse(url).getLastPathSegment());
+            if(file.exists())
+                readImageFromFile(false, tAdapter, handler, position);
+            else
+                downloadImage(false, tAdapter, handler, position);
+        }
+    }
+
+    private void downloadImage(final boolean isPreview, final RecyclerView.Adapter tAdapter, final Handler handler, final Integer position) {
+        final String downloadURL;
+        if(isPreview)
+            downloadURL = previewImageURL;
+        else
+            downloadURL = url;
         new Thread() {
             @Override
             public void run() {
                 try {
-                    URL url0 = new URL(previewImageURL);
+                    URL url0 = new URL(downloadURL);
                     HttpURLConnection connection = (HttpURLConnection) url0.openConnection();
                     connection.setRequestMethod("GET");
                     connection.setConnectTimeout(10000);
                     int code = connection.getResponseCode();
                     if (code == 200) {
                         InputStream inputStream = connection.getInputStream();
-                        cached_image_preview = BitmapFactory.decodeStream(inputStream);
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                if(position != null)
-                                    tAdapter.notifyItemChanged(position);
-                                else
-                                    tAdapter.notifyDataSetChanged();
-                            }
-                        });
+                        if(isPreview)
+                            cached_image_preview = BitmapFactory.decodeStream(inputStream);
+                        else
+                            cached_image = BitmapFactory.decodeStream(inputStream);
                         inputStream.close();
+                        if(tAdapter != null && handler != null) {
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (position != null)
+                                        tAdapter.notifyItemChanged(position);
+                                    else
+                                        tAdapter.notifyDataSetChanged();
+                                }
+                            });
+                        }
+                        if(isPreview) {
+                            File file = new File(internalFilesDir, Uri.parse(downloadURL).getLastPathSegment());
+                            if(!file.exists())
+                                file.createNewFile();
+                            FileOutputStream fos = new FileOutputStream(file);
+                            cached_image_preview.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                            fos.close();
+                        }
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
+    private void readImageFromFile(final boolean isPreview, final RecyclerView.Adapter tAdapter, final Handler handler, final Integer position) {
+        final File file;
+        if(isPreview) {
+            file = new File(internalFilesDir, Uri.parse(previewImageURL).getLastPathSegment());
+        } else {
+            file = new File(savePath, Uri.parse(url).getLastPathSegment());
+        }
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    FileInputStream fis = new FileInputStream(file);
+                    if(isPreview)
+                        cached_image_preview = BitmapFactory.decodeStream(fis);
+                    else
+                        cached_image = BitmapFactory.decodeStream(fis);
+                    fis.close();
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (position != null)
+                                tAdapter.notifyItemChanged(position);
+                            else
+                                tAdapter.notifyDataSetChanged();
+                        }
+                    });
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -110,31 +182,30 @@ public class TwitterMedia implements Parcelable{
     }
 
     private boolean saveBitmap2file(Context context) {
-        String[] tmp;
-        if(url != null)
-            tmp = url.split("/");
-        else
-            tmp = previewImageURL.split("/");
-        String fileName = tmp[tmp.length-1].split("\\.")[0];
-        String filePath = savePath + fileName + ".jpeg";
+        String fileName = Uri.parse(url).getLastPathSegment();
+        File file = new File(savePath, fileName);
+        if(file.exists())
+            return true;
         try {
-            File file = new File(filePath);
-            if(!file.exists()) {
+            if(!file.getParentFile().exists())
                 file.getParentFile().mkdirs();
+            if(cached_image == null) {
+                DownloadManager downloadManager = (DownloadManager)context.getSystemService(Context.DOWNLOAD_SERVICE);
+                DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
+                request.allowScanningByMediaScanner();
+                request.setVisibleInDownloadsUi(true);
+                request.setTitle("转推图片");
+                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DCIM, "/CVTwiPush/"+fileName);
+                downloadManager.enqueue(request);
+            } else {
                 file.createNewFile();
-            }
-            FileOutputStream fos = new FileOutputStream(file);
-            if(cached_image != null)
-                cached_image.compress(Bitmap.CompressFormat.JPEG,100, fos);
-            else if(cached_image_preview!=null)
-                cached_image_preview.compress(Bitmap.CompressFormat.JPEG,100, fos);
-            else {
+                FileOutputStream fos = new FileOutputStream(file);
+                cached_image.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                fos.flush();
                 fos.close();
-                return false;
+                context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + file.getAbsolutePath())));
             }
-            fos.flush();
-            fos.close();
-            context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + filePath)));
             return true;
         } catch(Exception e){
             e.printStackTrace();
@@ -143,17 +214,20 @@ public class TwitterMedia implements Parcelable{
     }
 
     private boolean saveVideo(Context context) {
-        String[] tmp;
-        tmp = url.split("/");
-        String fileName = tmp[tmp.length-1].split("\\?")[0];
+        String fileName = Uri.parse(url).getLastPathSegment();
+        File file = new File(savePath, fileName);
+        if(file.exists())
+            return true;
+        if(!file.getParentFile().exists())
+            file.getParentFile().mkdirs();
         try {
             DownloadManager downloadManager = (DownloadManager)context.getSystemService(Context.DOWNLOAD_SERVICE);
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
             request.allowScanningByMediaScanner();
             request.setVisibleInDownloadsUi(true);
-            request.setTitle("转推视频下载");
-            request.setDestinationInExternalPublicDir("/DCIM/CVTwiPush/", fileName);
+            request.setTitle("转推视频");
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DCIM, "/CVTwiPush/"+fileName);
             downloadManager.enqueue(request);
             return true;
         } catch (Exception e) {

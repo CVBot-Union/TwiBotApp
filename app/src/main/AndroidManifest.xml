@@ -39,7 +39,9 @@
 
         <activity
             android:name="com.cvbotunion.cvtwipush.Activities.TweetList"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:alwaysRetainTaskState="true"
+            android:clearTaskOnLaunch="false">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

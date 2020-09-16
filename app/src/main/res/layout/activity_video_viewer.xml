@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activities.ImageViewer">
+    tools:context=".Activities.VideoViewer">
 
     <com.dueeeke.videoplayer.player.VideoView
         android:id="@+id/video_player_view"
@@ -18,6 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@null"
+        android:fitsSystemWindows="true"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -29,7 +30,7 @@
             android:background="@null"
             app:menu="@menu/media_viewer_menu"
             app:navigationIcon="?attr/homeAsUpIndicator"
-            app:titleTextColor="#505050" />
+            app:titleTextColor="#FFFFFF" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

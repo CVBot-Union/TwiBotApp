@@ -150,6 +150,7 @@ public class TweetList extends AppCompatActivity {
         db.close();
         idToName.clear();
         unregisterReceiver(networkStateReceiver);
+        getCacheDir().delete();
     }
 
     private  void initData() {
@@ -183,13 +184,23 @@ public class TweetList extends AppCompatActivity {
         newList.add(media);
         TwitterStatus status = new TwitterStatus("11:14", "1", "测试", user, newList);
 
+        TwitterMedia videoMedia = new TwitterMedia("10","http://101.200.184.98:8080/abe.mp4",TwitterMedia.VIDEO,"http://101.200.184.98:8080/227组标.jpg");
+        ArrayList<TwitterMedia> videoList = new ArrayList<>();
+        videoList.add(videoMedia);
+        TwitterStatus status1 = new TwitterStatus("2:06","10","视频推文",user,videoList);
+
         //由于不同推文可能会使用同一个media，所以没有给media设置UNIQUE字段，
         //  使用DBTwitterMedia.save()方法前请通过statusId和tid字段进行查重
         if (LitePal.where("tid = ?", status.id).find(DBTwitterStatus.class).isEmpty()) {
             DBTwitterStatus dbTweet = new DBTwitterStatus(status);
             dbTweet.save();
         }
+        if (LitePal.where("tid = ?", status1.id).find(DBTwitterStatus.class).isEmpty()) {
+            DBTwitterStatus dbTweet = new DBTwitterStatus(status1);
+            dbTweet.save();
+        }
 
+        dataSet.add(status1);
         dataSet.add(status);
         dataSet.add(status);
         dataSet.add(status);

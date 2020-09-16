@@ -84,7 +84,7 @@ public class ImageViewer extends AppCompatActivity {
         pageNum.setText("第 "+ page + "/" + mediaList.size() + " 页");
         imagePagerAdapter = new ImagePagerAdapter(this, mediaList);
         viewPager2.setAdapter(imagePagerAdapter);
-        viewPager2.setCurrentItem(page,false);
+        viewPager2.setCurrentItem(page-1,false);
         viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {

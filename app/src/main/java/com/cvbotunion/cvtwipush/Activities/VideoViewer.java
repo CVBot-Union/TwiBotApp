@@ -4,16 +4,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.cvbotunion.cvtwipush.DBModel.DBTwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.R;
 import com.dueeeke.videoplayer.ijk.IjkPlayer;
 import com.dueeeke.videoplayer.player.VideoView;
 import com.google.android.material.appbar.MaterialToolbar;
+
+import org.litepal.LitePal;
+
+import java.io.File;
 
 public class VideoViewer extends AppCompatActivity {
     VideoView<IjkPlayer> playerView;
@@ -23,18 +30,31 @@ public class VideoViewer extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_video_viewer);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         getWindow().getDecorView().setSystemUiVisibility(0);
+        setContentView(R.layout.activity_video_viewer);
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
         assert bundle != null;
-        video = bundle.getParcelable("videoMedia");
+        String url = bundle.getString("url");
+        video = LitePal.where("url = ?", url).findFirst(DBTwitterMedia.class).toTwitterMedia();
+        File videoFile = new File(TwitterMedia.savePath, Uri.parse(url).getLastPathSegment());
+        if(videoFile.exists())
+            url = videoFile.toURI().getPath();
 
         playerView = findViewById(R.id.video_player_view);
-        playerView.setUrl(video.url);
+        playerView.setUrl(url);
+        playerView.start();
 
         toolbar = findViewById(R.id.video_viewer_toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playerView.pause();
+                playerView.release();
+                onBackPressed();
+            }
+        });
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -45,6 +65,13 @@ public class VideoViewer extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        playerView.pause();
+        playerView.release();
     }
 
     public void saveVideo(){

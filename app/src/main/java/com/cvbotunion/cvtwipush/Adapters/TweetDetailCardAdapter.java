@@ -19,6 +19,7 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cvbotunion.cvtwipush.Activities.ImageViewer;
+import com.cvbotunion.cvtwipush.Activities.VideoViewer;
 import com.cvbotunion.cvtwipush.CustomViews.TweetDetailCard;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
@@ -108,7 +109,6 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
         if(tweets.get(position).user.cached_profile_image_preview != null){
             holder.tweetCard.setAvatarImg(tweets.get(position).user.cached_profile_image_preview);
         } else {
-            //downloadImage(TwitterMedia.AVATAR,tweets.get(position).user.profile_image_url,position,null);
             tweets.get(position).user.downloadAvatar(this, handler, position);
         }
 
@@ -122,7 +122,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                     switch (media.type) {
                         case TwitterMedia.IMAGE:
                             if (media.cached_image_preview != null) {
-                                final int page = i-1;
+                                final int page = i;
                                 holder.tweetCard.setImageOnClickListener(tweets.get(position).media.size(), i, new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
@@ -136,8 +136,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                                 });
                                 holder.tweetCard.setTweetImage(tweets.get(position).media.size(), i, media.cached_image_preview);
                             } else {
-                                //downloadImage(TwitterMedia.IMAGE, media.previewImageURL, position, i);
-                                media.downloadImage(this, handler, position);
+                                media.loadImage(true,this, handler, position);
                             }
                             break;
                         case TwitterMedia.VIDEO:
@@ -146,14 +145,16 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                                 holder.tweetCard.setVideoOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-
+                                        Intent intent = new Intent(v.getContext(), VideoViewer.class);
+                                        Bundle bundle = new Bundle();
+                                        bundle.putString("url", media.url);
+                                        intent.putExtras(bundle);
+                                        v.getContext().startActivity(intent);
                                     }
                                 });
                                 holder.tweetCard.setVideoBackground(media.cached_image_preview);
-                                break;
                             } else {
-                                //downloadImage(TwitterMedia.VIDEO, media.previewImageURL, position, 1);
-                                media.downloadImage(this, handler, position);
+                                media.loadImage(true,this, handler, position);
                             }
                             break;
                     }
