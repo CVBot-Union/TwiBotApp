@@ -6,6 +6,9 @@ import android.content.Context;
 import android.os.Process;
 import android.util.Log;
 
+import com.dueeeke.videoplayer.ijk.IjkPlayerFactory;
+import com.dueeeke.videoplayer.player.VideoViewConfig;
+import com.dueeeke.videoplayer.player.VideoViewManager;
 import com.xiaomi.channel.commonutils.logger.LoggerInterface;
 import com.xiaomi.mipush.sdk.MiPushClient;
 
@@ -26,6 +29,10 @@ public class TwiPush extends Application {
     public void onCreate() {
         super.onCreate();
         contextRef = new WeakReference<>(getApplicationContext());
+        //使用IjkPlayer解码
+        VideoViewManager.setConfig(VideoViewConfig.newBuilder()
+                .setPlayerFactory(IjkPlayerFactory.create())
+                .build());
         //初始化push推送服务
         if(shouldInit()) {
             MiPushClient.registerPush(this, APP_ID, APP_KEY);

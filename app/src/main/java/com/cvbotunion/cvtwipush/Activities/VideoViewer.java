@@ -6,6 +6,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.R;
+import com.dueeeke.videocontroller.StandardVideoController;
 import com.dueeeke.videoplayer.ijk.IjkPlayer;
 import com.dueeeke.videoplayer.player.VideoView;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -44,14 +46,15 @@ public class VideoViewer extends AppCompatActivity {
 
         playerView = findViewById(R.id.video_player_view);
         playerView.setUrl(url);
+        StandardVideoController controller = new StandardVideoController(this);
+        controller.addDefaultControlComponent("推特视频", false);
+        playerView.setVideoController(controller); //设置控制器
         playerView.start();
 
         toolbar = findViewById(R.id.video_viewer_toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playerView.pause();
-                playerView.release();
                 onBackPressed();
             }
         });
@@ -68,10 +71,29 @@ public class VideoViewer extends AppCompatActivity {
     }
 
     @Override
-    public void onDestroy() {
+    protected void onDestroy() {
         super.onDestroy();
         playerView.pause();
         playerView.release();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        playerView.pause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        playerView.resume();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!playerView.onBackPressed()) {
+            super.onBackPressed();
+        }
     }
 
     public void saveVideo(){
