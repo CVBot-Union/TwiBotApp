@@ -189,7 +189,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                     TwitterStatus tweet = tweets.get(tweets.size()-1);
                     if(tweet.getFullText() != null) {
                         ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-                        ClipData mClipData = ClipData.newPlainText("tweetAndTranslation", getFullText(tweet, holder.tweetCard));
+                        ClipData mClipData = ClipData.newPlainText("tweetAndTranslation", tweet.getFullText(holder.tweetCard.getTranslatedText()));
                         clipboardManager.setPrimaryClip(mClipData);
                     }
                     String result = "成功";
@@ -205,13 +205,6 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                 }
             });
         }
-    }
-
-    public String getFullText(TwitterStatus tweet, TweetDetailCard card) {
-        if(tweet.text == null)
-            return tweet.user.name+"\n"+tweet.created_at;
-        else
-            return tweet.user.name+"\n"+tweet.created_at+"\n"+card.getTranslatedText()+"\n\n"+tweet.text;
     }
 
     @Override

@@ -148,6 +148,7 @@ public class TweetCard extends CardView{
     }
 
     public void tweetImageInit(int size){
+        videoSet.setVisibility(GONE);
         hideAllImageView();
         imageSetLayout.setVisibility(VISIBLE);
         switch(size) {

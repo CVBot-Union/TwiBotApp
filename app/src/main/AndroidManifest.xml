@@ -39,7 +39,7 @@
 
         <activity
             android:name="com.cvbotunion.cvtwipush.Activities.TweetList"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
             android:alwaysRetainTaskState="true"
             android:clearTaskOnLaunch="false">
             <intent-filter>
@@ -48,6 +48,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".Activities.TweetDetail"
+            android:launchMode="singleTask" />
+
         <service
             android:name="com.xiaomi.push.service.XMPushService"
             android:enabled="true"
@@ -103,10 +108,6 @@
                 <action android:name="com.xiaomi.mipush.ERROR" />
             </intent-filter>
         </receiver>
-
-        <activity
-            android:name=".Activities.TweetDetail"
-            android:launchMode="singleTask" />
     </application>
 
 </manifest>

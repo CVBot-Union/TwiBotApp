@@ -31,7 +31,9 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:orientation="horizontal"
-                android:padding="16dp">
+                android:paddingHorizontal="16dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="8dp">
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/avatar_img"
@@ -40,7 +42,8 @@
                     android:layout_marginEnd="16dp"
                     app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
                     android:scaleType="fitCenter"
-                    android:background="@drawable/ic_baseline_image_24"/>
+                    android:background="@drawable/ic_baseline_image_24"
+                    android:contentDescription="@string/twitteruser_avatar_description"/>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -85,10 +88,23 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/status_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
+                android:autoLink="web"
+                android:linksClickable="true"
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp"
+                android:text="这是一条Tweet" />
+
             <LinearLayout
                 android:id="@+id/img_set_layout"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
+                android:layout_marginBottom="8dp"
                 android:orientation="horizontal"
                 android:visibility="gone"
                 android:baselineAligned="false">
@@ -112,7 +128,7 @@
                         android:scaleType="center"
                         android:src="@drawable/ic_baseline_image_24"
                         android:visibility="gone"
-                        android:contentDescription="@string/twitteruser_avatar_description"/>
+                        android:contentDescription="@string/twittermedia_image_description"/>
 
                     <ImageView
                         android:id="@+id/left_bottom_image"
@@ -167,6 +183,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_marginBottom="8dp"
                 android:visibility="gone">
 
                 <ImageView
@@ -174,7 +191,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="194dp"
                     android:scaleType="centerCrop"
-                    android:contentDescription="@string/twittermedia_image_description"
+                    android:contentDescription="@string/twittermedia_video_description"
                     android:foreground="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@color/colorBlack"
                     android:visibility="gone" />
@@ -185,27 +202,18 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:focusable="true"
-                    android:contentDescription="@string/twittermedia_image_description"
+                    android:contentDescription="@string/twittermedia_video_description"
                     android:foreground="?android:attr/selectableItemBackgroundBorderless"
                     android:scaleType="center"
                     android:src="@drawable/ic_baseline_play_circle_filled_white_24"
                     android:visibility="gone" />
             </FrameLayout>
 
-            <TextView
-                android:id="@+id/status_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginVertical="16dp"
-                android:autoLink="web"
-                android:linksClickable="true"
-                android:text="这是一条Tweet" />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
+                android:layout_marginBottom="8dp"
                 android:gravity="end"
                 android:orientation="horizontal">
 

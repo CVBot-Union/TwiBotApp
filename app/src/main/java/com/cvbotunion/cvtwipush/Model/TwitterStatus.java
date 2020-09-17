@@ -155,20 +155,29 @@ public class TwitterStatus implements Parcelable {
         }
     }
 
-    //有待修改
     public String getFullText() {
+        return getFullText("");
+    }
+
+    //有待修改
+    public String getFullText(String translatedText) {
+        if(!translatedText.equals(""))
+            translatedText = translatedText+"\n\n";
+        String typeString = "";
         switch (getTweetType()){
             case REPLY:
+                typeString = " 回复";
                 break;
             case QUOTE:
+                typeString = " 转推";
                 break;
             default:
                 break;
         }
         if(text == null)
-            return user.name+"\n"+created_at;
+            return user.name_in_group+typeString+"\n"+created_at;
         else
-            return user.name+"\n"+created_at+"\n"+text;
+            return user.name_in_group+typeString+"\n"+created_at+"\n"+translatedText+text;
     }
 
     @Nullable
