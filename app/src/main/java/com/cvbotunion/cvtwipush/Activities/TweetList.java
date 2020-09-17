@@ -19,6 +19,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,6 +45,7 @@ import com.cvbotunion.cvtwipush.Utils.NetworkStateReceiver;
 import com.cvbotunion.cvtwipush.R;
 import com.cvbotunion.cvtwipush.Utils.RefreshTask;
 import com.cvbotunion.cvtwipush.Adapters.TweetCardAdapter;
+import com.danikula.videocache.StorageUtils;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -150,7 +152,10 @@ public class TweetList extends AppCompatActivity {
         db.close();
         idToName.clear();
         unregisterReceiver(networkStateReceiver);
-        getCacheDir().delete();
+        if(Math.random()>0.9) {  //十分之一的概率
+            StorageUtils.deleteFile(VideoViewer.cacheDir);
+            getCacheDir().delete();
+        }
     }
 
     private  void initData() {

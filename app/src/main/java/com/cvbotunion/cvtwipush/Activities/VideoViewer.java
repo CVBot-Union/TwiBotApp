@@ -6,7 +6,6 @@ import androidx.appcompat.widget.Toolbar;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -15,6 +14,8 @@ import android.widget.Toast;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.R;
+import com.cvbotunion.cvtwipush.TwiPush;
+import com.danikula.videocache.HttpProxyCacheServer;
 import com.dueeeke.videocontroller.StandardVideoController;
 import com.dueeeke.videoplayer.ijk.IjkPlayer;
 import com.dueeeke.videoplayer.player.VideoView;
@@ -23,11 +24,18 @@ import com.google.android.material.appbar.MaterialToolbar;
 import org.litepal.LitePal;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class VideoViewer extends AppCompatActivity {
+    public static final String cacheDir = TwiPush.getContext().getExternalCacheDir().getPath();
     VideoView<IjkPlayer> playerView;
     TwitterMedia video;
     MaterialToolbar toolbar;
+    HttpProxyCacheServer cacheServer;
+    private File videoFile;
+    private String url;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,16 +46,25 @@ public class VideoViewer extends AppCompatActivity {
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
         assert bundle != null;
-        String url = bundle.getString("url");
+        url = bundle.getString("url");
         video = LitePal.where("url = ?", url).findFirst(DBTwitterMedia.class).toTwitterMedia();
-        File videoFile = new File(TwitterMedia.savePath, Uri.parse(url).getLastPathSegment());
-        if(videoFile.exists())
-            url = videoFile.toURI().getPath();
+        videoFile = new File(TwitterMedia.savePath, Uri.parse(url).getLastPathSegment());
+        String verifiedUrl;
+        if(videoFile.exists()) {
+            verifiedUrl = videoFile.toURI().getPath();
+        }
+        else {
+            cacheServer = new HttpProxyCacheServer.Builder(this)
+                    .maxCacheSize(256*1024*1024)  // 256MB
+                    .build();
+            verifiedUrl = cacheServer.getProxyUrl(url);
+        }
 
         playerView = findViewById(R.id.video_player_view);
-        playerView.setUrl(url);
+        playerView.setUrl(verifiedUrl);
         StandardVideoController controller = new StandardVideoController(this);
         controller.addDefaultControlComponent("推特视频", false);
+        controller.setEnableInNormal(true); //竖屏也开启手势操作
         playerView.setVideoController(controller); //设置控制器
         playerView.start();
 
@@ -96,9 +113,19 @@ public class VideoViewer extends AppCompatActivity {
         }
     }
 
-    public void saveVideo(){
+    public void saveVideo() {
         String result = "成功";
-        if(!video.saveToFile(this))
+        if(cacheServer != null && cacheServer.isCached(url)) {
+            Path source = cacheServer.getCacheFile(url).toPath();
+            Path target = videoFile.toPath();
+            try {
+                Files.copy(source, target);
+            } catch (IOException e) {
+                e.printStackTrace();
+                result = "失败";
+            }
+        }
+        else if(!video.saveToFile(this))
             result = "失败";
         Toast.makeText(this, "保存"+result, Toast.LENGTH_SHORT).show();
     }
