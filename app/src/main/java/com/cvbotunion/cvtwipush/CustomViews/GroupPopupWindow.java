@@ -26,6 +26,7 @@ public class GroupPopupWindow extends PopupWindow {
     private RecyclerView groupList;
     public GroupRecyclerAdapter grAdapter;
     public User user;
+    public String currentGroup;
 
     public void initView(final Context context){
         username = view.findViewById(R.id.user_name_text_view);
@@ -49,45 +50,51 @@ public class GroupPopupWindow extends PopupWindow {
             }
         }
         groupList.setLayoutManager(new LinearLayoutManager(context));
-        grAdapter = new GroupRecyclerAdapter(context,this,user.jobs);
+        grAdapter = new GroupRecyclerAdapter(context,this,user.jobs,currentGroup);
         groupList.setAdapter(grAdapter);
     }
 
-    public GroupPopupWindow(Context context, User user) {
+    public GroupPopupWindow(Context context, User user,String currentGroup) {
         super(context);
         this.user = user;
+        this.currentGroup = currentGroup;
         initView(context);
     }
 
-    public GroupPopupWindow(Context context, AttributeSet attrs, int defStyleAttr, User user) {
+    public GroupPopupWindow(Context context, AttributeSet attrs, int defStyleAttr, User user,String currentGroup) {
         super(context, attrs, defStyleAttr);
         this.user = user;
+        this.currentGroup = currentGroup;
         initView(context);
     }
 
-    public GroupPopupWindow(Context context, AttributeSet attrs, User user) {
+    public GroupPopupWindow(Context context, AttributeSet attrs, User user,String currentGroup) {
         super(context, attrs);
         this.user = user;
+        this.currentGroup = currentGroup;
         initView(context);
     }
 
-    public GroupPopupWindow(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes, User user) {
+    public GroupPopupWindow(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes, User user,String currentGroup) {
         super(context, attrs, defStyleAttr, defStyleRes);
         this.user = user;
+        this.currentGroup = currentGroup;
         initView(context);
     }
 
-    public GroupPopupWindow(View contentView, int width, int height, boolean focusable, User user) {
+    public GroupPopupWindow(View contentView, int width, int height, boolean focusable, User user,String currentGroup) {
         super(contentView, width, height, focusable);
         view = contentView;
         this.user = user;
+        this.currentGroup = currentGroup;
         initView(contentView.getContext());
     }
 
-    public GroupPopupWindow(View contentView, int width, int height, User user) {
+    public GroupPopupWindow(View contentView, int width, int height, User user,String currentGroup) {
         super(contentView, width, height);
         view = contentView;
         this.user = user;
+        this.currentGroup = currentGroup;
         initView(contentView.getContext());
     }
 
@@ -95,15 +102,17 @@ public class GroupPopupWindow extends PopupWindow {
         super();
     }
 
-    public GroupPopupWindow(View contentView, User user) {
+    public GroupPopupWindow(View contentView, User user,String currentGroup) {
         super(contentView);
         view = contentView;
         this.user = user;
+        this.currentGroup = currentGroup;
         initView(contentView.getContext());
     }
 
-    public GroupPopupWindow(int width, int height, User user) {
+    public GroupPopupWindow(int width, int height, User user,String currentGroup) {
         super(width, height);
         this.user = user;
+        this.currentGroup = currentGroup;
     }
 }

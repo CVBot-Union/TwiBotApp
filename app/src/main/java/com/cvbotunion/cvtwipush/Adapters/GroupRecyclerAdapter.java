@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cvbotunion.cvtwipush.Activities.TweetList;
@@ -30,10 +31,12 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
     public GroupPopupWindow popupWindow;
     public ArrayList<String> gidList = new ArrayList<>();
     public ArrayList<RTGroup.Job> jobList = new ArrayList<>();
+    public String groupNow = "0";
 
-    public GroupRecyclerAdapter(Context context, GroupPopupWindow popupWindow, HashMap<String,RTGroup.Job> jobs){
+    public GroupRecyclerAdapter(Context context, GroupPopupWindow popupWindow, HashMap<String,RTGroup.Job> jobs,String groupNow){
         this.context = context;
         this.popupWindow = popupWindow;
+        this.groupNow = groupNow;
         for(HashMap.Entry<String, RTGroup.Job> e : jobs.entrySet()) {
             gidList.add(e.getKey());
             jobList.add(e.getValue());
@@ -63,6 +66,13 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
     @Override
     public void onBindViewHolder(@NonNull GroupRecyclerAdapter.ViewHolder holder, final int position) {
         RTGroup currentGroup = LitePal.where("gid = ?",gidList.get(position)).findFirst(DBRTGroup.class).toRTGroup();
+
+        if(groupNow.equals(currentGroup.id)){
+            holder.groupName.setTextColor(context.getColor(R.color.colorPrimary));
+            int alphaBackground = ColorUtils.setAlphaComponent(context.getColor(R.color.colorPrimary), 15);
+            holder.itemView.findViewById(R.id.group_item_layout).setBackgroundColor(alphaBackground);
+        }
+
         LinearLayout layout = (LinearLayout) holder.itemView.findViewById(R.id.group_item_layout);
         layout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,16 +82,20 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
                 Bundle bundle = new Bundle();
                 bundle.putString("groupId",gidList.get(position));
                 intent.putExtras(bundle);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 ((AppCompatActivity) context).startActivityForResult(intent,1);
                 ((AppCompatActivity) context).finish();
             }
         });
+
         if(currentGroup.avatar != null){
             holder.groupImageView.setImageBitmap(currentGroup.avatar);
         }
+
         if(currentGroup.name != null) {
             holder.groupName.setText(currentGroup.name);
         }
+
         if(jobList.get(position) != null) {
             holder.myJobInGroup.setText(jobList.get(position).jobName);
         }

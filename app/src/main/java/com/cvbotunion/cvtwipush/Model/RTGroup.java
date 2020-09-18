@@ -7,6 +7,8 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RTGroup implements Parcelable {
     public String id;

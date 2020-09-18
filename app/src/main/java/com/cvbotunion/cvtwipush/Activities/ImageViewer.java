@@ -72,11 +72,13 @@ public class ImageViewer extends AppCompatActivity {
     public void initData() {
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
-        page = bundle.getInt("page");
-        String statusId = bundle.getString("twitterStatusId");
-        List<DBTwitterMedia> dbMediaList = LitePal.where("statusId = ?", statusId).find(DBTwitterMedia.class);
-        for(DBTwitterMedia m:dbMediaList) {
-            mediaList.add(m.toTwitterMedia());
+        if(bundle != null) {
+            page = bundle.getInt("page");
+            String statusId = bundle.getString("twitterStatusId");
+            List<DBTwitterMedia> dbMediaList = LitePal.where("statusId = ?", statusId).find(DBTwitterMedia.class);
+            for(DBTwitterMedia m:dbMediaList) {
+                mediaList.add(m.toTwitterMedia());
+            }
         }
     }
 

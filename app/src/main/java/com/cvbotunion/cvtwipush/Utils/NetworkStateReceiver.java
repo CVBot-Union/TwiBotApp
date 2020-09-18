@@ -13,7 +13,6 @@ import android.widget.Toast;
  * Created by Carson_Ho on 16/10/31.
  */
 public class NetworkStateReceiver extends BroadcastReceiver {
-
     @Override
     public void onReceive(Context context, Intent intent) {
         //网络状态检测

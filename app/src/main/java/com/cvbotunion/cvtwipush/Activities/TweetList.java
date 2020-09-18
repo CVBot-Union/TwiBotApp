@@ -20,6 +20,7 @@ import android.os.Build;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import com.danikula.videocache.StorageUtils;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,7 +46,6 @@ import com.cvbotunion.cvtwipush.Utils.NetworkStateReceiver;
 import com.cvbotunion.cvtwipush.R;
 import com.cvbotunion.cvtwipush.Utils.RefreshTask;
 import com.cvbotunion.cvtwipush.Adapters.TweetCardAdapter;
-import com.danikula.videocache.StorageUtils;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -108,7 +108,7 @@ public class TweetList extends AppCompatActivity {
                             view, ViewGroup.LayoutParams.MATCH_PARENT,
                             ViewGroup.LayoutParams.WRAP_CONTENT,
                             true,
-                            currentUser);
+                            currentUser,group.id);
                     popupWindow.showAsDropDown(findViewById(R.id.group_menu_item),0, 0, Gravity.END);
                     dimBehind(popupWindow);
                 }
@@ -159,6 +159,9 @@ public class TweetList extends AppCompatActivity {
     }
 
     private  void initData() {
+        //readData()
+        //if not found, netRefresh()
+
         //List<DBTwitterStatus> dbStatusList = LitePal.findAll(DBTwitterStatus.class);
         //for(DBTwitterStatus s : dbStatusList) {
         //"0"使得最新的放上面
@@ -187,7 +190,7 @@ public class TweetList extends AppCompatActivity {
         newList.add(media);
         newList.add(media);
         newList.add(media);
-        TwitterStatus status = new TwitterStatus("11:14", "1", "测试", user, newList);
+        TwitterStatus status = new TwitterStatus("11:14", "1", "测试，https://github.com", user, newList);
 
         TwitterMedia videoMedia = new TwitterMedia("10","http://101.200.184.98:8080/abe.mp4",TwitterMedia.VIDEO,"http://101.200.184.98:8080/227组标.jpg");
         ArrayList<TwitterMedia> videoList = new ArrayList<>();
@@ -218,7 +221,7 @@ public class TweetList extends AppCompatActivity {
         following.add(new TwitterUser("5", "中島由貴", "Yuki_Nakashim", "中岛由贵", ""));
         following.add(new TwitterUser("6", "櫻川めぐ", "sakuragawa_megu", "樱川惠", ""));
         following.add(new TwitterUser("7", "志崎樺音", "Kanon_Shizaki", "志崎桦音", ""));
-        group = new RTGroup("group1", "蔷薇之心", "", following);
+        group = new RTGroup("1", "蔷薇之心", "", following);
         followingName = new ArrayList<>();
         for (TwitterUser u : group.following) {
             followingName.add(u.name);
