@@ -78,8 +78,8 @@ public class TweetDetail extends AppCompatActivity {
         refreshLayout.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(@NonNull RefreshLayout refreshlayout) {
-                initRecyclerView();
                 refreshlayout.finishRefresh(true);
+                initRecyclerView();
             }
         });
     }
