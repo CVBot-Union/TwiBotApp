@@ -93,6 +93,19 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
 
         holder.tweetCard.setTweetText(tweets.get(position).getText());
 
+        holder.tweetCard.getTweetStatusTextView().setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                if(tweets.get(position).getText() != null) {
+                    ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData mClipData = ClipData.newPlainText("tweet", tweets.get(position).getText());
+                    clipboardManager.setPrimaryClip(mClipData);
+                    Toast.makeText(view.getContext(), "已复制", Toast.LENGTH_SHORT).show();
+                }
+                return true;
+            }
+        });
+
         switch(tweets.get(position).getTweetType()){
             case TwitterStatus.REPLY:
                 holder.tweetCard.setType("回复");

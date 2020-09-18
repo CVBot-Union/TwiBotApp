@@ -142,6 +142,10 @@ public class TweetCard extends CardView{
         }
     }
 
+    public TextView getTweetStatusTextView() {
+        return tweetStatusTextView;
+    }
+
     public void setAvatarImg(Bitmap bmp){
         avatarImg.setVisibility(VISIBLE);
         avatarImg.setImageBitmap(bmp);

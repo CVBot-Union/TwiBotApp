@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.R;
+import com.github.chrisbanes.photoview.PhotoView;
 
 import java.util.ArrayList;
 
@@ -35,12 +36,11 @@ public class ImagePagerAdapter extends RecyclerView.Adapter<ImagePagerAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull ImagePagerAdapter.ViewHolder holder, int position) {
-        holder.imageView.setImageDrawable(context.getDrawable(R.drawable.ic_baseline_image_24));
-        holder.imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        holder.photoView.setScaleType(ImageView.ScaleType.FIT_CENTER);
         if(twitterMediaArrayList.get(position).cached_image != null){
-            holder.imageView.setImageBitmap(twitterMediaArrayList.get(position).cached_image);
+            holder.photoView.setImageBitmap(twitterMediaArrayList.get(position).cached_image);
         } else if(twitterMediaArrayList.get(position).cached_image_preview != null){
-            holder.imageView.setImageBitmap(twitterMediaArrayList.get(position).cached_image_preview);
+            holder.photoView.setImageBitmap(twitterMediaArrayList.get(position).cached_image_preview);
         } else {
             twitterMediaArrayList.get(position).loadImage(false,this, handler, position);
         }
@@ -52,11 +52,11 @@ public class ImagePagerAdapter extends RecyclerView.Adapter<ImagePagerAdapter.Vi
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView imageView;
+        PhotoView photoView;
 
         ViewHolder(View itemView) {
             super(itemView);
-            imageView = itemView.findViewById(R.id.loading_image_view);
+            photoView = itemView.findViewById(R.id.loading_photo_view);
         }
     }
 }

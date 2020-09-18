@@ -1,5 +1,6 @@
 package com.cvbotunion.cvtwipush.Activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -9,7 +10,6 @@ import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Context;
 import android.Manifest;
@@ -19,8 +19,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
-import com.danikula.videocache.StorageUtils;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,9 +44,13 @@ import com.cvbotunion.cvtwipush.Utils.NetworkStateReceiver;
 import com.cvbotunion.cvtwipush.R;
 import com.cvbotunion.cvtwipush.Utils.RefreshTask;
 import com.cvbotunion.cvtwipush.Adapters.TweetCardAdapter;
+import com.danikula.videocache.StorageUtils;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.scwang.smart.refresh.layout.api.RefreshLayout;
+import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener;
+import com.scwang.smart.refresh.layout.listener.OnRefreshListener;
 
 import org.litepal.LitePal;
 import org.litepal.LitePalDB;
@@ -59,12 +61,14 @@ import java.util.List;
 import java.util.Map;
 
 public class TweetList extends AppCompatActivity {
+    //每次从数据库和服务器获取的最大推文数目
+    public static final int EVERY_COUNT = 20;
 
     private CoordinatorLayout coordinatorLayout;
     private RecyclerView tweetListRecyclerView;
     private TweetCardAdapter tAdapter;
     private RecyclerView.LayoutManager layoutManager;
-    private SwipeRefreshLayout swipeRefreshLayout;
+    private RefreshLayout refreshLayout;
     private NetworkStateReceiver networkStateReceiver;
     private ChipGroup chipGroup;
     private Chip all;
@@ -137,11 +141,17 @@ public class TweetList extends AppCompatActivity {
             }
         });
 
-        swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        refreshLayout.setHeaderTriggerRate(0.7f);  //触发刷新距离 与 HeaderHeight 的比率
+        refreshLayout.setOnRefreshListener(new OnRefreshListener() {
             @Override
-            public void onRefresh() {
-                netRefresh(chipGroup.getCheckedChipId());
+            public void onRefresh(@NonNull RefreshLayout refreshlayout) {
+                netRefresh(chipGroup.getCheckedChipId(),refreshlayout, RefreshTask.REFRESH);
+            }
+        });
+        refreshLayout.setOnLoadMoreListener(new OnLoadMoreListener() {
+            @Override
+            public void onLoadMore(@NonNull RefreshLayout refreshlayout) {
+                netRefresh(chipGroup.getCheckedChipId(),refreshlayout, RefreshTask.LOAD_MORE);
             }
         });
     }
@@ -153,8 +163,8 @@ public class TweetList extends AppCompatActivity {
         idToName.clear();
         unregisterReceiver(networkStateReceiver);
         if(Math.random()>0.9) {  //十分之一的概率
-            StorageUtils.deleteFile(VideoViewer.cacheDir);
-            getCacheDir().delete();
+            StorageUtils.deleteFile(VideoViewer.cacheDir);  //删除整个目录
+            StorageUtils.deleteFiles(TwitterMedia.internalFilesDir);  //删除子文件
         }
     }
 
@@ -266,7 +276,7 @@ public class TweetList extends AppCompatActivity {
         mdToolbar = (MaterialToolbar) findViewById(R.id.top_app_bar);
         title = (TextView) findViewById(R.id.title);
         chipGroup = (ChipGroup) findViewById(R.id.group_chip_group);
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+        refreshLayout = (RefreshLayout) findViewById(R.id.refresh_layout);
     }
 
     private void initBackground() {
@@ -289,8 +299,8 @@ public class TweetList extends AppCompatActivity {
         db = LitePal.getDatabase();
     }
 
-    public void netRefresh(int checkedId) {
-        RefreshTask task = new RefreshTask(coordinatorLayout, swipeRefreshLayout, tAdapter);
+    public void netRefresh(int checkedId, RefreshLayout refreshlayout, int mode) {
+        RefreshTask task = new RefreshTask(this, refreshlayout, tAdapter, mode);
         String checkedName = idToName.getOrDefault(checkedId, null);
         task.setData(usedDataSet, dataSet, checkedName);
         task.execute();

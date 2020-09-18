@@ -4,9 +4,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -24,8 +22,6 @@ public class TweetDetailCard extends TweetCard {
     public TextInputLayout translationTextInputLayout;
     public TextInputEditText translationTextInputEditText;
 
-    private Boolean firstLaunch = true;
-
     public Boolean isTranslationMode = true;
 
     public TweetDetailCard(@NonNull final Context context, View view) {
@@ -37,20 +33,11 @@ public class TweetDetailCard extends TweetCard {
             public void onClick(View v) {
                 if(getStatusText() != null) {
                     translationTextInputEditText.setText(getStatusText());
-                    firstLaunch = false;
                 }
             }
         });
         translationTextInputLayout = view.findViewById(R.id.translation_text_field);
         translationTextInputEditText = view.findViewById(R.id.translation_edit_textview);
-        translationTextInputEditText.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(firstLaunch && isTranslationMode){
-                    translationTextInputEditText.setText("");
-                }
-            }
-        });
         copyTranslation = view.findViewById(R.id.copy_translation_only);
         copyTranslation.setOnClickListener(new OnClickListener() {
             @Override

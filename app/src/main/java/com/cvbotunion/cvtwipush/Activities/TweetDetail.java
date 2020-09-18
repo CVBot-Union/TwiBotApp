@@ -1,11 +1,11 @@
 package com.cvbotunion.cvtwipush.Activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +16,8 @@ import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.R;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.scwang.smart.refresh.layout.api.RefreshLayout;
+import com.scwang.smart.refresh.layout.listener.OnRefreshListener;
 
 import org.litepal.LitePal;
 
@@ -23,7 +25,7 @@ import java.util.ArrayList;
 
 public class TweetDetail extends AppCompatActivity {
     private MaterialToolbar mdToolbar;
-    public SwipeRefreshLayout swipeRefreshLayout;
+    public RefreshLayout refreshLayout;
     private RecyclerView.LayoutManager layoutManager;
     private RecyclerView tweetDetailRecyclerView;
     private TweetDetailCardAdapter tAdapter;
@@ -44,9 +46,14 @@ public class TweetDetail extends AppCompatActivity {
         TwitterStatus status = dbStatus.toTwitterStatus();
         dataSet.add(status);
         if(status.getTweetType() == TwitterStatus.REPLY) {
-            //dbStatus = LitePal.where("tid = ?", status.in_reply_to_status_id).findFirst(DBTwitterStatus.class);
-            //TwitterStatus replyToStatus = dbStatus.toTwitterStatus();
-            TwitterStatus replyToStatus = new TwitterStatus("11:15", "3", "被回复推文", status.user, status.media);
+            TwitterStatus replyToStatus;
+            //DBTwitterStatus dbReplyToStatus = LitePal.where("tid = ?", status.in_reply_to_status_id).findFirst(DBTwitterStatus.class);
+            //if(dbReplyToStatus != null) {
+            //    replyToStatus = dbReplyToStatus.toTwitterStatus();
+            //} else {
+            //    replyToStatus = getStatusNotInDB(status.in_reply_to_status_id);
+            //}
+            replyToStatus = new TwitterStatus("11:15", "3", "被回复推文", status.user, status.media);
             dataSet.add(0, replyToStatus);
         }
 
@@ -64,13 +71,15 @@ public class TweetDetail extends AppCompatActivity {
                 onBackPressed();
             }
         });
-        swipeRefreshLayout = findViewById(R.id.tweet_detail_refresh_layout);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        refreshLayout = findViewById(R.id.tweet_detail_refresh_layout);
+        refreshLayout.setEnableLoadMore(false);  //关闭上拉加载功能
+        refreshLayout.setEnableOverScrollBounce(false);  //关闭越界回弹
+        refreshLayout.setHeaderTriggerRate(0.7f);  //触发刷新距离 与 HeaderHeight 的比率
+        refreshLayout.setOnRefreshListener(new OnRefreshListener() {
             @Override
-            public void onRefresh() {
-                swipeRefreshLayout.setRefreshing(true);
+            public void onRefresh(@NonNull RefreshLayout refreshlayout) {
                 initRecyclerView();
-                swipeRefreshLayout.setRefreshing(false);
+                refreshlayout.finishRefresh(true);
             }
         });
     }
@@ -83,5 +92,10 @@ public class TweetDetail extends AppCompatActivity {
         tweetDetailRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         ((SimpleItemAnimator) tweetDetailRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
         tweetDetailRecyclerView.scrollToPosition(dataSet.size()-1);
+    }
+
+    public static TwitterStatus getStatusNotInDB(String statusId) {
+        //根据指定statusId从服务器获取推文
+        return new TwitterStatus();
     }
 }

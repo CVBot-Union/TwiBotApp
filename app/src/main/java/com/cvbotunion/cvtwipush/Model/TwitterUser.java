@@ -81,6 +81,7 @@ public class TwitterUser implements Parcelable{
                         if (code == 200) {
                             InputStream inputStream = connection.getInputStream();
                             cached_profile_image_preview = BitmapFactory.decodeStream(inputStream);
+                            inputStream.close();
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
@@ -90,7 +91,6 @@ public class TwitterUser implements Parcelable{
                                         tAdapter.notifyDataSetChanged();
                                 }
                             });
-                            inputStream.close();
                         }
                     } catch (IOException e) {
                         e.printStackTrace();

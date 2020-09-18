@@ -9,8 +9,8 @@
         android:layout_height="match_parent"
         android:fillViewport="true">
 
-        <ImageView
-            android:id="@+id/loading_image_view"
+        <com.github.chrisbanes.photoview.PhotoView
+            android:id="@+id/loading_photo_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:scaleType="centerInside"
