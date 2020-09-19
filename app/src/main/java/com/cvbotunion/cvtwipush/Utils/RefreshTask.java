@@ -3,9 +3,11 @@ package com.cvbotunion.cvtwipush.Utils;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.IntRange;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.cvbotunion.cvtwipush.Adapters.TweetCardAdapter;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
@@ -13,6 +15,7 @@ import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.Model.TwitterUser;
 import com.cvbotunion.cvtwipush.TwiPush;
+import com.google.android.material.snackbar.Snackbar;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
 
 import org.litepal.LitePal;
@@ -92,7 +95,10 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
                 Log.e(TwiPush.TAG,"wrong RefreshTask mode");
                 break;
         }
+
+
         if(!result) {
+            //Snackbar.make(refreshLayoutRef.get().getLayout(),"刷新失败",1000).show(); //我试了可以啊？
             Toast.makeText(contextRef.get(), "刷新失败", Toast.LENGTH_SHORT).show();
         } else {
             tAdapter.notifyDataSetChanged();

@@ -306,7 +306,7 @@ public class TweetList extends AppCompatActivity {
         task.execute();
     }
 
-    public void dimBehind(PopupWindow popupWindow) {
+    private void dimBehind(PopupWindow popupWindow) {
         View container;
         if (popupWindow.getBackground() == null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
