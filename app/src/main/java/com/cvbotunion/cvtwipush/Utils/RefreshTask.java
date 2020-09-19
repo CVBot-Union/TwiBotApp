@@ -1,13 +1,9 @@
 package com.cvbotunion.cvtwipush.Utils;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.IntRange;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.cvbotunion.cvtwipush.Adapters.TweetCardAdapter;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
@@ -27,7 +23,6 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
     public final static int REFRESH = 0;
     public final static int LOAD_MORE = 1;
 
-    private WeakReference<Context> contextRef;
     private WeakReference<RefreshLayout> refreshLayoutRef;
     private TweetCardAdapter tAdapter;
     private ArrayList<TwitterStatus> usedDataSet;
@@ -36,9 +31,8 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
     private String checkedName;
     private int mode;
 
-    public RefreshTask(Context context, RefreshLayout refreshLayout, TweetCardAdapter tAdapter, @IntRange(from=0,to=1) int mode) {
+    public RefreshTask(RefreshLayout refreshLayout, TweetCardAdapter tAdapter, @IntRange(from=0,to=1) int mode) {
         super();
-        this.contextRef = new WeakReference<>(context);
         this.refreshLayoutRef=new WeakReference<>(refreshLayout);
         this.tAdapter = tAdapter;
         this.mode = mode;
@@ -74,8 +68,7 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
                 // 每次最大数目：TweetList.EVERY_COUNT
                 // 有必要实现一个按id_str排序的类/方法
             }
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -96,10 +89,8 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
                 break;
         }
 
-
         if(!result) {
-            //Snackbar.make(refreshLayoutRef.get().getLayout(),"刷新失败",1000).show(); //我试了可以啊？
-            Toast.makeText(contextRef.get(), "刷新失败", Toast.LENGTH_SHORT).show();
+            Snackbar.make(refreshLayoutRef.get().getLayout(),"加载失败",Snackbar.LENGTH_SHORT).show();
         } else {
             tAdapter.notifyDataSetChanged();
         }

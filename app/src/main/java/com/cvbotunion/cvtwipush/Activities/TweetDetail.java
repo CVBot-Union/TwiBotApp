@@ -73,7 +73,7 @@ public class TweetDetail extends AppCompatActivity {
         });
         refreshLayout = findViewById(R.id.tweet_detail_refresh_layout);
         refreshLayout.setEnableLoadMore(false);  //关闭上拉加载功能
-        refreshLayout.setEnableOverScrollBounce(false);  //关闭越界回弹
+        refreshLayout.setEnableScrollContentWhenRefreshed(false);//在刷新完成时不滚动列表，避免与initRecyclerView的滚动操作冲突
         refreshLayout.setHeaderTriggerRate(0.7f);  //触发刷新距离 与 HeaderHeight 的比率
         refreshLayout.setOnRefreshListener(new OnRefreshListener() {
             @Override

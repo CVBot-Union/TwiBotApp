@@ -300,7 +300,7 @@ public class TweetList extends AppCompatActivity {
     }
 
     public void netRefresh(int checkedId, RefreshLayout refreshlayout, int mode) {
-        RefreshTask task = new RefreshTask(this, refreshlayout, tAdapter, mode);
+        RefreshTask task = new RefreshTask(refreshlayout, tAdapter, mode);
         String checkedName = idToName.getOrDefault(checkedId, null);
         task.setData(usedDataSet, dataSet, checkedName);
         task.execute();
