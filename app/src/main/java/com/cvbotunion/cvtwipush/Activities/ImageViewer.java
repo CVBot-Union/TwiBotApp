@@ -93,6 +93,13 @@ public class ImageViewer extends AppCompatActivity {
                 super.onPageSelected(position);
                 pageNum.setText("第 "+ (position + 1) + "/" + mediaList.size() + " 页");
             }
+
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                super.onPageScrolled(position, positionOffset, positionOffsetPixels);
+                ImagePagerAdapter adapter = (ImagePagerAdapter) viewPager2.getAdapter();
+                adapter.resetScale();
+            }
         });
     }
 }

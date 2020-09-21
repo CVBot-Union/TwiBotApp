@@ -20,6 +20,7 @@ public class ImagePagerAdapter extends RecyclerView.Adapter<ImagePagerAdapter.Vi
     private ArrayList<TwitterMedia> twitterMediaArrayList;
     private Context context;
     private Handler handler;
+    private ArrayList<ViewHolder> holders = new ArrayList<>();
 
     public ImagePagerAdapter(Context context, ArrayList<TwitterMedia> mediaArrayList) {
         this.context = context;
@@ -27,11 +28,19 @@ public class ImagePagerAdapter extends RecyclerView.Adapter<ImagePagerAdapter.Vi
         handler = new Handler();
     }
 
+    public void resetScale() {
+        for(ImagePagerAdapter.ViewHolder h : holders) {
+            h.photoView.setScale(h.photoView.getMinimumScale(),true);
+        }
+    }
+
     @NonNull
     @Override
     public ImagePagerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.linear_layout,parent,false);
-        return new ViewHolder(view);
+        ViewHolder holder = new ViewHolder(view);
+        holders.add(holder);
+        return holder;
     }
 
     @Override
