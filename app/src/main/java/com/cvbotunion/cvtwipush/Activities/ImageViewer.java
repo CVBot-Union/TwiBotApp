@@ -30,11 +30,12 @@ public class ImageViewer extends AppCompatActivity {
     private TextView pageNum;
 
     private int page;
-    private ArrayList<TwitterMedia> mediaList = new ArrayList<>();
+    private ArrayList<TwitterMedia> mediaList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mediaList = new ArrayList<>();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         getWindow().getDecorView().setSystemUiVisibility(0);
         setContentView(R.layout.activity_image_viewer);

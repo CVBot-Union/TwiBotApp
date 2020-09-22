@@ -29,14 +29,16 @@ import java.util.HashMap;
 public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdapter.ViewHolder> {
     public Context context;
     public GroupPopupWindow popupWindow;
-    public ArrayList<String> gidList = new ArrayList<>();
-    public ArrayList<RTGroup.Job> jobList = new ArrayList<>();
+    public ArrayList<String> gidList;
+    public ArrayList<RTGroup.Job> jobList;
     public String groupNow = "0";
 
     public GroupRecyclerAdapter(Context context, GroupPopupWindow popupWindow, HashMap<String,RTGroup.Job> jobs,String groupNow){
         this.context = context;
         this.popupWindow = popupWindow;
         this.groupNow = groupNow;
+        this.gidList = new ArrayList<>();
+        this.jobList = new ArrayList<>();
         for(HashMap.Entry<String, RTGroup.Job> e : jobs.entrySet()) {
             gidList.add(e.getKey());
             jobList.add(e.getValue());

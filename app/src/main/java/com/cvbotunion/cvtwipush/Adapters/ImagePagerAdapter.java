@@ -20,12 +20,13 @@ public class ImagePagerAdapter extends RecyclerView.Adapter<ImagePagerAdapter.Vi
     private ArrayList<TwitterMedia> twitterMediaArrayList;
     private Context context;
     private Handler handler;
-    private ArrayList<ViewHolder> holders = new ArrayList<>();
+    private ArrayList<ViewHolder> holders;
 
     public ImagePagerAdapter(Context context, ArrayList<TwitterMedia> mediaArrayList) {
         this.context = context;
         this.twitterMediaArrayList = mediaArrayList;
         handler = new Handler();
+        this.holders = new ArrayList<>();
     }
 
     public void resetScale() {

@@ -31,12 +31,13 @@ public class TweetDetail extends AppCompatActivity {
     private TweetDetailCardAdapter tAdapter;
 
     private String statusID;
-    public ArrayList<TwitterStatus> dataSet = new ArrayList<>();
+    public ArrayList<TwitterStatus> dataSet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tweet_detail);
+        dataSet = new ArrayList<>();
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();

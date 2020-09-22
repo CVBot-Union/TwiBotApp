@@ -14,7 +14,7 @@ public class User implements Parcelable{
     public String name;
     @Nullable public String avatarURL;
     @Nullable public Bitmap avatar;
-    public HashMap<String, RTGroup.Job> jobs = new HashMap<>();  //String : RTGroup.id
+    public HashMap<String, RTGroup.Job> jobs;  //String : RTGroup.id
 
     public User(String id, String name, @Nullable String avatarURL,@Nullable Bitmap avatar, HashMap<String,RTGroup.Job> jobs){
         this.id = id;
@@ -27,6 +27,8 @@ public class User implements Parcelable{
         }
         if(jobs != null) {
             this.jobs = jobs;
+        } else {
+            this.jobs = new HashMap<>();
         }
     }
 

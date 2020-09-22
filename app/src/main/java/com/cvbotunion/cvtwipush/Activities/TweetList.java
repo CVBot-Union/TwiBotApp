@@ -64,7 +64,6 @@ public class TweetList extends AppCompatActivity {
     //每次从数据库和服务器获取的最大推文数目
     public static final int EVERY_COUNT = 20;
 
-    private CoordinatorLayout coordinatorLayout;
     private RecyclerView tweetListRecyclerView;
     private TweetCardAdapter tAdapter;
     private RecyclerView.LayoutManager layoutManager;
@@ -76,12 +75,12 @@ public class TweetList extends AppCompatActivity {
     private MaterialToolbar mdToolbar;
     private TextView title;
 
-    private ArrayList<TwitterStatus> dataSet = new ArrayList<>();
-    private ArrayList<TwitterStatus> usedDataSet = new ArrayList<>();
+    private ArrayList<TwitterStatus> dataSet;
+    private ArrayList<TwitterStatus> usedDataSet;
     private User currentUser;
     private RTGroup group;
     private ArrayList<String> followingName;
-    private Map<Integer, String> idToName = new HashMap<>();
+    private Map<Integer, String> idToName;
     private SQLiteDatabase db;
 
     public TweetList() {
@@ -169,6 +168,10 @@ public class TweetList extends AppCompatActivity {
     }
 
     private  void initData() {
+        dataSet = new ArrayList<>();
+        usedDataSet = new ArrayList<>();
+        idToName = new HashMap<>();
+
         //readData()
         //if not found, netRefresh()
 
@@ -271,7 +274,6 @@ public class TweetList extends AppCompatActivity {
     }
 
     private void initView(){
-        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.tweet_list_parent_view);
         tweetListRecyclerView = (RecyclerView) findViewById(R.id.tweet_list_recycler_view);
         mdToolbar = (MaterialToolbar) findViewById(R.id.top_app_bar);
         title = (TextView) findViewById(R.id.title);

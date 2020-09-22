@@ -23,15 +23,18 @@ public class TwitterStatus implements Parcelable {
     @Nullable public String in_reply_to_screen_name;
     @Nullable public String quoted_status_id;
     @Nullable public String location;
-    @Nullable public ArrayList<String> hashtags=new ArrayList<>();
-    @Nullable public ArrayList<TwitterUser> user_mentions=new ArrayList<>();
-    @Nullable public ArrayList<TwitterMedia> media=new ArrayList<>();
+    @Nullable public ArrayList<String> hashtags;
+    @Nullable public ArrayList<TwitterUser> user_mentions;
+    @Nullable public ArrayList<TwitterMedia> media;
 
     public TwitterStatus(){
-
+        hashtags = new ArrayList<>();
+        user_mentions = new ArrayList<>();
+        media = new ArrayList<>();
     }
 
     public TwitterStatus(String created_at, String id, @Nullable String text, TwitterUser user){
+        this();
         this.created_at = created_at;
         this.id = id;
         this.user = user;
