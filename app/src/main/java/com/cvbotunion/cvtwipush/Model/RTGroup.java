@@ -13,6 +13,8 @@ public class RTGroup implements Parcelable {
     public String name;
     public String avatarURL;
     public ArrayList<TwitterUser> following;
+    public String tweetFormat;
+    public Boolean includeRT = false;
 
     @Nullable public Bitmap avatar;
 
@@ -81,12 +83,39 @@ public class RTGroup implements Parcelable {
         }
     }
 
+    public RTGroup(String id,String name,String avatarURL,ArrayList<TwitterUser> following,Bitmap avatar,String tweetFormat){
+        this(id,name,avatarURL,following);
+        if(avatar != null) {
+            this.avatar = avatar;
+        }
+        if(tweetFormat != null){
+            this.tweetFormat = tweetFormat;
+        }
+    }
+
     protected RTGroup(Parcel in) {
         id = in.readString();
         name = in.readString();
         avatarURL = in.readString();
         following = in.createTypedArrayList(TwitterUser.CREATOR);
         avatar = in.readParcelable(Bitmap.class.getClassLoader());
+    }
+
+    public void initDefaultTweetFormat(){
+        /*
+        %1$s：用户名 name
+        %2$s：用户 screen_name
+        %3$s：时间
+        %4$s：推文正文
+        %5$s：父推文正文
+        %6$s：推文类型名（转推/回复）
+        %7$s：被回复用户用户 name
+        %8$s：被回复用户用户screen_name
+         */
+        /*
+        用户设定格式例子：#[名字] [用户名] [yyyy-mm-dd hh:mm] 翻译都给👴起来干活 [推文正文]
+         */
+        this.tweetFormat = "＃%1$s＃ %3$s \n %4$s";
     }
 
     public void addFollowing(TwitterUser twitterUser) {

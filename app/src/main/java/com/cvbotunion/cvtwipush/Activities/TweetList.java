@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
+import android.app.Activity;
 import android.content.Context;
 import android.Manifest;
 import android.content.Intent;
@@ -78,7 +79,7 @@ public class TweetList extends AppCompatActivity {
     private ArrayList<TwitterStatus> dataSet;
     private ArrayList<TwitterStatus> usedDataSet;
     private User currentUser;
-    private RTGroup group;
+    public RTGroup group;
     private ArrayList<String> followingName;
     private Map<Integer, String> idToName;
     private SQLiteDatabase db;
@@ -306,6 +307,10 @@ public class TweetList extends AppCompatActivity {
         String checkedName = idToName.getOrDefault(checkedId, null);
         task.setData(usedDataSet, dataSet, checkedName);
         task.execute();
+    }
+
+    public Activity getInstance(){
+        return this;
     }
 
     private void dimBehind(PopupWindow popupWindow) {

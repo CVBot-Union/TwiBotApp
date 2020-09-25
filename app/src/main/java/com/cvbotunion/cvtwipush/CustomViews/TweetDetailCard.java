@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.cvbotunion.cvtwipush.R;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -46,7 +47,7 @@ public class TweetDetailCard extends TweetCard {
                     ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
                     ClipData mClipData = ClipData.newPlainText("translation", translationTextInputEditText.getText());
                     clipboardManager.setPrimaryClip(mClipData);
-                    Toast.makeText(v.getContext(), "已复制", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(v, "已复制", 1000).show();
                 }
             }
         });

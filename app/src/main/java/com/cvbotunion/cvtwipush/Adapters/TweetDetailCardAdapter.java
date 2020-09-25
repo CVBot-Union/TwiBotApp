@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -24,6 +23,7 @@ import com.cvbotunion.cvtwipush.CustomViews.TweetDetailCard;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.R;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 
@@ -85,7 +85,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                         }
                     }
                 }
-                Toast.makeText(v.getContext(), "保存" + result, Toast.LENGTH_SHORT).show();
+                Snackbar.make(v, "保存" + result, 1000).show();
             }
         });
 
@@ -100,7 +100,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                     ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
                     ClipData mClipData = ClipData.newPlainText("tweet", tweets.get(position).getText());
                     clipboardManager.setPrimaryClip(mClipData);
-                    Toast.makeText(view.getContext(), "已复制", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(view, "已复制", 1000).show();
                 }
                 return true;
             }
@@ -201,6 +201,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                 public void onClick(View v) {
                     TwitterStatus tweet = tweets.get(tweets.size()-1);
                     if(tweet.getFullText() != null) {
+                        //待更改
                         ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
                         ClipData mClipData = ClipData.newPlainText("tweetAndTranslation", tweet.getFullText(holder.tweetCard.getTranslatedText()));
                         clipboardManager.setPrimaryClip(mClipData);
@@ -214,7 +215,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                             }
                         }
                     }
-                    Toast.makeText(v.getContext(),"保存"+result,Toast.LENGTH_SHORT).show();
+                    Snackbar.make(v,"保存"+result,1000).show();
                 }
             });
         }
