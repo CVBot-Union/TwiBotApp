@@ -6,6 +6,10 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
+
+import org.litepal.LitePal;
+
 import java.util.ArrayList;
 
 public class TwitterStatus implements Parcelable {
@@ -159,28 +163,43 @@ public class TwitterStatus implements Parcelable {
     }
 
     public String getFullText() {
-        return getFullText("");
+        return getFullText(RTGroup.DEFAULT_FORMAT, "");
+    }
+
+    public String getFullText(String format) {
+        return getFullText(format, "");
     }
 
     //有待修改
-    public String getFullText(String translatedText) {
+    public String getFullText(String format, String translatedText) {
         if(!translatedText.equals(""))
             translatedText = translatedText+"\n\n";
         String typeString = "";
+        TwitterStatus parentStatus = null;
         switch (getTweetType()){
             case REPLY:
-                typeString = " 回复";
+                typeString = "回复：\n\n";
+                parentStatus = LitePal.where("tid = ?", in_reply_to_status_id)
+                        .findFirst(DBTwitterStatus.class).toTwitterStatus();
                 break;
             case QUOTE:
-                typeString = " 转推";
+                typeString = "转推：\n\n";
+                parentStatus = LitePal.where("tid = ?", quoted_status_id)
+                        .findFirst(DBTwitterStatus.class).toTwitterStatus();
                 break;
             default:
                 break;
         }
-        if(text == null)
-            return user.name_in_group+typeString+"\n"+created_at;
-        else
-            return user.name_in_group+typeString+"\n"+created_at+"\n"+translatedText+text;
+        return String.format(format,
+                user.name_in_group,
+                user.screen_name,
+                created_at,
+                text==null?"":text+"\n\n",
+                text==null?"":translatedText,
+                typeString,
+                parentStatus==null?"":"#"+parentStatus.user.name_in_group+"#",
+                parentStatus==null?"":parentStatus.user.screen_name,
+                parentStatus==null?"":parentStatus.text);
     }
 
     @Nullable

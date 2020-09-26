@@ -23,13 +23,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Files;
 
 public class TwitterMedia implements Parcelable{
-    public final static String savePath = Environment.getExternalStorageDirectory().getPath() + "/DCIM/CVTwiPush/";
-    public final static File internalFilesDir = TwiPush.getContext().getFilesDir();
-    public final static int AVATAR=0;
-    public final static int IMAGE=1;
-    public final static int VIDEO=2;
+    public static final String savePath = Environment.getExternalStorageDirectory().getPath() + "/DCIM/CVTwiPush/";
+    public static final File internalFilesDir = TwiPush.getContext().getFilesDir();
+    public static final String previewTag = "preview_";  //推特同一张图的不同尺寸可能具有相同名称，预览图文件名添加此tag以避免覆盖
+    public static final int AVATAR=0;
+    public static final int IMAGE=1;
+    public static final int VIDEO=2;
 
     public String id;
     public String url;
@@ -69,15 +71,16 @@ public class TwitterMedia implements Parcelable{
 
     public void loadImage(boolean isPreview, RecyclerView.Adapter tAdapter, Handler handler, @Nullable Integer position) {
         if(isPreview && previewImageURL != null) {
-            File file = new File(internalFilesDir, Uri.parse(previewImageURL).getLastPathSegment());
+            File file = new File(internalFilesDir, previewTag+Uri.parse(previewImageURL).getLastPathSegment());
             if(file.exists())
                 readImageFromFile(true, tAdapter, handler, position);
             else
                 downloadImage(true, tAdapter, handler, position);
         }
         else if(!isPreview && url != null) {
-            File file = new File(savePath, Uri.parse(url).getLastPathSegment());
-            if(file.exists())
+            File savedFile = new File(savePath, Uri.parse(url).getLastPathSegment());
+            File cachedFile = new File(internalFilesDir, Uri.parse(url).getLastPathSegment());
+            if(savedFile.exists() || cachedFile.exists())
                 readImageFromFile(false, tAdapter, handler, position);
             else
                 downloadImage(false, tAdapter, handler, position);
@@ -118,11 +121,18 @@ public class TwitterMedia implements Parcelable{
                             });
                         }
                         if(isPreview) {
-                            File file = new File(internalFilesDir, Uri.parse(downloadURL).getLastPathSegment());
+                            File file = new File(internalFilesDir, previewTag+Uri.parse(downloadURL).getLastPathSegment());
                             if(!file.exists())
                                 file.createNewFile();
                             FileOutputStream fos = new FileOutputStream(file);
                             cached_image_preview.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                            fos.close();
+                        } else {
+                            File file = new File(internalFilesDir, Uri.parse(downloadURL).getLastPathSegment());
+                            if(!file.exists())
+                                file.createNewFile();
+                            FileOutputStream fos = new FileOutputStream(file);
+                            cached_image.compress(Bitmap.CompressFormat.JPEG, 100, fos);
                             fos.close();
                         }
                     }
@@ -136,9 +146,10 @@ public class TwitterMedia implements Parcelable{
     private void readImageFromFile(final boolean isPreview, final RecyclerView.Adapter tAdapter, final Handler handler, final Integer position) {
         final File file;
         if(isPreview) {
-            file = new File(internalFilesDir, Uri.parse(previewImageURL).getLastPathSegment());
+            file = new File(internalFilesDir, previewTag+Uri.parse(previewImageURL).getLastPathSegment());
         } else {
-            file = new File(savePath, Uri.parse(url).getLastPathSegment());
+            File tmpFile = new File(savePath, Uri.parse(url).getLastPathSegment());
+            file = tmpFile.exists() ? tmpFile : new File(internalFilesDir, Uri.parse(url).getLastPathSegment());
         }
         new Thread() {
             @Override
@@ -184,8 +195,17 @@ public class TwitterMedia implements Parcelable{
     private boolean saveBitmap2file(Context context) {
         String fileName = Uri.parse(url).getLastPathSegment();
         File file = new File(savePath, fileName);
+        File cachedFile = new File(internalFilesDir, fileName);
         if(file.exists())
             return true;
+        if(cachedFile.exists()) {
+            try {
+                Files.copy(cachedFile.toPath(), file.toPath());
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         try {
             if(!file.getParentFile().exists())
                 file.getParentFile().mkdirs();

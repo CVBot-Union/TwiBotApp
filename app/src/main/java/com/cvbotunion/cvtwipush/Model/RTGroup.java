@@ -9,12 +9,26 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 
 public class RTGroup implements Parcelable {
+    /*默认形如
+    #用户名#
+    09-26 12:34
+
+    翻译
+
+    正文
+
+    回复/转推：
+
+    #父推文用户#
+    父推文正文
+     */
+    public static final String DEFAULT_FORMAT = "＃%1$s＃\n%3$s\n\n%5$s%4$s%6$s%7$s\n%9$s";
+
     public String id;
     public String name;
     public String avatarURL;
     public ArrayList<TwitterUser> following;
     public String tweetFormat;
-    public Boolean includeRT = false;
 
     @Nullable public Bitmap avatar;
 
@@ -74,6 +88,7 @@ public class RTGroup implements Parcelable {
         this.name = name;
         this.avatarURL = avatarURL;
         this.following = following;
+        initDefaultTweetFormat();
     }
 
     public RTGroup(String id,String name,String avatarURL,ArrayList<TwitterUser> following,Bitmap avatar){
@@ -103,19 +118,25 @@ public class RTGroup implements Parcelable {
 
     public void initDefaultTweetFormat(){
         /*
+        以下4、5、6三项须自主提供换行符。tweetFormat不提供，以避免值为""时出现多余换行
         %1$s：用户名 name
         %2$s：用户 screen_name
         %3$s：时间
         %4$s：推文正文
-        %5$s：父推文正文
+        %5$s：翻译文本
         %6$s：推文类型名（转推/回复）
-        %7$s：被回复用户用户 name
-        %8$s：被回复用户用户screen_name
+        %7$s：父推文用户 name
+        %8$s：父推文用户 screen_name
+        %9$s: 父推文正文
          */
         /*
         用户设定格式例子：#[名字] [用户名] [yyyy-mm-dd hh:mm] 翻译都给👴起来干活 [推文正文]
          */
-        this.tweetFormat = "＃%1$s＃ %3$s \n %4$s";
+        this.tweetFormat = DEFAULT_FORMAT;
+    }
+
+    public void setTweetFormat(String tweetFormat) {
+        this.tweetFormat = tweetFormat;
     }
 
     public void addFollowing(TwitterUser twitterUser) {

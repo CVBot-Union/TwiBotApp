@@ -31,6 +31,7 @@ public class TweetDetail extends AppCompatActivity {
     private TweetDetailCardAdapter tAdapter;
 
     private String statusID;
+    private String tweetFormat;
     public ArrayList<TwitterStatus> dataSet;
 
     @Override
@@ -42,6 +43,7 @@ public class TweetDetail extends AppCompatActivity {
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
         statusID = bundle.getString("twitterStatusId");
+        tweetFormat = bundle.getString("tweetFormat");
         DBTwitterStatus dbStatus = LitePal.where("tid = ?", statusID).findFirst(DBTwitterStatus.class);
 
         TwitterStatus status = dbStatus.toTwitterStatus();
@@ -55,6 +57,10 @@ public class TweetDetail extends AppCompatActivity {
             //    replyToStatus = getStatusNotInDB(status.in_reply_to_status_id);
             //}
             replyToStatus = new TwitterStatus("11:15", "3", "被回复推文", status.user, status.media);
+            if(LitePal.where("tid = ?", replyToStatus.id).find(DBTwitterStatus.class).isEmpty()) {
+                DBTwitterStatus dbTwitterStatus = new DBTwitterStatus(replyToStatus);
+                dbTwitterStatus.save();
+            }
             dataSet.add(0, replyToStatus);
         }
 
@@ -88,7 +94,7 @@ public class TweetDetail extends AppCompatActivity {
     private void initRecyclerView(){
         layoutManager = new LinearLayoutManager(this);
         tweetDetailRecyclerView.setLayoutManager(layoutManager);
-        tAdapter = new TweetDetailCardAdapter(dataSet,this);
+        tAdapter = new TweetDetailCardAdapter(dataSet,this, tweetFormat);
         tweetDetailRecyclerView.setAdapter(tAdapter);
         tweetDetailRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         ((SimpleItemAnimator) tweetDetailRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);

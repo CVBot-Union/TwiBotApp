@@ -3,7 +3,6 @@ package com.cvbotunion.cvtwipush.Activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
@@ -79,7 +78,7 @@ public class TweetList extends AppCompatActivity {
     private ArrayList<TwitterStatus> dataSet;
     private ArrayList<TwitterStatus> usedDataSet;
     private User currentUser;
-    public RTGroup group;
+    private RTGroup group;
     private ArrayList<String> followingName;
     private Map<Integer, String> idToName;
     private SQLiteDatabase db;
@@ -152,6 +151,15 @@ public class TweetList extends AppCompatActivity {
             @Override
             public void onLoadMore(@NonNull RefreshLayout refreshlayout) {
                 netRefresh(chipGroup.getCheckedChipId(),refreshlayout, RefreshTask.LOAD_MORE);
+            }
+        });
+
+        mdToolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                tweetListRecyclerView.smoothScrollToPosition(0);
+                refreshLayout.autoRefreshAnimationOnly();  //显示刷新动画，不触发事件
+                netRefresh(chipGroup.getCheckedChipId(),refreshLayout, RefreshTask.REFRESH);
             }
         });
     }
@@ -269,7 +277,7 @@ public class TweetList extends AppCompatActivity {
         };
 
         tweetListRecyclerView.setLayoutManager(layoutManager);
-        tAdapter = new TweetCardAdapter(usedDataSet,this);
+        tAdapter = new TweetCardAdapter(usedDataSet,this, group.tweetFormat);
         tweetListRecyclerView.setAdapter(tAdapter);
         ((SimpleItemAnimator) tweetListRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
     }
@@ -290,7 +298,7 @@ public class TweetList extends AppCompatActivity {
         networkStateReceiver = new NetworkStateReceiver();
         registerReceiver(networkStateReceiver, intentFilter);
 
-        LitePalDB litePalDB = new LitePalDB("twitterData", 6);
+        LitePalDB litePalDB = new LitePalDB("twitterData", 7);
         litePalDB.addClassName(DBTwitterStatus.class.getName());
         litePalDB.addClassName(DBTwitterUser.class.getName());
         litePalDB.addClassName(DBTwitterMedia.class.getName());
@@ -307,10 +315,6 @@ public class TweetList extends AppCompatActivity {
         String checkedName = idToName.getOrDefault(checkedId, null);
         task.setData(usedDataSet, dataSet, checkedName);
         task.execute();
-    }
-
-    public Activity getInstance(){
-        return this;
     }
 
     private void dimBehind(PopupWindow popupWindow) {

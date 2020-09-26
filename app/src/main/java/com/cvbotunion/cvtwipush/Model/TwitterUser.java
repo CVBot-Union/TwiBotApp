@@ -27,6 +27,13 @@ public class TwitterUser implements Parcelable{
     @Nullable public Bitmap cached_profile_image_preview;
     @Nullable public Bitmap cached_profile_image;
 
+    public TwitterUser(String id,String name,String screen_name) {
+        this.id = id;
+        this.name = name;
+        this.screen_name = screen_name;
+        this.name_in_group = name;
+    }
+
     public TwitterUser(String id,String name,String screen_name,String nameInGroup){
         this.id = id;
         this.name = name;

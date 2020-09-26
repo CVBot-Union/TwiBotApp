@@ -19,6 +19,7 @@ public class DBRTGroup extends LitePalSupport {
     @Column(nullable = false)
     private String name;
     private String avatarURL;
+    private String tweetFormat;
 
     public DBRTGroup() {}
 
@@ -26,6 +27,7 @@ public class DBRTGroup extends LitePalSupport {
         this.gid = group.id;
         this.name = group.name;
         this.avatarURL = group.avatarURL;
+        this.tweetFormat = group.tweetFormat;
         for(TwitterUser u : group.following) {
             if(LitePal.where("gid = ? AND twitterUid = ?",gid,u.id).find(DBFollow.class).isEmpty()) {
                 DBFollow dbFollow = new DBFollow(gid,u.id);
@@ -39,7 +41,7 @@ public class DBRTGroup extends LitePalSupport {
     }
 
     public RTGroup toRTGroup() {
-        return new RTGroup(gid,name,avatarURL,getFollowingList(),null);
+        return new RTGroup(gid,name,avatarURL,getFollowingList(),null, tweetFormat);
     }
 
     public ArrayList<TwitterUser> getFollowingList() {

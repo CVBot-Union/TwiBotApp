@@ -54,7 +54,7 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
                 ArrayList<TwitterMedia> mediaList = new ArrayList<>();
                 mediaList.add(media);
                 mediaList.add(media1);
-                TwitterStatus tweet = new TwitterStatus("12:34", "5", "新增项", user, mediaList, TwitterStatus.REPLY, "123456");
+                TwitterStatus tweet = new TwitterStatus("12:34", "5", "新增项", user, mediaList, TwitterStatus.REPLY, "3");
                 if (LitePal.where("tid = ?", tweet.id).find(DBTwitterStatus.class).isEmpty()) {
                     DBTwitterStatus dbStatus = new DBTwitterStatus(tweet);
                     dbStatus.save();
@@ -68,6 +68,7 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
                 // 每次最大数目：TweetList.EVERY_COUNT
                 // 有必要实现一个按id_str排序的类/方法
             }
+            Thread.sleep(1000);
         } catch (Exception e) {
             e.printStackTrace();
             return false;

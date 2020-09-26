@@ -2,9 +2,12 @@ package com.cvbotunion.cvtwipush.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.FileProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,6 +23,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 
 import org.litepal.LitePal;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,9 +53,15 @@ public class ImageViewer extends AppCompatActivity {
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                int menuID = item.getItemId();
-                if (menuID == R.id.save_menu_item) {
-                    saveImage();
+                switch(item.getItemId()) {
+                    case R.id.save_menu_item:
+                        saveImage();
+                        break;
+                    case R.id.share_menu_item:
+                        shareImage();
+                        break;
+                    default:
+                        break;
                 }
                 return true;
             }
@@ -68,6 +78,19 @@ public class ImageViewer extends AppCompatActivity {
         if(!currentMedia.saveToFile(this))
             result = "失败";
         Toast.makeText(this, "保存"+result, Toast.LENGTH_SHORT).show();
+    }
+
+    public void shareImage() {
+        TwitterMedia currentMedia = mediaList.get(viewPager2.getCurrentItem());
+        if(currentMedia.cached_image != null) {
+            Uri imageUri = FileProvider.getUriForFile(getApplicationContext(), getApplicationContext().getPackageName()+".fileProvider",
+                    new File(TwitterMedia.internalFilesDir, Uri.parse(currentMedia.url).getLastPathSegment()));
+            Intent shareIntent = new Intent();
+            shareIntent.setAction(Intent.ACTION_SEND);
+            shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
+            shareIntent.setType("image/*");
+            startActivity(Intent.createChooser(shareIntent, "分享图片"));
+        }
     }
 
     public void initData() {

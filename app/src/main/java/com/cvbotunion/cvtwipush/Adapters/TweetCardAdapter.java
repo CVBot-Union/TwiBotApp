@@ -38,11 +38,13 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
     public boolean isConnected = true;
     public Handler handler;
     public Context context;
+    private String tweetFormat;
 
-    public TweetCardAdapter(ArrayList<TwitterStatus> tweets,Context context){
+    public TweetCardAdapter(ArrayList<TwitterStatus> tweets,Context context, String tweetFormat){
         this.tweets = tweets;
         handler = new Handler();
         this.context = context;
+        this.tweetFormat = tweetFormat;
     }
 
     public static class TweetCardViewHolder extends RecyclerView.ViewHolder{
@@ -73,6 +75,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
                 Intent intent = new Intent(v.getContext(), TweetDetail.class);
                 Bundle bundle = new Bundle();
                 bundle.putString("twitterStatusId",tweets.get(position).getId());
+                bundle.putString("tweetFormat",tweetFormat);
                 intent.putExtras(bundle);
                 ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(activity,card,"activityOption");
                 v.getContext().startActivity(intent,optionsCompat.toBundle());
@@ -82,11 +85,9 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
             @Override
             public void onClick(View v) {
                 TwitterStatus tweet = tweets.get(position);
-                if (tweet.getFullText() != null) {
-                    ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-                    ClipData mClipData = ClipData.newPlainText("tweet", tweet.getFullText());
-                    clipboardManager.setPrimaryClip(mClipData);
-                }
+                ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData mClipData = ClipData.newPlainText("tweet", tweet.getFullText(tweetFormat));
+                clipboardManager.setPrimaryClip(mClipData);
                 String result = "成功";
                 //保存媒体
                 if (tweet.media != null && !tweet.media.isEmpty()) {
