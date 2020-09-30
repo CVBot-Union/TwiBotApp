@@ -17,9 +17,6 @@ import java.lang.ref.WeakReference;
 import java.util.logging.LogManager;
 
 public class TwiPush extends Application {
-
-    public static final String APP_ID = "2882303761518650494";
-    public static final String APP_KEY = "5831865030494";
     public static final String TAG = "com.cvbotunion.cvtwipush";
     private static WeakReference<Context> contextRef;
 
