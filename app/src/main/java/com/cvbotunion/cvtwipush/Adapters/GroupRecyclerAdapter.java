@@ -86,6 +86,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
                 intent.putExtras(bundle);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 ((AppCompatActivity) context).startActivityForResult(intent,1);
+                ((AppCompatActivity) context).overridePendingTransition(0,0);
                 ((AppCompatActivity) context).finish();
             }
         });
