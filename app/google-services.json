@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "16038608885",
+    "firebase_url": "https://cvtwipush.firebaseio.com",
+    "project_id": "cvtwipush",
+    "storage_bucket": "cvtwipush.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:16038608885:android:bac57703d038c118bf6abc",
+        "android_client_info": {
+          "package_name": "com.cvbotunion.cvtwipush"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "16038608885-kg6ili409ekef80ekl0is5r1vdf8tf9p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBfv_VB4-GRnKc9d_mBlhtS23Om_BleTls"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "16038608885-kg6ili409ekef80ekl0is5r1vdf8tf9p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

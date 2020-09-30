@@ -1,8 +1,18 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.huawei.agconnect'
 
 android {
     compileSdkVersion 29
     buildToolsVersion "30.0.1"
+
+    signingConfigs{
+        config{
+            keyAlias 'TwiPush'
+            keyPassword 'Cdd1919810'
+            storeFile file('TwiPushHms.jks')
+            storePassword 'Cdd114514'
+        }
+    }
 
     defaultConfig {
         applicationId 'com.cvbotunion.cvtwipush'
@@ -12,18 +22,19 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders["MI_APP_ID"] = "2882303761518650494"
+        manifestPlaceholders["MI_APP_KEY"] = "5831865030494"
     }
 
     buildTypes {
         release {
+            signingConfig signingConfigs.config
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
 
 dependencies {
-    implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
     implementation 'androidx.viewpager2:viewpager2:1.0.0'
@@ -43,4 +54,8 @@ dependencies {
     implementation 'com.github.dueeeke.dkplayer:player-ijk:3.2.6'
     implementation 'com.github.dueeeke.dkplayer:videocache:3.2.6'
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
+
+    implementation 'com.mixpush:mixpush-core:2.0.7'// 核心包
+    implementation 'com.mixpush:mixpush-mi:2.0.7' // 小米推送
+    implementation 'com.mixpush:mixpush-huawei:2.0.7' // 华为推送
 }

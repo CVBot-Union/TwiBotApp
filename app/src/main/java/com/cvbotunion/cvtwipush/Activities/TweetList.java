@@ -18,11 +18,13 @@ import android.net.Network;
 import android.net.Uri;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cvbotunion.cvtwipush.CustomViews.GroupPopupWindow;
 import com.cvbotunion.cvtwipush.DBModel.DBFollow;
@@ -45,6 +47,9 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.snackbar.Snackbar;
+import com.mixpush.core.GetRegisterIdCallback;
+import com.mixpush.core.MixPushClient;
+import com.mixpush.core.MixPushPlatform;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
 import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener;
 import com.scwang.smart.refresh.layout.listener.OnRefreshListener;
@@ -90,6 +95,8 @@ public class TweetList extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         }
+
+        initPushService();
         initBackground();
         initView();
         initData();
@@ -159,6 +166,7 @@ public class TweetList extends AppCompatActivity {
                 netRefresh(chipGroup.getCheckedChipId(),refreshLayout, RefreshTask.REFRESH);
             }
         });
+
     }
 
     private void initConnectivityReceiver() {
@@ -333,6 +341,17 @@ public class TweetList extends AppCompatActivity {
         litePalDB.addClassName(DBFollow.class.getName());
         LitePal.use(litePalDB);
         db = LitePal.getDatabase();
+    }
+
+    public void initPushService(){
+        MixPushClient.getInstance().getRegisterId(this, new GetRegisterIdCallback() {
+            public void callback(MixPushPlatform platform) {
+                if (platform != null) {
+                    Log.e("GetRegisterIdCallback", platform.toString());
+                    // TODO 上报regId给服务端
+                }
+            }
+        });
     }
 
     public void netRefresh(int checkedId, RefreshLayout refreshlayout, int mode) {
