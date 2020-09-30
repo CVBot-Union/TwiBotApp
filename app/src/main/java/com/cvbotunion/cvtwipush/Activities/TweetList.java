@@ -12,11 +12,9 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import android.Manifest;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.Network;
-import android.net.NetworkRequest;
 import android.net.Uri;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
