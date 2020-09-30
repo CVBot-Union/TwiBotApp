@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -85,9 +86,13 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
                 bundle.putString("groupId",gidList.get(position));
                 intent.putExtras(bundle);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                ((AppCompatActivity) context).startActivityForResult(intent,1);
-                ((AppCompatActivity) context).overridePendingTransition(0,0);
-                ((AppCompatActivity) context).finish();
+                try {
+                    ((AppCompatActivity) context).startActivityForResult(intent, 1);
+                    ((AppCompatActivity) context).overridePendingTransition(0, 0);
+                    ((AppCompatActivity) context).finish();
+                } catch (Exception e){
+                    Toast.makeText(context,e.toString(),Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
