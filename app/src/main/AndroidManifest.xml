@@ -39,14 +39,6 @@
             android:screenOrientation="portrait" />
         <activity android:name=".Activities.ImageViewer" />
 
-        <receiver android:name="com.cvbotunion.cvtwipush.Utils.NetworkStateReceiver">
-            <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_STATE" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </receiver>
-
         <activity
             android:name="com.cvbotunion.cvtwipush.Activities.TweetList"
             android:launchMode="singleTop"
@@ -54,8 +46,10 @@
             android:clearTaskOnLaunch="false">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+                <data
+                    android:scheme="twipush"
+                    android:host="cvtwipush.uri.tweetlist" />
             </intent-filter>
         </activity>
 

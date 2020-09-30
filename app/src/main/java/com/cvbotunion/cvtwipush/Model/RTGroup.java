@@ -83,6 +83,10 @@ public class RTGroup implements Parcelable {
         }
     }
 
+    public RTGroup(){
+
+    }
+
     public RTGroup(String id,String name,String avatarURL,ArrayList<TwitterUser> following) {
         this.id = id;
         this.name = name;

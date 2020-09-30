@@ -1,8 +1,10 @@
 package com.cvbotunion.cvtwipush.CustomViews;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
@@ -114,5 +116,34 @@ public class GroupPopupWindow extends PopupWindow {
         super(width, height);
         this.user = user;
         this.currentGroup = currentGroup;
+    }
+
+    public void dimBehind() {
+        View container;
+        if (getBackground() == null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                container = (View) getContentView().getParent();
+            } else {
+                container = getContentView();
+            }
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                container = (View) getContentView().getParent().getParent();
+            } else {
+                container = (View) getContentView().getParent();
+            }
+        }
+        Context context = getContentView().getContext();
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        WindowManager.LayoutParams p = (WindowManager.LayoutParams) container.getLayoutParams();
+        p.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+        p.dimAmount = 0.3f;
+        if(wm != null) {
+            wm.updateViewLayout(container, p);
+        }
+        setTouchable(true);
+        setFocusable(true);
+        setOutsideTouchable(true);
+        update();
     }
 }
