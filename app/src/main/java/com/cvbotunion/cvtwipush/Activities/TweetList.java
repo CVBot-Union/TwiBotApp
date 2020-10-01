@@ -47,9 +47,6 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.snackbar.Snackbar;
-import com.mixpush.core.GetRegisterIdCallback;
-import com.mixpush.core.MixPushClient;
-import com.mixpush.core.MixPushPlatform;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
 import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener;
 import com.scwang.smart.refresh.layout.listener.OnRefreshListener;
@@ -96,7 +93,6 @@ public class TweetList extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         }
 
-        initPushService();
         initBackground();
         initView();
         initData();
@@ -343,16 +339,6 @@ public class TweetList extends AppCompatActivity {
         db = LitePal.getDatabase();
     }
 
-    public void initPushService(){
-        MixPushClient.getInstance().getRegisterId(this, new GetRegisterIdCallback() {
-            public void callback(MixPushPlatform platform) {
-                if (platform != null) {
-                    Log.e("GetRegisterIdCallback", platform.toString());
-                    // TODO 上报regId给服务端
-                }
-            }
-        });
-    }
 
     public void netRefresh(int checkedId, RefreshLayout refreshlayout, int mode) {
         RefreshTask task = new RefreshTask(refreshlayout, tAdapter, mode);

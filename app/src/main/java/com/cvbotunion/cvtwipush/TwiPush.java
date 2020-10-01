@@ -1,22 +1,26 @@
 package com.cvbotunion.cvtwipush;
 
+import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
+import android.os.Process;
 import android.util.Log;
 
-import com.cvbotunion.cvtwipush.Utils.TwiPushReceiver;
 import com.dueeeke.videoplayer.ijk.IjkPlayerFactory;
 import com.dueeeke.videoplayer.player.VideoViewConfig;
 import com.dueeeke.videoplayer.player.VideoViewManager;
-import com.mixpush.core.MixPushClient;
 import com.xiaomi.channel.commonutils.logger.LoggerInterface;
+import com.xiaomi.mipush.sdk.MiPushClient;
 
 import org.litepal.LitePal;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 import java.util.logging.LogManager;
 
 public class TwiPush extends Application {
+    public static final String APP_ID = "2882303761518650494";
+    public static final String APP_KEY = "5831865030494";
     public static final String TAG = "com.cvbotunion.cvtwipush";
     private static WeakReference<Context> contextRef;
 
@@ -30,10 +34,9 @@ public class TwiPush extends Application {
                 .build());
 
         //推送初始化
-        //MixPushClient.getInstance().setLogger(new PushLogger(){});
-        MixPushClient.getInstance().setPushReceiver(new TwiPushReceiver());
-        // 默认初始化5个推送平台（小米推送、华为推送、魅族推送、OPPO推送、VIVO推送），以小米推荐作为默认平台
-        MixPushClient.getInstance().register(this);
+        if(shouldInit()) {
+            MiPushClient.registerPush(this, APP_ID, APP_KEY);
+        }
 
         //打开Log
         LoggerInterface newLogger = new LoggerInterface() {
@@ -56,6 +59,19 @@ public class TwiPush extends Application {
         LogManager.getLogManager().getLogger(newLogger.getClass().getName());
         LitePal.initialize(this);
 
+    }
+
+    private boolean shouldInit() {
+        ActivityManager am = ((ActivityManager) getSystemService(Context.ACTIVITY_SERVICE));
+        List<ActivityManager.RunningAppProcessInfo> processInfos = am.getRunningAppProcesses();
+        String mainProcessName = getApplicationInfo().processName;
+        int myPid = Process.myPid();
+        for (ActivityManager.RunningAppProcessInfo info : processInfos) {
+            if (info.pid == myPid && mainProcessName.equals(info.processName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static Context getContext() {
