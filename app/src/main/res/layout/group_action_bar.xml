@@ -15,9 +15,10 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?android:attr/colorBackground"
+        android:elevation="0dp"
         android:fitsSystemWindows="true"
         android:theme="@style/Theme.MaterialComponents.Light.NoActionBar.Bridge"
-        app:layout_scrollFlags="scroll|enterAlways"
+        app:layout_scrollFlags="scroll|enterAlways|snap"
         app:menu="@menu/app_top_bar"
         app:titleTextColor="#505050">
 

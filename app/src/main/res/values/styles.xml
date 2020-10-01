@@ -9,6 +9,7 @@
         <item name="android:statusBarColor">?android:attr/colorBackground</item>
         <item name="colorControlNormal">@android:color/white</item>
         <item name="android:windowContentTransitions">true</item>
+        <item name="snackbarStyle">@style/MarginSnackbar</item>
     </style>
 
     <style name="roundedImageViewRounded">
@@ -16,5 +17,8 @@
         <item name="cornerSize">50%</item>
     </style>
 
+    <style name="MarginSnackbar" parent="Widget.MaterialComponents.Snackbar">
+        <item name="android:layout_margin">8dp</item>
+    </style>
 
 </resources>
