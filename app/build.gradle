@@ -29,7 +29,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation files('/Users/david/Downloads/MiPush_Client_Android_20200917/SDK/MiPush_SDK_Client_3_8_0.jar')
+    implementation files('libs/MiPush_SDK_Client_3_8_0.jar')
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
