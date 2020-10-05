@@ -78,9 +78,15 @@ public class VideoViewer extends AppCompatActivity {
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                int menuID = item.getItemId();
-                if (menuID == R.id.save_menu_item) {
-                    saveVideo();
+                switch(item.getItemId()) {
+                    case R.id.save_menu_item:
+                        saveVideo();
+                        break;
+                    case R.id.share_menu_item:
+                        shareVideo();
+                        break;
+                    default:
+                        break;
                 }
                 return true;
             }
@@ -118,8 +124,10 @@ public class VideoViewer extends AppCompatActivity {
         if(cacheServer != null && cacheServer.isCached(url)) {
             Path source = cacheServer.getCacheFile(url).toPath();
             Path target = videoFile.toPath();
+            if(!videoFile.getParentFile().exists()) videoFile.getParentFile().mkdirs();
             try {
                 Files.copy(source, target);
+                this.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + videoFile.getAbsolutePath())));
             } catch (IOException e) {
                 e.printStackTrace();
                 result = "失败";
@@ -128,5 +136,13 @@ public class VideoViewer extends AppCompatActivity {
         else if(!video.saveToFile(this))
             result = "失败";
         Toast.makeText(this, "保存"+result, Toast.LENGTH_SHORT).show();
+    }
+
+    public void shareVideo() {
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, url);
+        shareIntent.setType("text/plain");
+        startActivity(Intent.createChooser(shareIntent, "分享视频"));
     }
 }

@@ -69,6 +69,10 @@
             android:launchMode="singleTask" />
 
         <service
+            android:name="com.cvbotunion.cvtwipush.Service.WebService"
+            android:description="@string/webservice_description" />
+
+        <service
             android:name="com.xiaomi.push.service.XMPushService"
             android:enabled="true"
             android:process=":pushservice" />

@@ -5,16 +5,23 @@ import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.cvbotunion.cvtwipush.Activities.TweetList;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import okhttp3.Response;
+
 public class TwitterUser implements Parcelable{
+    public boolean avatarUnderProcessing = false;
+
     public String id;
     public String name;
     public String screen_name;
@@ -75,20 +82,22 @@ public class TwitterUser implements Parcelable{
     }
 
     public void downloadAvatar(final RecyclerView.Adapter tAdapter, final Handler handler, @Nullable final Integer position) {
+        avatarUnderProcessing = true;
         if(profile_image_url != null) {
             new Thread() {
                 @Override
                 public void run() {
                     try {
-                        URL url0 = new URL(profile_image_url);
-                        HttpURLConnection connection = (HttpURLConnection) url0.openConnection();
-                        connection.setRequestMethod("GET");
-                        connection.setConnectTimeout(10000);
-                        int code = connection.getResponseCode();
+                        while(TweetList.connection.webService==null) {
+                            Thread.sleep(10);
+                        }
+                        Response response = TweetList.connection.webService.get(profile_image_url);
+                        int code = response.code();
                         if (code == 200) {
-                            InputStream inputStream = connection.getInputStream();
-                            cached_profile_image_preview = BitmapFactory.decodeStream(inputStream);
-                            inputStream.close();
+                            byte[] data = response.body().bytes();
+                            Log.i("downloadAvater", profile_image_url);
+                            response.close();
+                            cached_profile_image_preview = BitmapFactory.decodeByteArray(data, 0, data.length);
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
@@ -98,9 +107,14 @@ public class TwitterUser implements Parcelable{
                                         tAdapter.notifyDataSetChanged();
                                 }
                             });
+                        } else {
+                            Log.e("download", response.message());
+                            response.close();
                         }
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
+                    } finally {
+                        avatarUnderProcessing = false;
                     }
                 }
             }.start();

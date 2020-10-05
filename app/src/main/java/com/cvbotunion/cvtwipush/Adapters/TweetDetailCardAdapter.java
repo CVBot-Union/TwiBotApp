@@ -35,8 +35,8 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
     public static final int GET_DATA_SUCCESS = 1;
     public static final int NETWORK_ERROR = 2;
     public static final int SERVER_ERROR = 3;
+    public static boolean isConnected = true;
 
-    public boolean isConnected = true;
     public Handler handler;
     public Context context;
     private String tweetFormat;
@@ -121,7 +121,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
 
         if(tweets.get(position).user.cached_profile_image_preview != null){
             holder.tweetCard.setAvatarImg(tweets.get(position).user.cached_profile_image_preview);
-        } else {
+        } else if(isConnected && !tweets.get(position).user.avatarUnderProcessing) {
             tweets.get(position).user.downloadAvatar(this, handler, position);
         }
 
@@ -148,7 +148,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                                     }
                                 });
                                 holder.tweetCard.setTweetImage(tweets.get(position).media.size(), i, media.cached_image_preview);
-                            } else {
+                            } else if(isConnected && !media.underProcessing) {
                                 media.loadImage(true,this, handler, position);
                             }
                             break;
@@ -166,7 +166,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                                     }
                                 });
                                 holder.tweetCard.setVideoBackground(media.cached_image_preview);
-                            } else {
+                            } else if(isConnected && !media.underProcessing) {
                                 media.loadImage(true,this, handler, position);
                             }
                             break;

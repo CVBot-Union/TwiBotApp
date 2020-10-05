@@ -72,7 +72,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
 
         if(groupNow.equals(currentGroup.id)){
             holder.groupName.setTextColor(context.getColor(R.color.colorPrimary));
-            int alphaBackground = ColorUtils.setAlphaComponent(context.getColor(R.color.colorPrimary), 15);
+            int alphaBackground = ColorUtils.setAlphaComponent(context.getColor(R.color.colorPrimary), 25);
             holder.itemView.findViewById(R.id.group_item_layout).setBackgroundColor(alphaBackground);
         }
 

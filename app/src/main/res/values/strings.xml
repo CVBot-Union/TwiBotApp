@@ -6,5 +6,6 @@
     <string name="twitteruser_avatar_description">推特用户头像</string>
     <string name="twittermedia_image_description">推文包含的图片</string>
     <string name="twittermedia_video_description">推文包含的视频（未播放）</string>
+    <string name="webservice_description">Twipush应用的网络服务</string>
     <string name="server_address"></string>
 </resources>

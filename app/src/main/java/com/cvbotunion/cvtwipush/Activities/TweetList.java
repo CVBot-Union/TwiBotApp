@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
@@ -26,7 +27,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cvbotunion.cvtwipush.Adapters.TweetDetailCardAdapter;
 import com.cvbotunion.cvtwipush.CustomViews.GroupPopupWindow;
+import com.cvbotunion.cvtwipush.CustomViews.TweetDetailCard;
 import com.cvbotunion.cvtwipush.DBModel.DBFollow;
 import com.cvbotunion.cvtwipush.DBModel.DBJob;
 import com.cvbotunion.cvtwipush.DBModel.DBRTGroup;
@@ -40,6 +43,8 @@ import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.Model.TwitterUser;
 import com.cvbotunion.cvtwipush.Model.User;
 import com.cvbotunion.cvtwipush.R;
+import com.cvbotunion.cvtwipush.Service.MyServiceConnection;
+import com.cvbotunion.cvtwipush.Service.WebService;
 import com.cvbotunion.cvtwipush.Utils.RefreshTask;
 import com.cvbotunion.cvtwipush.Adapters.TweetCardAdapter;
 import com.danikula.videocache.StorageUtils;
@@ -61,6 +66,8 @@ import java.util.Map;
 public class TweetList extends AppCompatActivity {
     //每次从数据库和服务器获取的最大推文数目
     public static final int EVERY_COUNT = 20;
+    public static MyServiceConnection connection = new MyServiceConnection();
+
 
     private RecyclerView tweetListRecyclerView;
     private TweetCardAdapter tAdapter;
@@ -158,8 +165,7 @@ public class TweetList extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 tweetListRecyclerView.smoothScrollToPosition(0);
-                refreshLayout.autoRefreshAnimationOnly();  //显示刷新动画，不触发事件
-                netRefresh(chipGroup.getCheckedChipId(),refreshLayout, RefreshTask.REFRESH);
+                refreshLayout.autoRefresh();
             }
         });
 
@@ -172,13 +178,17 @@ public class TweetList extends AppCompatActivity {
                 @Override
                 public void onLost(Network network) {
                     super.onLost(network);
+                    TweetCardAdapter.isConnected = false;
+                    TweetDetailCardAdapter.isConnected = false;
                     Snackbar.make(tweetListRecyclerView, "网络连接丢失", 3000).show();
                 }
 
                 @Override
                 public void onAvailable(Network network) {
                     super.onAvailable(network);
-                    netRefresh(chipGroup.getCheckedChipId(), refreshLayout, RefreshTask.REFRESH);
+                    TweetCardAdapter.isConnected = true;
+                    TweetDetailCardAdapter.isConnected = true;
+                    refreshLayout.autoRefresh();
                 }
             };
             connectivityManager.registerDefaultNetworkCallback(networkCallback);
@@ -189,6 +199,7 @@ public class TweetList extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         db.close();
+        unbindService(connection);
         idToName.clear();
         if(Math.random()>0.9) {  //十分之一的概率
             StorageUtils.deleteFile(VideoViewer.cacheDir);  //删除整个目录
@@ -203,7 +214,7 @@ public class TweetList extends AppCompatActivity {
         dataSet = new ArrayList<>();
         usedDataSet = new ArrayList<>();
         idToName = new HashMap<>();
-
+        // TODO initData实际应用
         //readData()
         //if not found, netRefresh()
 
@@ -327,6 +338,8 @@ public class TweetList extends AppCompatActivity {
     }
 
     private void initBackground() {
+        Intent serviceIntent = new Intent(this, WebService.class);
+        bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
         LitePalDB litePalDB = new LitePalDB("twitterData", 7);
         litePalDB.addClassName(DBTwitterStatus.class.getName());
         litePalDB.addClassName(DBTwitterUser.class.getName());
@@ -338,7 +351,6 @@ public class TweetList extends AppCompatActivity {
         LitePal.use(litePalDB);
         db = LitePal.getDatabase();
     }
-
 
     public void netRefresh(int checkedId, RefreshLayout refreshlayout, int mode) {
         RefreshTask task = new RefreshTask(refreshlayout, tAdapter, mode);

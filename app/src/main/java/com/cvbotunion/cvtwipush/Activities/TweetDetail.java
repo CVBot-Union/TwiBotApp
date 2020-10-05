@@ -9,19 +9,24 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import com.cvbotunion.cvtwipush.Adapters.TweetDetailCardAdapter;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.R;
+import com.cvbotunion.cvtwipush.Service.WebService;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
 import com.scwang.smart.refresh.layout.listener.OnRefreshListener;
 
+import org.json.JSONObject;
 import org.litepal.LitePal;
 
 import java.util.ArrayList;
+
+import okhttp3.Response;
 
 public class TweetDetail extends AppCompatActivity {
     private MaterialToolbar mdToolbar;
@@ -54,7 +59,7 @@ public class TweetDetail extends AppCompatActivity {
             //if(dbReplyToStatus != null) {
             //    replyToStatus = dbReplyToStatus.toTwitterStatus();
             //} else {
-            //    replyToStatus = getStatusNotInDB(status.in_reply_to_status_id);
+            //    getStatusNotInDB(status.in_reply_to_status_id);
             //}
             replyToStatus = new TwitterStatus("11:15", "3", "被回复推文", status.user, status.media);
             if(LitePal.where("tid = ?", replyToStatus.id).find(DBTwitterStatus.class).isEmpty()) {
@@ -101,8 +106,31 @@ public class TweetDetail extends AppCompatActivity {
         tweetDetailRecyclerView.scrollToPosition(dataSet.size()-1);
     }
 
-    public static TwitterStatus getStatusNotInDB(String statusId) {
-        //根据指定statusId从服务器获取推文
-        return new TwitterStatus();
+    public void getStatusNotInDB(final String statusId) {
+        refreshLayout.autoRefreshAnimationOnly();
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Response response = TweetList.connection.webService.get(WebService.domain+"/tweet/"+statusId);
+                    if(response.code()==200) {
+                        JSONObject resJson = new JSONObject(response.body().string());
+                        response.close();
+                        if(!resJson.getBoolean("success")) {
+                            Log.e("TweetDetail.getStatusNotInDB", resJson.toString());
+                        }
+                        // TODO JSONObject -> TwitterStatus
+                        dataSet.add(0, new TwitterStatus(resJson.getJSONObject("response").getJSONObject("tweet")));
+                    } else {
+                        Log.e("TweetDetail.getStatusNotInDB", response.message());
+                        response.close();
+                    }
+                } catch(Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    refreshLayout.autoRefresh();
+                }
+            }
+        }.start();
     }
 }

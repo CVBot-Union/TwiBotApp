@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,8 +35,8 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
     public static final int GET_DATA_SUCCESS = 1;
     public static final int NETWORK_ERROR = 2;
     public static final int SERVER_ERROR = 3;
+    public static boolean isConnected = true;
 
-    public boolean isConnected = true;
     public Handler handler;
     public Context context;
     private String tweetFormat;
@@ -126,7 +127,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
         //头像
         if(tweets.get(position).user.cached_profile_image_preview != null){
             holder.tweetCard.setAvatarImg(tweets.get(position).user.cached_profile_image_preview);
-        } else {
+        } else if(isConnected && !tweets.get(position).user.avatarUnderProcessing) {
             tweets.get(position).user.downloadAvatar(this, handler, position);
         }
 
@@ -155,7 +156,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
                                     }
                                 });
                                 holder.tweetCard.setTweetImage(tweets.get(position).media.size(), i, media.cached_image_preview);
-                            } else {
+                            } else if(isConnected && !media.underProcessing) {
                                 media.loadImage(true,this, handler,null);
                             }
                             break;
@@ -174,7 +175,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
                                     }
                                 });
                                 holder.tweetCard.setVideoBackground(media.cached_image_preview);
-                            } else {
+                            } else if(isConnected && !media.underProcessing) {
                                 media.loadImage(true,this, handler,null);
                             }
                             break;

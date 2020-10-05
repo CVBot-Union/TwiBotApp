@@ -88,6 +88,8 @@ public class TwitterStatus implements Parcelable {
         }
     }
 
+    // TODO 为Model中的类添加JSONObject -> Object的构造器
+
     protected TwitterStatus(Parcel in) {
         created_at = in.readString();
         id = in.readString();

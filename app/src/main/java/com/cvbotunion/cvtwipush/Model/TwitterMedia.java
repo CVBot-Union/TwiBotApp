@@ -10,20 +10,20 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.cvbotunion.cvtwipush.Activities.TweetList;
 import com.cvbotunion.cvtwipush.TwiPush;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.file.Files;
+import okhttp3.Response;
 
 public class TwitterMedia implements Parcelable{
     public static final String savePath = Environment.getExternalStorageDirectory().getPath() + "/DCIM/CVTwiPush/";
@@ -32,6 +32,8 @@ public class TwitterMedia implements Parcelable{
     public static final int AVATAR=0;
     public static final int IMAGE=1;
     public static final int VIDEO=2;
+
+    public boolean underProcessing = false;
 
     public String id;
     public String url;
@@ -70,6 +72,7 @@ public class TwitterMedia implements Parcelable{
     }
 
     public void loadImage(boolean isPreview, RecyclerView.Adapter tAdapter, Handler handler, @Nullable Integer position) {
+        underProcessing = true;
         if(isPreview && previewImageURL != null) {
             File file = new File(internalFilesDir, previewTag+Uri.parse(previewImageURL).getLastPathSegment());
             if(file.exists())
@@ -87,7 +90,7 @@ public class TwitterMedia implements Parcelable{
         }
     }
 
-    private void downloadImage(final boolean isPreview, final RecyclerView.Adapter tAdapter, final Handler handler, final Integer position) {
+    public void downloadImage(final boolean isPreview, final RecyclerView.Adapter tAdapter, final Handler handler, final Integer position) {
         final String downloadURL;
         if(isPreview)
             downloadURL = previewImageURL;
@@ -97,18 +100,19 @@ public class TwitterMedia implements Parcelable{
             @Override
             public void run() {
                 try {
-                    URL url0 = new URL(downloadURL);
-                    HttpURLConnection connection = (HttpURLConnection) url0.openConnection();
-                    connection.setRequestMethod("GET");
-                    connection.setConnectTimeout(10000);
-                    int code = connection.getResponseCode();
+                    while(TweetList.connection.webService==null) {
+                       Thread.sleep(10);
+                    }
+                    Response response = TweetList.connection.webService.get(downloadURL);
+                    int code = response.code();
                     if (code == 200) {
-                        InputStream inputStream = connection.getInputStream();
+                        byte[] data = response.body().bytes();
+                        Log.i("downloadImage", downloadURL+"  "+data.length);
+                        response.close();
                         if(isPreview)
-                            cached_image_preview = BitmapFactory.decodeStream(inputStream);
+                            cached_image_preview = BitmapFactory.decodeByteArray(data,0,data.length);
                         else
-                            cached_image = BitmapFactory.decodeStream(inputStream);
-                        inputStream.close();
+                            cached_image = BitmapFactory.decodeByteArray(data,0,data.length);
                         if(tAdapter != null && handler != null) {
                             handler.post(new Runnable() {
                                 @Override
@@ -135,9 +139,14 @@ public class TwitterMedia implements Parcelable{
                             cached_image.compress(Bitmap.CompressFormat.JPEG, 100, fos);
                             fos.close();
                         }
+                    } else {
+                        Log.e("download", response.message());
+                        response.close();
                     }
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    underProcessing = false;
                 }
             }
         }.start();
@@ -161,7 +170,7 @@ public class TwitterMedia implements Parcelable{
                     else
                         cached_image = BitmapFactory.decodeStream(fis);
                     fis.close();
-                    handler.post(new Runnable() {
+                    if(handler!=null && tAdapter!=null) handler.post(new Runnable() {
                         @Override
                         public void run() {
                             if (position != null)
@@ -172,6 +181,8 @@ public class TwitterMedia implements Parcelable{
                     });
                 } catch (IOException e) {
                     e.printStackTrace();
+                } finally {
+                    underProcessing = false;
                 }
             }
         }.start();
@@ -199,8 +210,12 @@ public class TwitterMedia implements Parcelable{
         if(file.exists())
             return true;
         if(cachedFile.exists()) {
+            if(!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
             try {
                 Files.copy(cachedFile.toPath(), file.toPath());
+                context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + file.getAbsolutePath())));
                 return true;
             } catch (IOException e) {
                 e.printStackTrace();

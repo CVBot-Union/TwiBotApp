@@ -45,7 +45,7 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
 
     @Override
     protected Boolean doInBackground(String... params) {
-        //实际应用中，此处与服务器通信以获取数据
+        //TODO 实际应用中，此处与服务器通信以获取数据
         try {
             if(mode == REFRESH) {
                 TwitterUser user = new TwitterUser("3", "相羽あいな", "aibaaiai", "相羽爱奈", "http://101.200.184.98:8080/aiai.jpg");
@@ -63,6 +63,7 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
                     usedDataSet.add(0, tweet);
                 dataSet.add(0, tweet);
             } else if(mode == LOAD_MORE) {
+                //TODO loadmore实现
                 // 初步设想
                 // 获取顺序：数据库 -> 服务器
                 // 每次最大数目：TweetList.EVERY_COUNT
