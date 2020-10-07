@@ -8,15 +8,24 @@ import androidx.annotation.Nullable;
 
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.litepal.LitePal;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class TwitterStatus implements Parcelable {
     //推文类型
     public final static int NORMAL=0;
     public final static int REPLY=1;
     public final static int QUOTE=2;
+
+    public static final SimpleDateFormat dateFormatIn = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy", Locale.UK);
+    public static final SimpleDateFormat dateFormatOut = new SimpleDateFormat("MM-dd HH:mm:ss",Locale.CHINA);
 
     public String created_at;
     public String id;
@@ -30,6 +39,8 @@ public class TwitterStatus implements Parcelable {
     @Nullable public ArrayList<String> hashtags;
     @Nullable public ArrayList<TwitterUser> user_mentions;
     @Nullable public ArrayList<TwitterMedia> media;
+    // TODO 确定翻译内容的载体类型
+    @Nullable public ArrayList<> translations;
 
     public TwitterStatus(){
         hashtags = new ArrayList<>();
@@ -88,7 +99,11 @@ public class TwitterStatus implements Parcelable {
         }
     }
 
-    // TODO 为Model中的类添加JSONObject -> Object的构造器
+    // TODO JSONObject -> TwitterStatus
+    public TwitterStatus(JSONObject tweet) throws JSONException, ParseException {
+        TwitterUser user = new TwitterUser(tweet.getJSONObject("user"));
+        this(toUTC8(tweet.getString("created_at")),tweet.getString("id_str"),user,);
+    }
 
     protected TwitterStatus(Parcel in) {
         created_at = in.readString();
@@ -137,6 +152,12 @@ public class TwitterStatus implements Parcelable {
             return new TwitterStatus[size];
         }
     };
+
+    public static String toUTC8(String created_at) throws ParseException {
+        String timeString = created_at.replace("+0000 ", "");
+        long timeStamp = dateFormatIn.parse(timeString).getTime() + 28800*1000;
+        return dateFormatOut.format(new Date(timeStamp));
+    }
 
     public String getCreated_at(){
         return created_at;

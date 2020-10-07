@@ -51,6 +51,7 @@ public class TweetDetail extends AppCompatActivity {
         tweetFormat = bundle.getString("tweetFormat");
         DBTwitterStatus dbStatus = LitePal.where("tid = ?", statusID).findFirst(DBTwitterStatus.class);
 
+
         TwitterStatus status = dbStatus.toTwitterStatus();
         dataSet.add(status);
         if(status.getTweetType() == TwitterStatus.REPLY) {
@@ -112,14 +113,13 @@ public class TweetDetail extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    Response response = TweetList.connection.webService.get(WebService.domain+"/tweet/"+statusId);
+                    Response response = TweetList.connection.webService.get(WebService.SERVER_API+"tweet/"+statusId);
                     if(response.code()==200) {
                         JSONObject resJson = new JSONObject(response.body().string());
                         response.close();
                         if(!resJson.getBoolean("success")) {
                             Log.e("TweetDetail.getStatusNotInDB", resJson.toString());
                         }
-                        // TODO JSONObject -> TwitterStatus
                         dataSet.add(0, new TwitterStatus(resJson.getJSONObject("response").getJSONObject("tweet")));
                     } else {
                         Log.e("TweetDetail.getStatusNotInDB", response.message());

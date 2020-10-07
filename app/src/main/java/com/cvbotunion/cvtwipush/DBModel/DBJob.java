@@ -1,9 +1,7 @@
 package com.cvbotunion.cvtwipush.DBModel;
 
 import com.cvbotunion.cvtwipush.Model.RTGroup;
-import com.cvbotunion.cvtwipush.Model.User;
 
-import org.litepal.LitePal;
 import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 

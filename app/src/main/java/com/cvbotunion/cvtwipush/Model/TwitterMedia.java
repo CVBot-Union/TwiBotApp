@@ -16,7 +16,12 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cvbotunion.cvtwipush.Activities.TweetList;
+import com.cvbotunion.cvtwipush.R;
+import com.cvbotunion.cvtwipush.Service.WebService;
 import com.cvbotunion.cvtwipush.TwiPush;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,6 +34,7 @@ public class TwitterMedia implements Parcelable{
     public static final String savePath = Environment.getExternalStorageDirectory().getPath() + "/DCIM/CVTwiPush/";
     public static final File internalFilesDir = TwiPush.getContext().getFilesDir();
     public static final String previewTag = "preview_";  //推特同一张图的不同尺寸可能具有相同名称，预览图文件名添加此tag以避免覆盖
+    public static final String urlPreviewParam = "x-oss-process=image/auto-orient,1/resize,p_70/quality,q_70";
     public static final int AVATAR=0;
     public static final int IMAGE=1;
     public static final int VIDEO=2;
@@ -60,6 +66,24 @@ public class TwitterMedia implements Parcelable{
     public TwitterMedia(String id, String url, int type, String previewImageURL, Bitmap cached_image_preview, @Nullable Bitmap cached_image){
         this(id,url,type,previewImageURL);
         this.cached_image = cached_image;
+    }
+
+    public TwitterMedia(JSONObject media) throws JSONException {
+        this.id = media.getString("id_str");
+        switch(media.getString("type")) {
+            case "photo":
+                this.type = IMAGE;
+                this.url = WebService.SERVER_IMAGE+id+".png";
+                this.previewImageURL = url+"?"+urlPreviewParam;
+                break;
+            case "video":
+                this.type = VIDEO;
+                this.url = WebService.SERVER_VIDEO+id+".mp4";
+                this.previewImageURL = WebService.SERVER_IMAGE+id+".png";
+                break;
+            default:
+                break;
+        }
     }
 
     protected TwitterMedia(Parcel in) {

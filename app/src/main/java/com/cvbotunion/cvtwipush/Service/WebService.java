@@ -21,10 +21,13 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class WebService extends Service {
+    public static final String SERVER_API = "https://api.cvbot.powerlayout.com/";
+    public static final String SERVER_IMAGE = "https://cdn.cvbot.powerlayout.com/images/";
+    public static final String SERVER_VIDEO = "https://cdn.cvbot.powerlayout.com/videos/";
+
     public static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
     public static final MediaType PLAIN = MediaType.get("text/plain; charset=utf-8");
     public static final MediaType FORM_URLENCODED = MediaType.get("application/x-www-form-urlencoded; charset=utf-8");
-    public static final String domain = "https://api.cvbot.powerlayout.com";
 
     private String auth;
     private final IBinder mBinder = new WebBinder();
@@ -55,7 +58,7 @@ public class WebService extends Service {
         data.put("password", password);
         RequestBody body = RequestBody.create(data.toString(), JSON);
         Request request = new Request.Builder()
-                .url(domain+"/auth/login")
+                .url(SERVER_API+"auth/login")
                 .method("POST", body)
                 .build();
         Response response = mClient.newCall(request).execute();

@@ -25,11 +25,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.cvbotunion.cvtwipush.Adapters.TweetDetailCardAdapter;
 import com.cvbotunion.cvtwipush.CustomViews.GroupPopupWindow;
-import com.cvbotunion.cvtwipush.CustomViews.TweetDetailCard;
 import com.cvbotunion.cvtwipush.DBModel.DBFollow;
 import com.cvbotunion.cvtwipush.DBModel.DBJob;
 import com.cvbotunion.cvtwipush.DBModel.DBRTGroup;

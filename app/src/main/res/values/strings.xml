@@ -7,5 +7,7 @@
     <string name="twittermedia_image_description">推文包含的图片</string>
     <string name="twittermedia_video_description">推文包含的视频（未播放）</string>
     <string name="webservice_description">Twipush应用的网络服务</string>
-    <string name="server_address"></string>
+    <string name="server_image">https://cdn.cvbot.powerlayout.com/images/</string>
+    <string name="server_video">https://cdn.cvbot.powerlayout.com/videos/</string>
+    <string name="server_api">https://api.cvbot.powerlayout.com/</string>
 </resources>

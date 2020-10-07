@@ -12,10 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.cvbotunion.cvtwipush.Activities.TweetList;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import okhttp3.Response;
 
@@ -61,6 +59,11 @@ public class TwitterUser implements Parcelable{
     public TwitterUser(String id,String name,String screen_name,String nameInGroup,String profile_image_url,Bitmap cached_profile_image_preview, Bitmap cached_profile_image){
         this(id,name,screen_name,nameInGroup,profile_image_url,cached_profile_image_preview);
         this.cached_profile_image = cached_profile_image;
+    }
+
+    // TODO JSONObject -> TwitterUser
+    public TwitterUser(JSONObject twitterUser) throws JSONException {
+        this.id = twitterUser.getString("id_str");
     }
 
     protected TwitterUser(Parcel in) {
