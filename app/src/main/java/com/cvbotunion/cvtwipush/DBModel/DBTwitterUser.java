@@ -18,9 +18,9 @@ public class DBTwitterUser extends LitePalSupport {
 
     private String name_in_group;
     private String location;
-    private String followers_count;
-    private String friends_count;
-    private String statuses_count;
+    private int followers_count;
+    private int friends_count;
+    private int statuses_count;
     private String profile_image_url;
 
     public DBTwitterUser() {}
@@ -61,15 +61,15 @@ public class DBTwitterUser extends LitePalSupport {
         return location;
     }
 
-    public String getFollowers_count() {
+    public int getFollowers_count() {
         return followers_count;
     }
 
-    public String getFriends_count() {
+    public int getFriends_count() {
         return friends_count;
     }
 
-    public String getStatuses_count() {
+    public int getStatuses_count() {
         return statuses_count;
     }
 
@@ -97,15 +97,15 @@ public class DBTwitterUser extends LitePalSupport {
         this.location = location;
     }
 
-    public void setFollowers_count(String followers_count) {
+    public void setFollowers_count(int followers_count) {
         this.followers_count = followers_count;
     }
 
-    public void setFriends_count(String friends_count) {
+    public void setFriends_count(int friends_count) {
         this.friends_count = friends_count;
     }
 
-    public void setStatuses_count(String statuses_count) {
+    public void setStatuses_count(int statuses_count) {
         this.statuses_count = statuses_count;
     }
 

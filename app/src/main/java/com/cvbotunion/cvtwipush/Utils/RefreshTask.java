@@ -5,11 +5,13 @@ import android.util.Log;
 
 import androidx.annotation.IntRange;
 
+import com.cvbotunion.cvtwipush.Activities.TweetList;
 import com.cvbotunion.cvtwipush.Adapters.TweetCardAdapter;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.Model.TwitterUser;
+import com.cvbotunion.cvtwipush.Service.WebService;
 import com.cvbotunion.cvtwipush.TwiPush;
 import com.google.android.material.snackbar.Snackbar;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
@@ -18,6 +20,8 @@ import org.litepal.LitePal;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+
+import okhttp3.Response;
 
 public class RefreshTask extends AsyncTask<String,Void,Boolean> {
     public final static int REFRESH = 0;
@@ -48,6 +52,7 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
         //TODO 实际应用中，此处与服务器通信以获取数据
         try {
             if(mode == REFRESH) {
+                Response response = TweetList.connection.webService.get();
                 TwitterUser user = new TwitterUser("3", "相羽あいな", "aibaaiai", "相羽爱奈", "http://101.200.184.98:8080/aiai.jpg");
                 TwitterMedia media = new TwitterMedia("4", "http://101.200.184.98:8080/rami.jpg", TwitterMedia.IMAGE, "http://101.200.184.98:8080/rami.jpg");
                 TwitterMedia media1 = new TwitterMedia("3", "http://101.200.184.98:8080/nana.jpg", TwitterMedia.IMAGE, "http://101.200.184.98:8080/nana.jpg");

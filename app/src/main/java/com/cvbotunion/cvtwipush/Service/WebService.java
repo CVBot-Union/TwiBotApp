@@ -71,7 +71,7 @@ public class WebService extends Service {
             }
             String token = resJson.getJSONObject("response").getString("token");
             auth = "Bearer "+token;
-            return token;
+            return auth;
         } else {
             Log.e("WebService.login", response.message());
             response.close();
@@ -83,13 +83,14 @@ public class WebService extends Service {
         return auth;
     }
 
-    public void setAuth(String token) {
-        this.auth = "Bearer "+token;
+    public void setAuth(String auth) {
+        this.auth = auth;
     }
 
     public Response request(String method, String url, String data, MediaType contentType) throws IOException {
         //TODO 删掉下一行
         auth = "Bearer xxxxxxxxx";
+        Log.i("web connection", url);
         RequestBody body = (data!=null)? RequestBody.create(data, contentType) : null;
         Request request = new Request.Builder()
                 .url(url)

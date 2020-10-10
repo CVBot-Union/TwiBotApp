@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 
@@ -51,7 +52,6 @@ public class TweetDetail extends AppCompatActivity {
         tweetFormat = bundle.getString("tweetFormat");
         DBTwitterStatus dbStatus = LitePal.where("tid = ?", statusID).findFirst(DBTwitterStatus.class);
 
-
         TwitterStatus status = dbStatus.toTwitterStatus();
         dataSet.add(status);
         if(status.getTweetType() == TwitterStatus.REPLY) {
@@ -91,8 +91,7 @@ public class TweetDetail extends AppCompatActivity {
         refreshLayout.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(@NonNull RefreshLayout refreshlayout) {
-                refreshlayout.finishRefresh(true);
-                initRecyclerView();
+                dataSet.get(dataSet.size()-1).queryTranslations(new Handler(),tAdapter, refreshlayout);
             }
         });
     }

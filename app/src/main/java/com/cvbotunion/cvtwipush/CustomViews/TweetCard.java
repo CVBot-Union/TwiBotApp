@@ -53,6 +53,10 @@ public class TweetCard extends CardView{
         btn1.setOnClickListener(btn1Listener);
     }
 
+    public void setBtn1Invisible() {
+        btn1.setVisibility(INVISIBLE);
+    }
+
     public void setVideoOnClickListener(OnClickListener listener){
         this.videoListener = listener;
         videoSet.setOnClickListener(videoListener);

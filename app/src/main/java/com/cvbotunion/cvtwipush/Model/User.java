@@ -6,12 +6,18 @@ import android.os.Parcelable;
 
 import androidx.annotation.Nullable;
 
+import com.cvbotunion.cvtwipush.Activities.TweetList;
+
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.util.HashMap;
 
 public class User implements Parcelable{
 
     public String id;
     public String name;
+    private String password;
     @Nullable public String avatarURL;
     @Nullable public Bitmap avatar;
     public HashMap<String, RTGroup.Job> jobs;  //String : RTGroup.id
@@ -38,6 +44,17 @@ public class User implements Parcelable{
         avatarURL = in.readString();
         avatar = in.readParcelable(Bitmap.class.getClassLoader());
         jobs = in.readHashMap(jobs.getClass().getClassLoader());
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    /**
+     * Do NOT use this method in main Thread, as it will block the current Thread.
+     */
+    public String login() throws IOException, JSONException {
+        return TweetList.connection.webService.login(this.name, this.password);
     }
 
     public static final Creator<User> CREATOR = new Creator<User>() {

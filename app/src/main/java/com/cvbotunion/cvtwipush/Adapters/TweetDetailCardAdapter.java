@@ -18,14 +18,21 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cvbotunion.cvtwipush.Activities.ImageViewer;
+import com.cvbotunion.cvtwipush.Activities.TweetList;
 import com.cvbotunion.cvtwipush.Activities.VideoViewer;
 import com.cvbotunion.cvtwipush.CustomViews.TweetDetailCard;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.R;
+import com.cvbotunion.cvtwipush.Service.WebService;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.json.JSONObject;
+
+import java.net.URLEncoder;
 import java.util.ArrayList;
+
+import okhttp3.Response;
 
 
 public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCardAdapter.TweetDetailCardViewHolder> {
@@ -67,27 +74,6 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
     @Override
     public void onBindViewHolder(@NonNull final TweetDetailCardAdapter.TweetDetailCardViewHolder holder, final int position) {
         final CardView card = holder.itemView.findViewById(R.id.tweet_detail_card);
-
-        holder.tweetCard.setBtn1OnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                TwitterStatus tweet = tweets.get(position);
-                ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData mClipData = ClipData.newPlainText("tweet", tweet.getFullText(tweetFormat));
-                clipboardManager.setPrimaryClip(mClipData);
-                //保存媒体
-                String result = "成功";
-                if(tweet.media != null && !tweet.media.isEmpty()) {
-                    for (TwitterMedia singleMedia : tweet.media) {
-                        if (!singleMedia.saveToFile(v.getContext())) {
-                            result = "失败";
-                            break;
-                        }
-                    }
-                }
-                Snackbar.make(v, "保存" + result, 1000).show();
-            }
-        });
 
         holder.tweetCard.setName(tweets.get(position).getUser().name_in_group);
 
@@ -192,27 +178,94 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
         });
 
         if(position == tweets.size()-1){
+            final TwitterStatus lastTweet = tweets.get(position);
             holder.tweetCard.setTranslationMode(true);
             holder.tweetCard.translationTextInputLayout.setVisibility(View.VISIBLE);
             holder.tweetCard.copyToTextField.setVisibility(View.VISIBLE);
-            holder.tweetCard.doneButton.setVisibility(View.VISIBLE);
-            holder.tweetCard.setOnClickDoneButtonListener(new View.OnClickListener() {
+            holder.tweetCard.uploadButton.setVisibility(View.VISIBLE);
+
+            holder.tweetCard.historyButton.setText(lastTweet.translations!=null ? String.valueOf(lastTweet.translations.size()) : "0");
+            // 阻止更新界面时反复查询
+            if(!lastTweet.hadQueried || holder.tweetCard.getHistoryAdapter()==null) {
+                holder.tweetCard.initHistoryTranslationView(context, lastTweet.translations);
+                lastTweet.queryTranslations(handler, holder.tweetCard);
+            } else {
+                holder.tweetCard.getHistoryAdapter().notifyDataSetChanged();
+            }
+            holder.tweetCard.historyButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // 显示历史翻译区
+                    holder.tweetCard.historyTranslationsView.setVisibility(View.VISIBLE);
+                }
+            });
+
+            if(lastTweet.media==null || lastTweet.media.isEmpty()) holder.tweetCard.setBtn1Invisible();
+            else holder.tweetCard.setBtn1OnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    TwitterStatus tweet = tweets.get(tweets.size()-1);
-                    ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-                    ClipData mClipData = ClipData.newPlainText("tweetAndTranslation", tweet.getFullText(tweetFormat, holder.tweetCard.getTranslatedText()));
-                    clipboardManager.setPrimaryClip(mClipData);
+                    //保存媒体
                     String result = "成功";
-                    if(tweet.media != null && !tweet.media.isEmpty()){
-                        for (TwitterMedia singleMedia : tweet.media) {
-                            if (!singleMedia.saveToFile(v.getContext())) {
-                                result = "失败";
-                                break;
-                            }
+                    for (TwitterMedia singleMedia : lastTweet.media) {
+                        if (!singleMedia.saveToFile(v.getContext())) {
+                            result = "失败";
+                            break;
                         }
                     }
-                    Snackbar.make(v,"保存"+result,1000).show();
+                    Snackbar.make(v, "保存媒体" + result, 1000).show();
+                }
+            });
+
+            holder.tweetCard.copyTextButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //复制原文+翻译
+                    ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData mClipData = ClipData.newPlainText("tweetAndTranslation", lastTweet.getFullText(tweetFormat, holder.tweetCard.getTranslatedText()));
+                    clipboardManager.setPrimaryClip(mClipData);
+                    Snackbar.make(v,"已复制文本",1000).show();
+                }
+            });
+            holder.tweetCard.uploadButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(final View view) {
+                    // 上传翻译
+                    if(isConnected) new Thread() {
+                        @Override
+                        public void run() {
+                            String result = "失败";
+                            try {
+                                String data = "translationContent="
+                                        +URLEncoder.encode(holder.tweetCard.getTranslatedText(),"UTF-8")
+                                        +"&sessionGroupID="+TweetList.getCurrentGroup().id;
+                                Response response= TweetList.connection.webService.request(
+                                        "PUT", WebService.SERVER_API+"tweet/"+lastTweet.id+"/translation", data, WebService.FORM_URLENCODED);
+                                if(response.code()==200) {
+                                    JSONObject resJson = new JSONObject(response.body().string());
+                                    response.close();
+                                    if(resJson.getBoolean("success")) {
+                                        result = "成功";
+                                    } else {
+                                        Log.e("uploadTranslation", resJson.toString());
+                                    }
+                                } else {
+                                    Log.e("uploadTranslation", response.message());
+                                    response.close();
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            } finally {
+                                final String finalResult = result;
+                                handler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Snackbar.make(view, "上传翻译"+ finalResult, 1000).show();
+                                    }
+                                });
+                            }
+                        }
+                    }.start();
+                    else Snackbar.make(view, "请检查网络连接", 1000).show();
                 }
             });
         }

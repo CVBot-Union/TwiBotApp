@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cvbotunion.cvtwipush.Activities.TweetList;
+import com.cvbotunion.cvtwipush.Service.WebService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,9 +26,9 @@ public class TwitterUser implements Parcelable{
     public String screen_name;
     public String name_in_group;
     @Nullable public String location;
-    @Nullable public String followers_count;
-    @Nullable public String friends_count;
-    @Nullable public String statuses_count;
+    @Nullable public int followers_count;
+    @Nullable public int friends_count;
+    @Nullable public int statuses_count;
     @Nullable public String profile_image_url;
     @Nullable public Bitmap cached_profile_image_preview;
     @Nullable public Bitmap cached_profile_image;
@@ -61,9 +62,16 @@ public class TwitterUser implements Parcelable{
         this.cached_profile_image = cached_profile_image;
     }
 
-    // TODO JSONObject -> TwitterUser
     public TwitterUser(JSONObject twitterUser) throws JSONException {
         this.id = twitterUser.getString("id_str");
+        this.name = twitterUser.getString("name");
+        this.screen_name = twitterUser.getString("screen_name");
+        this.name_in_group = name;
+        this.location = twitterUser.isNull("location") ? null : twitterUser.getString("location");
+        this.followers_count = twitterUser.getInt("followers_count");
+        this.friends_count = twitterUser.getInt("friends_count");
+        this.statuses_count = twitterUser.getInt("statuses_count");
+        this.profile_image_url = WebService.SERVER_API+"lookup/avatar/id/"+id;
     }
 
     protected TwitterUser(Parcel in) {
@@ -72,9 +80,9 @@ public class TwitterUser implements Parcelable{
         screen_name = in.readString();
         name_in_group = in.readString();
         location = in.readString();
-        followers_count = in.readString();
-        friends_count = in.readString();
-        statuses_count = in.readString();
+        followers_count = in.readInt();
+        friends_count = in.readInt();
+        statuses_count = in.readInt();
         profile_image_url = in.readString();
         cached_profile_image_preview = in.readParcelable(Bitmap.class.getClassLoader());
         cached_profile_image = in.readParcelable(Bitmap.class.getClassLoader());
@@ -84,7 +92,7 @@ public class TwitterUser implements Parcelable{
         this.name_in_group = name_in_group;
     }
 
-    public void downloadAvatar(final RecyclerView.Adapter tAdapter, final Handler handler, @Nullable final Integer position) {
+    public void downloadAvatar(final RecyclerView.Adapter<?> tAdapter, final Handler handler, @Nullable final Integer position) {
         avatarUnderProcessing = true;
         if(profile_image_url != null) {
             new Thread() {
@@ -98,7 +106,6 @@ public class TwitterUser implements Parcelable{
                         int code = response.code();
                         if (code == 200) {
                             byte[] data = response.body().bytes();
-                            Log.i("downloadAvater", profile_image_url);
                             response.close();
                             cached_profile_image_preview = BitmapFactory.decodeByteArray(data, 0, data.length);
                             handler.post(new Runnable() {
@@ -111,7 +118,7 @@ public class TwitterUser implements Parcelable{
                                 }
                             });
                         } else {
-                            Log.e("download", response.message());
+                            Log.e("downloadAvatar", response.message());
                             response.close();
                         }
                     } catch (Exception e) {
@@ -131,9 +138,9 @@ public class TwitterUser implements Parcelable{
         dest.writeString(screen_name);
         dest.writeString(name_in_group);
         dest.writeString(location);
-        dest.writeString(followers_count);
-        dest.writeString(friends_count);
-        dest.writeString(statuses_count);
+        dest.writeInt(followers_count);
+        dest.writeInt(friends_count);
+        dest.writeInt(statuses_count);
         dest.writeString(profile_image_url);
         dest.writeParcelable(cached_profile_image_preview, flags);
         dest.writeParcelable(cached_profile_image, flags);

@@ -19,7 +19,6 @@ import android.net.Network;
 import android.net.Uri;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -63,9 +62,8 @@ import java.util.Map;
 
 public class TweetList extends AppCompatActivity {
     //每次从数据库和服务器获取的最大推文数目
-    public static final int EVERY_COUNT = 20;
+    public static final int LIMIT = 20;
     public static MyServiceConnection connection = new MyServiceConnection();
-
 
     private RecyclerView tweetListRecyclerView;
     private TweetCardAdapter tAdapter;
@@ -82,8 +80,8 @@ public class TweetList extends AppCompatActivity {
 
     private ArrayList<TwitterStatus> dataSet = new ArrayList<>();
     private ArrayList<TwitterStatus> usedDataSet = new ArrayList<>();
-    private User currentUser;
-    private RTGroup group;
+    private static User currentUser;
+    private static RTGroup currentGroup;
     private ArrayList<String> followingName;
     private Map<Integer, String> idToName;
     private SQLiteDatabase db;
@@ -104,7 +102,7 @@ public class TweetList extends AppCompatActivity {
         initRecyclerView();
         initConnectivityReceiver();
 
-        title.setText(group.name);
+        title.setText(currentGroup.name);
         mdToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -115,7 +113,7 @@ public class TweetList extends AppCompatActivity {
                             view, ViewGroup.LayoutParams.MATCH_PARENT,
                             ViewGroup.LayoutParams.WRAP_CONTENT,
                             true,
-                            currentUser,group.id);
+                            currentUser, currentGroup.id);
                     popupWindow.showAsDropDown(findViewById(R.id.group_menu_item),0, 0, Gravity.END);
                     popupWindow.dimBehind();
                 }
@@ -123,7 +121,7 @@ public class TweetList extends AppCompatActivity {
             }
         });
 
-        for(String twitterUserName:followingName){
+        for(String twitterUserName : followingName){
             Chip chip = (Chip) getLayoutInflater().inflate(R.layout.chip_view,chipGroup,false);
             chip.setText(twitterUserName);
             int viewId = ViewCompat.generateViewId();
@@ -288,19 +286,19 @@ public class TweetList extends AppCompatActivity {
         following.add(new TwitterUser("5", "中島由貴", "Yuki_Nakashim", "中岛由贵", ""));
         following.add(new TwitterUser("6", "櫻川めぐ", "sakuragawa_megu", "樱川惠", ""));
         following.add(new TwitterUser("7", "志崎樺音", "Kanon_Shizaki", "志崎桦音", ""));
-        group = new RTGroup("1", "蔷薇之心", "", following);
+        currentGroup = new RTGroup("1", "蔷薇之心", "", following);
         followingName = new ArrayList<>();
-        for (TwitterUser u : group.following) {
+        for (TwitterUser u : currentGroup.following) {
             followingName.add(u.name);
         }
-        if (LitePal.where("gid = ?", group.id).find(DBRTGroup.class).isEmpty()) {
-            DBRTGroup dbrtGroup = new DBRTGroup(group);
+        if (LitePal.where("gid = ?", currentGroup.id).find(DBRTGroup.class).isEmpty()) {
+            DBRTGroup dbrtGroup = new DBRTGroup(currentGroup);
             dbrtGroup.save();
         }
 
         RTGroup.Job job = new RTGroup.Job("翻译/搬运", 1);
         HashMap<String, RTGroup.Job> jobMap = new HashMap<>();
-        jobMap.put(group.id, job);
+        jobMap.put(currentGroup.id, job);
         currentUser = new User("1", "用户1", null, null, jobMap);
         if(LitePal.where("uid = ?", currentUser.id).find(DBUser.class).isEmpty()) {
             DBUser dbUser = new DBUser(currentUser);
@@ -322,7 +320,7 @@ public class TweetList extends AppCompatActivity {
         };
 
         tweetListRecyclerView.setLayoutManager(layoutManager);
-        tAdapter = new TweetCardAdapter(usedDataSet,this, group.tweetFormat);
+        tAdapter = new TweetCardAdapter(usedDataSet,this, currentGroup.tweetFormat);
         tweetListRecyclerView.setAdapter(tAdapter);
         ((SimpleItemAnimator) tweetListRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
     }
@@ -338,7 +336,8 @@ public class TweetList extends AppCompatActivity {
     private void initBackground() {
         Intent serviceIntent = new Intent(this, WebService.class);
         bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
-        LitePalDB litePalDB = new LitePalDB("twitterData", 7);
+
+        LitePalDB litePalDB = new LitePalDB("twitterData", 8);
         litePalDB.addClassName(DBTwitterStatus.class.getName());
         litePalDB.addClassName(DBTwitterUser.class.getName());
         litePalDB.addClassName(DBTwitterMedia.class.getName());
@@ -355,6 +354,14 @@ public class TweetList extends AppCompatActivity {
         String checkedName = idToName.getOrDefault(checkedId, null);
         task.setData(usedDataSet, dataSet, checkedName);
         task.execute();
+    }
+
+    public static RTGroup getCurrentGroup() {
+        return currentGroup;
+    }
+
+    public static User getCurrentUser() {
+        return currentUser;
     }
 
 }

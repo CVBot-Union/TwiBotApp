@@ -38,9 +38,12 @@
 
         <activity
             android:name=".Activities.VideoViewer"
+            android:launchMode="singleTop"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="portrait" />
-        <activity android:name=".Activities.ImageViewer" />
+        <activity
+            android:name=".Activities.ImageViewer"
+            android:launchMode="singleTop"/>
 
         <activity
             android:name="com.cvbotunion.cvtwipush.Activities.TweetList"

@@ -95,7 +95,7 @@ public class TwitterMedia implements Parcelable{
         cached_image = in.readParcelable(Bitmap.class.getClassLoader());
     }
 
-    public void loadImage(boolean isPreview, RecyclerView.Adapter tAdapter, Handler handler, @Nullable Integer position) {
+    public void loadImage(boolean isPreview, RecyclerView.Adapter<?> tAdapter, Handler handler, @Nullable Integer position) {
         underProcessing = true;
         if(isPreview && previewImageURL != null) {
             File file = new File(internalFilesDir, previewTag+Uri.parse(previewImageURL).getLastPathSegment());
@@ -114,7 +114,7 @@ public class TwitterMedia implements Parcelable{
         }
     }
 
-    public void downloadImage(final boolean isPreview, final RecyclerView.Adapter tAdapter, final Handler handler, final Integer position) {
+    public void downloadImage(final boolean isPreview, final RecyclerView.Adapter<?> tAdapter, final Handler handler, final Integer position) {
         final String downloadURL;
         if(isPreview)
             downloadURL = previewImageURL;
@@ -131,7 +131,6 @@ public class TwitterMedia implements Parcelable{
                     int code = response.code();
                     if (code == 200) {
                         byte[] data = response.body().bytes();
-                        Log.i("downloadImage", downloadURL+"  "+data.length);
                         response.close();
                         if(isPreview)
                             cached_image_preview = BitmapFactory.decodeByteArray(data,0,data.length);
@@ -176,7 +175,7 @@ public class TwitterMedia implements Parcelable{
         }.start();
     }
 
-    private void readImageFromFile(final boolean isPreview, final RecyclerView.Adapter tAdapter, final Handler handler, final Integer position) {
+    private void readImageFromFile(final boolean isPreview, final RecyclerView.Adapter<?> tAdapter, final Handler handler, final Integer position) {
         final File file;
         if(isPreview) {
             file = new File(internalFilesDir, previewTag+Uri.parse(previewImageURL).getLastPathSegment());

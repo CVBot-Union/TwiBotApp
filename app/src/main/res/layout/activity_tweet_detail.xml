@@ -29,7 +29,8 @@
             app:layout_scrollFlags="scroll|enterAlways|snap"
             android:theme="@style/Theme.MaterialComponents.Light.NoActionBar.Bridge"
             app:navigationIcon="?attr/homeAsUpIndicator"
-            app:titleTextColor="#505050" />
+            app:title="详情"
+            app:titleTextColor="#000000" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

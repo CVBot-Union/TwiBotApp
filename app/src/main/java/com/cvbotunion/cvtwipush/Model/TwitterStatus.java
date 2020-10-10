@@ -1,13 +1,20 @@
 package com.cvbotunion.cvtwipush.Model;
 
+import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.cvbotunion.cvtwipush.Activities.TweetList;
+import com.cvbotunion.cvtwipush.Adapters.TweetDetailCardAdapter;
+import com.cvbotunion.cvtwipush.CustomViews.TweetDetailCard;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
+import com.cvbotunion.cvtwipush.Service.WebService;
+import com.scwang.smart.refresh.layout.api.RefreshLayout;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.LitePal;
@@ -16,7 +23,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+
+import okhttp3.Response;
 
 public class TwitterStatus implements Parcelable {
     //推文类型
@@ -25,7 +35,9 @@ public class TwitterStatus implements Parcelable {
     public final static int QUOTE=2;
 
     public static final SimpleDateFormat dateFormatIn = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy", Locale.UK);
-    public static final SimpleDateFormat dateFormatOut = new SimpleDateFormat("MM-dd HH:mm:ss",Locale.CHINA);
+    public static final SimpleDateFormat dateFormatOut = new SimpleDateFormat("HH:mm:ss · yyyy年MM月dd日",Locale.CHINA);
+
+    public boolean hadQueried = false;  // 是否已经首次调用过queryTranslations()
 
     public String created_at;
     public String id;
@@ -39,13 +51,13 @@ public class TwitterStatus implements Parcelable {
     @Nullable public ArrayList<String> hashtags;
     @Nullable public ArrayList<TwitterUser> user_mentions;
     @Nullable public ArrayList<TwitterMedia> media;
-    // TODO 确定翻译内容的载体类型
-    @Nullable public ArrayList<> translations;
+    @Nullable public ArrayList<HashMap<String,String>> translations;  // keys: "userName","groupName","content"
 
     public TwitterStatus(){
         hashtags = new ArrayList<>();
         user_mentions = new ArrayList<>();
         media = new ArrayList<>();
+        translations = new ArrayList<>();
     }
 
     public TwitterStatus(String created_at, String id, @Nullable String text, TwitterUser user){
@@ -94,15 +106,138 @@ public class TwitterStatus implements Parcelable {
                 this.quoted_status_id = parent_status_id;
                 break;
             default:
-                Log.i("info","未指定父推文类型");
+                Log.w("TwitterStatus","未指定父推文类型");
                 break;
         }
     }
 
-    // TODO JSONObject -> TwitterStatus
     public TwitterStatus(JSONObject tweet) throws JSONException, ParseException {
-        TwitterUser user = new TwitterUser(tweet.getJSONObject("user"));
-        this(toUTC8(tweet.getString("created_at")),tweet.getString("id_str"),user,);
+        this();
+        this.created_at = toUTC8(tweet.getString("created_at"));
+        this.id = tweet.getString("id_str");
+        this.text = tweet.getString("text");
+        this.user = new TwitterUser(tweet.getJSONObject("user"));
+        if(tweet.has("userNickname")) {
+            this.user.name_in_group = tweet.getJSONObject("userNickname").getString("nickname");
+        }
+        this.location = tweet.isNull("place") ? null : tweet.getJSONObject("place").getString("full_name");
+        if(tweet.getBoolean("truncated")) {
+            this.text = tweet.getJSONObject("extended_tweet").getString("full_text");
+            if(tweet.getJSONObject("extended_tweet").has("extended_entities")) {
+                TransformMedia(tweet.getJSONObject("extended_tweet").getJSONObject("extended_entities").getJSONArray("media"));
+            }
+        }
+        if(!tweet.isNull("in_reply_to_status_id_str")) {
+            this.in_reply_to_status_id = tweet.getString("in_reply_to_status_id_str");
+        } else if(tweet.has("retweeted_status")) {
+            this.text = "";
+            TwitterStatus retweetedStatus = new TwitterStatus(tweet.getJSONObject("retweeted_status"));
+            this.quoted_status_id = retweetedStatus.id;
+            DBTwitterStatus dbRetweetedStatus = new DBTwitterStatus(retweetedStatus);
+            dbRetweetedStatus.save();
+        } else if(tweet.has("quoted_status")) {
+            TwitterStatus quotedStatus = new TwitterStatus(tweet.getJSONObject("quoted_status"));
+            this.quoted_status_id = quotedStatus.id;
+            DBTwitterStatus dbQuotedStatus = new DBTwitterStatus(quotedStatus);
+            dbQuotedStatus.save();
+        }
+        if(tweet.has("extended_entities")) {
+            TransformMedia(tweet.getJSONObject("extended_entities").getJSONArray("media"));
+        }
+    }
+
+    private void TransformMedia(JSONArray medias) throws JSONException {
+        for(int i=0;i<medias.length();i++) {
+            JSONObject mediaJson = medias.getJSONObject(i);
+            this.media.add(new TwitterMedia(mediaJson));
+        }
+    }
+
+    public void addTranslation(JSONObject translation) throws JSONException {
+        HashMap<String,String> transMap = new HashMap<>();
+        transMap.put("userName", translation.getJSONObject("author").getString("name"));
+        transMap.put("groupName", translation.getJSONObject("author").getString("group"));
+        transMap.put("content", translation.getString("translationContent"));
+        this.translations.add(transMap);
+    }
+
+    public void addTranslation(HashMap<String,String> translation) {
+        if(translation.containsKey("userName") && translation.containsKey("groupName") && translation.containsKey("content")) {
+            this.translations.add(translation);
+        } else {
+            throw new IllegalArgumentException("Missing key(s): userName, groupName or content.");
+        }
+    }
+
+    public void queryTranslations(final Handler handler, final TweetDetailCard parentCard) {
+        queryTranslations(handler, parentCard,null, null);
+    }
+
+    public void queryTranslations(final Handler handler, final TweetDetailCardAdapter parentAdapter, final RefreshLayout refreshLayout) {
+        queryTranslations(handler, null, parentAdapter, refreshLayout);
+    }
+
+    private void queryTranslations(final Handler handler, final TweetDetailCard parentCard, final TweetDetailCardAdapter parentAdapter, final RefreshLayout refreshLayout) {
+        hadQueried = true;
+        final String finalId = this.id;
+        if(translations==null) {
+            translations = new ArrayList<>();
+        }else {
+            translations.clear();  // 避免重复
+        }
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Response response = TweetList.connection.webService.get(WebService.SERVER_API+"tweet/"+finalId+"/translations");
+                    if(response.code()==200) {
+                        JSONObject resJson = new JSONObject(response.body().string());
+                        response.close();
+                        if(resJson.getBoolean("success")) {
+                            final JSONArray translations = resJson.getJSONArray("response");
+                            for(int i=0;i<translations.length();i++) {
+                                addTranslation(translations.getJSONObject(i));
+                                if(handler!=null) {
+                                    if (parentCard!=null) {
+                                        handler.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                parentCard.historyButton.setText(String.valueOf(translations.length()));
+                                                parentCard.getHistoryAdapter().notifyDataSetChanged();
+                                            }
+                                        });
+                                    } else if(parentAdapter!=null&&refreshLayout!=null) {
+                                        handler.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                refreshLayout.finishRefresh(true);
+                                                parentAdapter.notifyDataSetChanged();
+                                            }
+                                        });
+                                    }
+                                }
+                            }
+                        } else {
+                            Log.e("queryTranslations", resJson.toString());
+                        }
+                    } else {
+                        Log.e("queryTranslations", response.message());
+                        response.close();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    if(handler!=null&&refreshLayout!=null&&refreshLayout.isRefreshing()) {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshLayout.finishRefresh(false);
+                            }
+                        });
+                    }
+                }
+            }
+        }.start();
     }
 
     protected TwitterStatus(Parcel in) {

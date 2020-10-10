@@ -223,7 +223,7 @@
                 android:layout_height="0dp"
                 android:layout_marginHorizontal="16dp"
                 android:layout_weight="1"
-                android:hint="翻译">
+                android:hint="输入翻译">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/translation_edit_textview"
@@ -244,15 +244,17 @@
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="left"
+                        android:gravity="start"
                         android:orientation="horizontal">
 
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/history_button"
+                            android:id="@+id/history_btn"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            app:icon="@drawable/ic_baseline_history_24" />
+                            android:text="0"
+                            android:textSize="20sp"
+                            app:icon="@drawable/ic_baseline_history_24"/>
 
                     </LinearLayout>
 
@@ -273,7 +275,7 @@
                             android:tint="@color/colorPrimary" />
 
                         <ImageButton
-                            android:id="@+id/copy_translation_only"
+                            android:id="@+id/copy_text_btn"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginHorizontal="16dp"
@@ -283,18 +285,26 @@
                             tools:src="@drawable/ic_baseline_file_copy_24" />
 
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/done_btn"
+                            android:id="@+id/upload_btn"
                             style="@style/Widget.MaterialComponents.Button"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="8dp"
-                            android:text="上传"
+                            android:layout_marginStart="8dp"
+                            android:text="上传翻译"
                             app:icon="@drawable/ic_baseline_cloud_upload_24" />
                     </LinearLayout>
 
                 </LinearLayout>
 
             </com.google.android.material.textfield.TextInputLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/history_translations_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:focusable="false"
+                android:visibility="gone"/>
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
