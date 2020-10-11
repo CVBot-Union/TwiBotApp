@@ -10,10 +10,10 @@ import org.litepal.crud.LitePalSupport;
  */
 public class DBTwitterMedia extends LitePalSupport {
     @Column(nullable = false)
-    private String tid;  //见DBTwitterStatus的tid注释
+    private long tmid;  // TwitterMedia.id
 
     @Column(nullable = false)
-    private String statusId;
+    private long tsid;  // TwitterStatus.id
 
     private String url;
 
@@ -25,22 +25,22 @@ public class DBTwitterMedia extends LitePalSupport {
     public DBTwitterMedia() {}
 
     public DBTwitterMedia(TwitterMedia twitterMedia) {
-        this.tid = twitterMedia.id;
+        this.tmid = Long.parseLong(twitterMedia.id);
         this.url = twitterMedia.url;
         this.previewImageURL = twitterMedia.previewImageURL;
         this.type = twitterMedia.type;
     }
 
     public TwitterMedia toTwitterMedia() {
-        return new TwitterMedia(tid, url, type, previewImageURL);
+        return new TwitterMedia(String.valueOf(tmid), url, type, previewImageURL);
     }
 
-    public String getTid() {
-        return tid;
+    public long getTmid() {
+        return tmid;
     }
 
-    public String getStatusId() {
-        return statusId;
+    public long getTsid() {
+        return tsid;
     }
 
     public String getUrl() {
@@ -55,12 +55,12 @@ public class DBTwitterMedia extends LitePalSupport {
         return type;
     }
 
-    public void setTid(String tid) {
-        this.tid = tid;
+    public void setTmid(long tmid) {
+        this.tmid = tmid;
     }
 
-    public void setStatusId(String statusId) {
-        this.statusId = statusId;
+    public void setTsid(long tsid) {
+        this.tsid = tsid;
     }
 
     public void setUrl(String url) {

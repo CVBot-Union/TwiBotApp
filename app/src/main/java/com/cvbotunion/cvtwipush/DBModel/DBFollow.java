@@ -10,30 +10,30 @@ import org.litepal.crud.LitePalSupport;
  */
 public class DBFollow extends LitePalSupport {
     private String gid;  // RTGroup.id
-    private String twitterUid;  // TwitterUser.id
+    private long tuid;  // TwitterUser.id
 
-    public DBFollow(String gid, String twitterUid) {
+    public DBFollow(String gid, String tuid) {
         this.gid = gid;
-        this.twitterUid = twitterUid;
+        this.tuid = Long.valueOf(tuid);
     }
 
     public TwitterUser getTwitterUser() {
-        return LitePal.where("tid = ?", twitterUid).findFirst(DBTwitterUser.class).toTwitterUser();
+        return LitePal.where("tuid = ?", String.valueOf(tuid)).findFirst(DBTwitterUser.class).toTwitterUser();
     }
 
     public String getGid() {
         return gid;
     }
 
-    public String getTwitterUid() {
-        return twitterUid;
+    public Long getTuid() {
+        return tuid;
     }
 
     public void setGid(String gid) {
         this.gid = gid;
     }
 
-    public void setTwitterUid(String twitterUid) {
-        this.twitterUid = twitterUid;
+    public void setTuid(Long tuid) {
+        this.tuid = tuid;
     }
 }

@@ -58,6 +58,7 @@ import org.litepal.LitePalDB;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class TweetList extends AppCompatActivity {
@@ -82,7 +83,6 @@ public class TweetList extends AppCompatActivity {
     private ArrayList<TwitterStatus> usedDataSet = new ArrayList<>();
     private static User currentUser;
     private static RTGroup currentGroup;
-    private ArrayList<String> followingName;
     private Map<Integer, String> idToName;
     private SQLiteDatabase db;
 
@@ -121,12 +121,12 @@ public class TweetList extends AppCompatActivity {
             }
         });
 
-        for(String twitterUserName : followingName){
+        for(int i=0;i<currentGroup.following.size();i++){
             Chip chip = (Chip) getLayoutInflater().inflate(R.layout.chip_view,chipGroup,false);
-            chip.setText(twitterUserName);
+            chip.setText(currentGroup.following.get(i).name_in_group);
             int viewId = ViewCompat.generateViewId();
             chip.setId(viewId);
-            idToName.put(viewId, twitterUserName);
+            idToName.put(viewId, currentGroup.following.get(i).name_in_group);
             chipGroup.addView(chip);
         }
 
@@ -214,7 +214,7 @@ public class TweetList extends AppCompatActivity {
         //readData()
         //if not found, netRefresh()
 
-        //List<DBTwitterStatus> dbStatusList = LitePal.findAll(DBTwitterStatus.class);
+        //List<DBTwitterStatus> dbStatusList = LitePal.limit(LIMIT).order("tsid desc").find(DBTwitterStatus.class);
         //for(DBTwitterStatus s : dbStatusList) {
         //"0"使得最新的放上面
         //dataSet.add(0, s.toTwitterStatus());
@@ -242,11 +242,8 @@ public class TweetList extends AppCompatActivity {
         } else {
             //currentUser = LitePal.findFirst(DBUser.class).toUser();
             //String firstGid = (String) currentUser.jobs.keySet().toArray()[0];
-            //group = LitePal.where("gid = ?",firstGid).findFirst(DBRTGroup.class).toRTGroup();
+            //currentGroup = LitePal.where("gid = ?",firstGid).findFirst(DBRTGroup.class).toRTGroup();
         }
-        //for(TwitterUser u : group.following) {
-        //    followingName.add(u.name);
-        //}
 
         //start 模拟数据
         TwitterUser user = new TwitterUser("1", "sb", "sbsb", "SB", "http://101.200.184.98:8080/media/MO4FkO4N_400x400.jpg");
@@ -264,11 +261,11 @@ public class TweetList extends AppCompatActivity {
 
         //由于不同推文可能会使用同一个media，所以没有给media设置UNIQUE字段，
         //  使用DBTwitterMedia.save()方法前请通过statusId和tid字段进行查重
-        if (LitePal.where("tid = ?", status.id).find(DBTwitterStatus.class).isEmpty()) {
+        if (LitePal.where("tsid = ?", status.id).find(DBTwitterStatus.class).isEmpty()) {
             DBTwitterStatus dbTweet = new DBTwitterStatus(status);
             dbTweet.save();
         }
-        if (LitePal.where("tid = ?", status1.id).find(DBTwitterStatus.class).isEmpty()) {
+        if (LitePal.where("tsid = ?", status1.id).find(DBTwitterStatus.class).isEmpty()) {
             DBTwitterStatus dbTweet = new DBTwitterStatus(status1);
             dbTweet.save();
         }
@@ -287,10 +284,6 @@ public class TweetList extends AppCompatActivity {
         following.add(new TwitterUser("6", "櫻川めぐ", "sakuragawa_megu", "樱川惠", ""));
         following.add(new TwitterUser("7", "志崎樺音", "Kanon_Shizaki", "志崎桦音", ""));
         currentGroup = new RTGroup("1", "蔷薇之心", "", following);
-        followingName = new ArrayList<>();
-        for (TwitterUser u : currentGroup.following) {
-            followingName.add(u.name);
-        }
         if (LitePal.where("gid = ?", currentGroup.id).find(DBRTGroup.class).isEmpty()) {
             DBRTGroup dbrtGroup = new DBRTGroup(currentGroup);
             dbrtGroup.save();
@@ -337,7 +330,7 @@ public class TweetList extends AppCompatActivity {
         Intent serviceIntent = new Intent(this, WebService.class);
         bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
 
-        LitePalDB litePalDB = new LitePalDB("twitterData", 8);
+        LitePalDB litePalDB = new LitePalDB("twipushData", 8);
         litePalDB.addClassName(DBTwitterStatus.class.getName());
         litePalDB.addClassName(DBTwitterUser.class.getName());
         litePalDB.addClassName(DBTwitterMedia.class.getName());
@@ -350,6 +343,7 @@ public class TweetList extends AppCompatActivity {
     }
 
     public void netRefresh(int checkedId, RefreshLayout refreshlayout, int mode) {
+        // 每个AsyncTask实例只能execute()一次
         RefreshTask task = new RefreshTask(refreshlayout, tAdapter, mode);
         String checkedName = idToName.getOrDefault(checkedId, null);
         task.setData(usedDataSet, dataSet, checkedName);

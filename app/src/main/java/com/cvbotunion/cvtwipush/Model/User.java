@@ -20,7 +20,7 @@ public class User implements Parcelable{
     private String password;
     @Nullable public String avatarURL;
     @Nullable public Bitmap avatar;
-    public HashMap<String, RTGroup.Job> jobs;  //String : RTGroup.id
+    public HashMap<String, RTGroup.Job> jobs;  //String 为 RTGroup.id
 
     public User(String id, String name, @Nullable String avatarURL,@Nullable Bitmap avatar, HashMap<String,RTGroup.Job> jobs){
         this.id = id;
@@ -51,9 +51,12 @@ public class User implements Parcelable{
     }
 
     /**
-     * Do NOT use this method in main Thread, as it will block the current Thread.
+     * DO NOT use this method in main Thread, as it will block the current Thread.
      */
-    public String login() throws IOException, JSONException {
+    public String login() throws IOException, JSONException, InterruptedException {
+        while(TweetList.connection.webService==null) {
+            Thread.sleep(10);
+        }
         return TweetList.connection.webService.login(this.name, this.password);
     }
 

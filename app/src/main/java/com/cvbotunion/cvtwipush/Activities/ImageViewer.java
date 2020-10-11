@@ -98,7 +98,7 @@ public class ImageViewer extends AppCompatActivity {
         if(bundle != null) {
             page = bundle.getInt("page");
             String statusId = bundle.getString("twitterStatusId");
-            List<DBTwitterMedia> dbMediaList = LitePal.where("statusId = ?", statusId).find(DBTwitterMedia.class);
+            List<DBTwitterMedia> dbMediaList = LitePal.where("tsid = ?", statusId).find(DBTwitterMedia.class);
             for(DBTwitterMedia m:dbMediaList) {
                 mediaList.add(m.toTwitterMedia());
             }

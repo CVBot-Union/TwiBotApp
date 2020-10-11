@@ -8,24 +8,27 @@ import androidx.annotation.IntRange;
 import com.cvbotunion.cvtwipush.Activities.TweetList;
 import com.cvbotunion.cvtwipush.Adapters.TweetCardAdapter;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
-import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
-import com.cvbotunion.cvtwipush.Model.TwitterUser;
 import com.cvbotunion.cvtwipush.Service.WebService;
 import com.cvbotunion.cvtwipush.TwiPush;
 import com.google.android.material.snackbar.Snackbar;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.litepal.LitePal;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.Response;
 
 public class RefreshTask extends AsyncTask<String,Void,Boolean> {
     public final static int REFRESH = 0;
     public final static int LOAD_MORE = 1;
+
+    private String url = WebService.SERVER_API+"tweet/range?";
 
     private WeakReference<RefreshLayout> refreshLayoutRef;
     private TweetCardAdapter tAdapter;
@@ -41,6 +44,7 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
         this.tAdapter = tAdapter;
         this.mode = mode;
     }
+
     public void setData(ArrayList<TwitterStatus> usedDataSet, ArrayList<TwitterStatus> dataSet, String checkedName) {
         this.usedDataSet = usedDataSet;
         this.dataSet = dataSet;
@@ -49,32 +53,40 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
 
     @Override
     protected Boolean doInBackground(String... params) {
-        //TODO 实际应用中，此处与服务器通信以获取数据
         try {
             if(mode == REFRESH) {
-                Response response = TweetList.connection.webService.get();
-                TwitterUser user = new TwitterUser("3", "相羽あいな", "aibaaiai", "相羽爱奈", "http://101.200.184.98:8080/aiai.jpg");
-                TwitterMedia media = new TwitterMedia("4", "http://101.200.184.98:8080/rami.jpg", TwitterMedia.IMAGE, "http://101.200.184.98:8080/rami.jpg");
-                TwitterMedia media1 = new TwitterMedia("3", "http://101.200.184.98:8080/nana.jpg", TwitterMedia.IMAGE, "http://101.200.184.98:8080/nana.jpg");
-                ArrayList<TwitterMedia> mediaList = new ArrayList<>();
-                mediaList.add(media);
-                mediaList.add(media1);
-                TwitterStatus tweet = new TwitterStatus("12:34", "5", "新增项", user, mediaList, TwitterStatus.REPLY, "3");
-                if (LitePal.where("tid = ?", tweet.id).find(DBTwitterStatus.class).isEmpty()) {
-                    DBTwitterStatus dbStatus = new DBTwitterStatus(tweet);
-                    dbStatus.save();
+                // TODO page和limit参数问题
+                url += ("group="+TweetList.getCurrentGroup().id+"&afterID="+dataSet.get(0).id+"&sortKey=ASC");
+                Response response = TweetList.connection.webService.get(url);
+                if(response.code()==200) {
+                    JSONObject resJson = new JSONObject(response.body().string());
+                    response.close();
+                    if(resJson.getBoolean("success")) {
+                        JSONArray tweets = resJson.getJSONArray("response");
+                        for(int i=0;i<tweets.length();i++) {
+                            TwitterStatus tweet = new TwitterStatus(tweets.getJSONObject(i), true);
+                            if (checkedName == null || tweet.user.name_in_group.equals(checkedName))
+                                usedDataSet.add(0, tweet);
+                            dataSet.add(0, tweet);
+                        }
+                    } else {
+                        Log.e(TwiPush.TAG+":RefreshTask-REFRESH", resJson.toString());
+                    }
+                } else {
+                    Log.e(TwiPush.TAG+":RefreshTask-REFRESH", response.message());
+                    response.close();
                 }
-                if (checkedName == null || tweet.user.name.equals(checkedName))
-                    usedDataSet.add(0, tweet);
-                dataSet.add(0, tweet);
             } else if(mode == LOAD_MORE) {
                 //TODO loadmore实现
-                // 初步设想
                 // 获取顺序：数据库 -> 服务器
-                // 每次最大数目：TweetList.EVERY_COUNT
-                // 有必要实现一个按id_str排序的类/方法
+                String lastId = dataSet.get(dataSet.size()-1).id;
+                List<DBTwitterStatus> DBTweets = LitePal.where("tsid < ?", lastId).order("tsid desc").limit(TweetList.LIMIT).find(DBTwitterStatus.class);
+                if(DBTweets.size()<TweetList.LIMIT) {
+                    int leftNeed = TweetList.LIMIT-DBTweets.size();
+                    url += ("page=1&limit="+leftNeed+"&group="+TweetList.getCurrentGroup().id+"&beforeID="+lastId+"&sortKey=DESC");
+                    // 。。。
+                }
             }
-            Thread.sleep(1000);
         } catch (Exception e) {
             e.printStackTrace();
             return false;

@@ -29,11 +29,11 @@ public class DBRTGroup extends LitePalSupport {
         this.avatarURL = group.avatarURL;
         this.tweetFormat = group.tweetFormat;
         for(TwitterUser u : group.following) {
-            if(LitePal.where("gid = ? AND twitterUid = ?",gid,u.id).find(DBFollow.class).isEmpty()) {
+            if(LitePal.where("gid = ? AND tuid = ?",gid,u.id).find(DBFollow.class).isEmpty()) {
                 DBFollow dbFollow = new DBFollow(gid,u.id);
                 dbFollow.save();
             }
-            if(LitePal.where("screen_name = ?",u.screen_name).find(DBTwitterUser.class).isEmpty()) {
+            if(LitePal.where("tuid = ?",u.id).find(DBTwitterUser.class).isEmpty()) {
                 DBTwitterUser dbTwitterUser = new DBTwitterUser(u);
                 dbTwitterUser.save();
             }

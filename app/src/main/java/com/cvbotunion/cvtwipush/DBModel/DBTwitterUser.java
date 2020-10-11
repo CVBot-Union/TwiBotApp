@@ -9,8 +9,8 @@ import org.litepal.crud.LitePalSupport;
  * Model class of the database, which corresponds to class TwitterUser.
  */
 public class DBTwitterUser extends LitePalSupport {
-    @Column(nullable = false)
-    private String tid;  //见DBTwitterStatus的tid注释
+    @Column(unique = true, nullable = false)
+    private long tuid;  // TwitterUser.id
     private String name;
 
     @Column(unique = true, nullable = false)
@@ -26,7 +26,7 @@ public class DBTwitterUser extends LitePalSupport {
     public DBTwitterUser() {}
 
     public DBTwitterUser(TwitterUser user) {
-        this.tid = user.id;
+        this.tuid = Long.parseLong(user.id);
         this.name = user.name;
         this.screen_name = user.screen_name;
         this.name_in_group = user.name_in_group;
@@ -38,11 +38,11 @@ public class DBTwitterUser extends LitePalSupport {
     }
 
     public TwitterUser toTwitterUser() {
-        return new TwitterUser(tid, name, screen_name, name_in_group, profile_image_url);
+        return new TwitterUser(String.valueOf(tuid), name, screen_name, name_in_group, profile_image_url);
     }
 
-    public String getTid() {
-        return tid;
+    public long getTuid() {
+        return tuid;
     }
 
     public String getName() {
@@ -77,8 +77,8 @@ public class DBTwitterUser extends LitePalSupport {
         return profile_image_url;
     }
 
-    public void setTid(String tid) {
-        this.tid = tid;
+    public void setTuid(long tuid) {
+        this.tuid = tuid;
     }
 
     public void setName(String name) {

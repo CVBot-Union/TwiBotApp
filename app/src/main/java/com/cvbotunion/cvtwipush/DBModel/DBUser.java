@@ -38,7 +38,7 @@ public class DBUser extends LitePalSupport {
         List<DBJob> dbJobList = LitePal.where("uid = ?",uid).find(DBJob.class);
         HashMap<String, RTGroup.Job> jobs = new HashMap<>();
         for(DBJob j : dbJobList) {
-            jobs.put(j.getGid(), j.toJob());
+            jobs.put(String.valueOf(j.getGid()), j.toJob());
         }
         return new User(uid,name,avatarURL,null,jobs);
     }

@@ -17,7 +17,7 @@ import java.util.List;
 
 public class DBTwitterStatus extends LitePalSupport {
     @Column(unique = true, nullable = false)
-    private String tid;  //即为TwitterStatus的id，避免与数据库自动创建的primary key "id"重名
+    private long tsid;  //即为TwitterStatus.id，避免与数据库自动创建的primary key "id"重名
 
     @Column(nullable = false)
     private String created_at;
@@ -25,7 +25,7 @@ public class DBTwitterStatus extends LitePalSupport {
     private String text;
 
     @Column(nullable = false)
-    private String userScreenName;
+    private long tuid;  // TwitterUser.id
 
     private String in_reply_to_status_id;
     private String in_reply_to_user_id;
@@ -36,11 +36,11 @@ public class DBTwitterStatus extends LitePalSupport {
     public DBTwitterStatus() {}
 
     public DBTwitterStatus(TwitterStatus tweet) {
-        this.tid = tweet.id;
+        this.tsid = Long.parseLong(tweet.id);
         this.created_at = tweet.created_at;
         this.text = tweet.text;
-        this.userScreenName = tweet.user.screen_name;
-        if(LitePal.where("screen_name = ?", userScreenName).find(DBTwitterUser.class).isEmpty()) {
+        this.tuid = Long.parseLong(tweet.user.id);
+        if(LitePal.where("tuid = ?", String.valueOf(tuid)).find(DBTwitterUser.class).isEmpty()) {
             DBTwitterUser dbTwitterUser = new DBTwitterUser(tweet.user);
             dbTwitterUser.save();
         }
@@ -48,10 +48,10 @@ public class DBTwitterStatus extends LitePalSupport {
         this.quoted_status_id = tweet.quoted_status_id;
         this.location = tweet.location;
         if(tweet.media != null && !tweet.media.isEmpty()) {
-            if(LitePal.where("statusId = ?", tweet.id).find(DBTwitterMedia.class).isEmpty()) {
+            if(LitePal.where("tsid = ?", tweet.id).find(DBTwitterMedia.class).isEmpty()) {
                 for (TwitterMedia m : tweet.media) {
                     DBTwitterMedia media = new DBTwitterMedia(m);
-                    media.setStatusId(tid);
+                    media.setTsid(tsid);
                     media.save();
                 }
             }
@@ -59,15 +59,15 @@ public class DBTwitterStatus extends LitePalSupport {
     }
 
     public TwitterStatus toTwitterStatus() {
-        DBTwitterUser user = LitePal.where("screen_name = ?", userScreenName).findFirst(DBTwitterUser.class);
-        List<DBTwitterMedia> mediaList = LitePal.where("statusId = ?", tid).find(DBTwitterMedia.class);
+        DBTwitterUser user = LitePal.where("tuid = ?", String.valueOf(tuid)).findFirst(DBTwitterUser.class);
+        List<DBTwitterMedia> mediaList = LitePal.where("tsid = ?", String.valueOf(tsid)).find(DBTwitterMedia.class);
         if((mediaList == null) || mediaList.isEmpty()){
             if(in_reply_to_status_id != null) {
-                return new TwitterStatus(created_at, tid, text, user.toTwitterUser(), TwitterStatus.REPLY, in_reply_to_status_id);
+                return new TwitterStatus(created_at, String.valueOf(tsid), text, user.toTwitterUser(), TwitterStatus.REPLY, in_reply_to_status_id);
             } else if (quoted_status_id != null){
-                return new TwitterStatus(created_at, tid, text, user.toTwitterUser(), TwitterStatus.QUOTE, quoted_status_id);
+                return new TwitterStatus(created_at, String.valueOf(tsid), text, user.toTwitterUser(), TwitterStatus.QUOTE, quoted_status_id);
             } else {
-                return new TwitterStatus(created_at, tid, text, user.toTwitterUser());
+                return new TwitterStatus(created_at, String.valueOf(tsid), text, user.toTwitterUser());
             }
         } else {
             ArrayList<TwitterMedia> mediaList1 = new ArrayList<>();
@@ -75,17 +75,17 @@ public class DBTwitterStatus extends LitePalSupport {
                 mediaList1.add(m.toTwitterMedia());
             }
             if(in_reply_to_status_id != null) {
-                return new TwitterStatus(created_at, tid, text, user.toTwitterUser(),mediaList1,TwitterStatus.REPLY, in_reply_to_status_id);
+                return new TwitterStatus(created_at, String.valueOf(tsid), text, user.toTwitterUser(),mediaList1,TwitterStatus.REPLY, in_reply_to_status_id);
             } else if (quoted_status_id != null){
-                return new TwitterStatus(created_at, tid, text, user.toTwitterUser(),mediaList1,TwitterStatus.QUOTE, quoted_status_id);
+                return new TwitterStatus(created_at, String.valueOf(tsid), text, user.toTwitterUser(),mediaList1,TwitterStatus.QUOTE, quoted_status_id);
             } else {
-                return new TwitterStatus(created_at, tid, text, user.toTwitterUser(),mediaList1);
+                return new TwitterStatus(created_at, String.valueOf(tsid), text, user.toTwitterUser(),mediaList1);
             }
         }
     }
 
-    public String getTid() {
-        return tid;
+    public long getTsid() {
+        return tsid;
     }
 
     public String getCreated_at() {
@@ -97,7 +97,7 @@ public class DBTwitterStatus extends LitePalSupport {
     }
 
     public TwitterUser getUser() {
-        return LitePal.where("screen_name = ?", userScreenName).findFirst(DBTwitterUser.class).toTwitterUser();
+        return LitePal.where("tuid = ?", String.valueOf(tuid)).findFirst(DBTwitterUser.class).toTwitterUser();
     }
 
     public String getIn_reply_to_status_id() {
@@ -121,7 +121,7 @@ public class DBTwitterStatus extends LitePalSupport {
     }
 
     public ArrayList<TwitterMedia> getMedia() {
-        List<DBTwitterMedia> dbMediaList = LitePal.where("statusId", tid).find(DBTwitterMedia.class);
+        List<DBTwitterMedia> dbMediaList = LitePal.where("tsid = ?", String.valueOf(tsid)).find(DBTwitterMedia.class);
         if(!dbMediaList.isEmpty()) {
             ArrayList<TwitterMedia> mediaList = new ArrayList<>();
             for(DBTwitterMedia m:dbMediaList) {
@@ -134,8 +134,8 @@ public class DBTwitterStatus extends LitePalSupport {
         }
     }
 
-    public void setTid(String tid) {
-        this.tid = tid;
+    public void setTsid(long tsid) {
+        this.tsid = tsid;
     }
 
     public void setCreated_at(String created_at) {
@@ -147,8 +147,8 @@ public class DBTwitterStatus extends LitePalSupport {
     }
 
     public void setUser(TwitterUser user) {
-        this.userScreenName = user.screen_name;
-        if(LitePal.where("screen_name = ?", userScreenName).find(DBTwitterUser.class).isEmpty()) {
+        this.tuid = Long.parseLong(user.id);
+        if(LitePal.where("tuid = ?", String.valueOf(tuid)).find(DBTwitterUser.class).isEmpty()) {
             DBTwitterUser dbTwitterUser = new DBTwitterUser(user);
             dbTwitterUser.save();
         }
@@ -177,9 +177,9 @@ public class DBTwitterStatus extends LitePalSupport {
     public void setMedia(ArrayList<TwitterMedia> mediaList) {
         if(mediaList != null && !mediaList.isEmpty()) {
             for (TwitterMedia m : mediaList) {
-                if(LitePal.where("statusId = ? AND tid = ?", tid, m.id).find(DBTwitterMedia.class).isEmpty()) {
+                if(LitePal.where("tsid = ? AND tmid = ?", String.valueOf(tsid), m.id).find(DBTwitterMedia.class).isEmpty()) {
                     DBTwitterMedia media = new DBTwitterMedia(m);
-                    media.setStatusId(tid);
+                    media.setTsid(tsid);
                     media.save();
                 }
             }

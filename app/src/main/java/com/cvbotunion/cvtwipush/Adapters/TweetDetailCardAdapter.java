@@ -86,7 +86,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                     ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
                     ClipData mClipData = ClipData.newPlainText("tweet", tweets.get(position).getText());
                     clipboardManager.setPrimaryClip(mClipData);
-                    Snackbar.make(view, "已复制", 1000).show();
+                    Snackbar.make(view, "已复制原文", 1000).show();
                 }
                 return true;
             }
@@ -168,7 +168,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                 try {
                     imm.hideSoftInputFromWindow(holder.itemView.getWindowToken(), 0);
                 } catch(Exception e){
-                    Log.i("warning",e.toString());
+                    Log.w("TweetDetailCardAdapter",e.toString());
                 }
                 View view = ((Activity) context).getWindow().getCurrentFocus();
                 if(view != null) {
@@ -223,7 +223,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                     ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
                     ClipData mClipData = ClipData.newPlainText("tweetAndTranslation", lastTweet.getFullText(tweetFormat, holder.tweetCard.getTranslatedText()));
                     clipboardManager.setPrimaryClip(mClipData);
-                    Snackbar.make(v,"已复制文本",1000).show();
+                    Snackbar.make(v,"已复制原文及翻译",1000).show();
                 }
             });
             holder.tweetCard.uploadButton.setOnClickListener(new View.OnClickListener() {

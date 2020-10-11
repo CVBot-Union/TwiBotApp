@@ -80,7 +80,7 @@ public class TwitterStatus implements Parcelable {
                 this.quoted_status_id = parent_status_id;
                 break;
             default:
-                Log.i("info", "未指定父推文类型");
+                Log.w("TwitterStatus", "未指定父推文类型");
                 break;
         }
     }
@@ -112,6 +112,10 @@ public class TwitterStatus implements Parcelable {
     }
 
     public TwitterStatus(JSONObject tweet) throws JSONException, ParseException {
+        this(tweet, false);
+    }
+
+    public TwitterStatus(JSONObject tweet, boolean saveToDB) throws JSONException, ParseException {
         this();
         this.created_at = toUTC8(tweet.getString("created_at"));
         this.id = tweet.getString("id_str");
@@ -143,6 +147,18 @@ public class TwitterStatus implements Parcelable {
         }
         if(tweet.has("extended_entities")) {
             TransformMedia(tweet.getJSONObject("extended_entities").getJSONArray("media"));
+        }
+        if(tweet.has("translations")) {
+            for(int i=0;i<tweet.getJSONArray("translations").length();i++) {
+                addTranslation(tweet.getJSONArray("translations").getJSONObject(i));
+            }
+        }
+
+        if(saveToDB) {
+            if (LitePal.where("tsid = ?", this.id).find(DBTwitterStatus.class).isEmpty()) {
+                DBTwitterStatus dbStatus = new DBTwitterStatus(this);
+                dbStatus.save();
+            }
         }
     }
 
@@ -337,12 +353,12 @@ public class TwitterStatus implements Parcelable {
         switch (getTweetType()){
             case REPLY:
                 typeString = "回复：\n\n";
-                parentStatus = LitePal.where("tid = ?", in_reply_to_status_id)
+                parentStatus = LitePal.where("tsid = ?", in_reply_to_status_id)
                         .findFirst(DBTwitterStatus.class).toTwitterStatus();
                 break;
             case QUOTE:
                 typeString = "转推：\n\n";
-                parentStatus = LitePal.where("tid = ?", quoted_status_id)
+                parentStatus = LitePal.where("tsid = ?", quoted_status_id)
                         .findFirst(DBTwitterStatus.class).toTwitterStatus();
                 break;
             default:

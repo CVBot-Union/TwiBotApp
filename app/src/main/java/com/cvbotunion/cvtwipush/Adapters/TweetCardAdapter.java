@@ -157,7 +157,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
                                 });
                                 holder.tweetCard.setTweetImage(tweets.get(position).media.size(), i, media.cached_image_preview);
                             } else if(isConnected && !media.underProcessing) {
-                                media.loadImage(true,this, handler,null);
+                                media.loadImage(true,this, handler,position);
                             }
                             break;
                         //视频
@@ -176,7 +176,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
                                 });
                                 holder.tweetCard.setVideoBackground(media.cached_image_preview);
                             } else if(isConnected && !media.underProcessing) {
-                                media.loadImage(true,this, handler,null);
+                                media.loadImage(true,this, handler,position);
                             }
                             break;
                     }
