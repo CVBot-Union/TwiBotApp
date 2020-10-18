@@ -55,7 +55,6 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
     protected Boolean doInBackground(String... params) {
         try {
             if(mode == REFRESH) {
-                // TODO page和limit参数问题
                 url += ("group="+TweetList.getCurrentGroup().id+"&afterID="+dataSet.get(0).id+"&sortKey=ASC");
                 Response response = TweetList.connection.webService.get(url);
                 if(response.code()==200) {
