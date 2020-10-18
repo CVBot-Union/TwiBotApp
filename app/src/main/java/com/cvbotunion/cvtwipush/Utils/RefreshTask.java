@@ -26,7 +26,7 @@ import okhttp3.Response;
 
 public class RefreshTask extends AsyncTask<String,Void,Boolean> {
     public final static int REFRESH = 0;
-    public final static int LOAD_MORE = 1;
+    public final static int LOADMORE = 1;
 
     private String url = WebService.SERVER_API+"tweet/range?";
 
@@ -71,20 +71,47 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
                         }
                     } else {
                         Log.e(TwiPush.TAG+":RefreshTask-REFRESH", resJson.toString());
+                        return false;
                     }
                 } else {
                     Log.e(TwiPush.TAG+":RefreshTask-REFRESH", response.message());
                     response.close();
+                    return false;
                 }
-            } else if(mode == LOAD_MORE) {
-                //TODO loadmore实现
-                // 获取顺序：数据库 -> 服务器
+            } else if(mode == LOADMORE) {
                 String lastId = dataSet.get(dataSet.size()-1).id;
-                List<DBTwitterStatus> DBTweets = LitePal.where("tsid < ?", lastId).order("tsid desc").limit(TweetList.LIMIT).find(DBTwitterStatus.class);
-                if(DBTweets.size()<TweetList.LIMIT) {
-                    int leftNeed = TweetList.LIMIT-DBTweets.size();
+                List<DBTwitterStatus> dbTweets = LitePal.where("tsid < ?", lastId).order("tsid desc").limit(TweetList.LIMIT).find(DBTwitterStatus.class);
+                for(DBTwitterStatus dbTweet : dbTweets) {
+                    TwitterStatus tweet = dbTweet.toTwitterStatus();
+                    if (checkedName == null || tweet.user.name_in_group.equals(checkedName))
+                        usedDataSet.add(tweet);
+                    dataSet.add(tweet);
+                }
+                if(dbTweets.size()<TweetList.LIMIT) {
+                    lastId = dataSet.get(dataSet.size()-1).id;
+                    int leftNeed = TweetList.LIMIT-dbTweets.size();
                     url += ("page=1&limit="+leftNeed+"&group="+TweetList.getCurrentGroup().id+"&beforeID="+lastId+"&sortKey=DESC");
-                    // 。。。
+                    Response response = TweetList.connection.webService.get(url);
+                    if(response.code()==200) {
+                        JSONObject resJson = new JSONObject(response.body().string());
+                        response.close();
+                        if(resJson.getBoolean("success")) {
+                            JSONArray tweets = resJson.getJSONArray("response");
+                            for(int i=0;i<tweets.length();i++) {
+                                TwitterStatus tweet = new TwitterStatus(tweets.getJSONObject(i), true);
+                                if (checkedName == null || tweet.user.name_in_group.equals(checkedName))
+                                    usedDataSet.add(tweet);
+                                dataSet.add(tweet);
+                            }
+                        } else {
+                            Log.e(TwiPush.TAG+":RefreshTask-LOADMORE", resJson.toString());
+                            return false;
+                        }
+                    } else {
+                        Log.e(TwiPush.TAG+":RefreshTask-LOADMORE", response.message());
+                        response.close();
+                        return false;
+                    }
                 }
             }
         } catch (Exception e) {
@@ -100,7 +127,7 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
             case REFRESH:
                 refreshLayoutRef.get().finishRefresh(result);
                 break;
-            case LOAD_MORE:
+            case LOADMORE:
                 refreshLayoutRef.get().finishLoadMore(result);
                 break;
             default:

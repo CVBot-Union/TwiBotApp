@@ -9,6 +9,13 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent">
 
+    <FrameLayout
+        android:id="@+id/login_fragment_container"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:elevation="10dp"
+        android:visibility="gone" />
+
     <include
         layout="@layout/group_action_bar"
         android:layout_width="match_parent"

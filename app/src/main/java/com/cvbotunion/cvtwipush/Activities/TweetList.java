@@ -58,7 +58,6 @@ import org.litepal.LitePalDB;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class TweetList extends AppCompatActivity {
@@ -153,7 +152,7 @@ public class TweetList extends AppCompatActivity {
         refreshLayout.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore(@NonNull RefreshLayout refreshlayout) {
-                netRefresh(chipGroup.getCheckedChipId(),refreshlayout, RefreshTask.LOAD_MORE);
+                netRefresh(chipGroup.getCheckedChipId(),refreshlayout, RefreshTask.LOADMORE);
             }
         });
 
