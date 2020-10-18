@@ -34,7 +34,6 @@ import java.util.ArrayList;
 
 import okhttp3.Response;
 
-
 public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCardAdapter.TweetDetailCardViewHolder> {
 
     public ArrayList<TwitterStatus> tweets;
