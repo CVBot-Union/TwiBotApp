@@ -10,7 +10,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.cvbotunion.cvtwipush.Activities.TweetList;
+import com.cvbotunion.cvtwipush.Activities.Timeline;
 import com.cvbotunion.cvtwipush.Service.WebService;
 
 import org.json.JSONException;
@@ -26,39 +26,32 @@ public class TwitterUser implements Parcelable{
     public String screen_name;
     public String name_in_group;
     @Nullable public String location;
-    @Nullable public int followers_count;
-    @Nullable public int friends_count;
-    @Nullable public int statuses_count;
+    public int followers_count;
+    public int friends_count;
+    public int statuses_count;
     @Nullable public String profile_image_url;
     @Nullable public Bitmap cached_profile_image_preview;
     @Nullable public Bitmap cached_profile_image;
 
-    public TwitterUser(String id,String name,String screen_name) {
+    public TwitterUser(String id,String name,String screen_name,String name_in_group){
         this.id = id;
         this.name = name;
         this.screen_name = screen_name;
-        this.name_in_group = name;
+        this.name_in_group = name_in_group!=null ? name_in_group : name;
     }
 
-    public TwitterUser(String id,String name,String screen_name,String nameInGroup){
-        this.id = id;
-        this.name = name;
-        this.screen_name = screen_name;
-        this.name_in_group = nameInGroup;
-    }
-
-    public TwitterUser(String id,String name,String screen_name,String nameInGroup,String profile_image_url){
-        this(id,name,screen_name,nameInGroup);
+    public TwitterUser(String id,String name,String screen_name,String name_in_group,String profile_image_url){
+        this(id,name,screen_name,name_in_group);
         this.profile_image_url = profile_image_url;
     }
 
-    public TwitterUser(String id,String name,String screen_name,String nameInGroup,String profile_image_url,Bitmap cached_profile_image_preview){
-        this(id,name,screen_name,nameInGroup,profile_image_url);
+    public TwitterUser(String id,String name,String screen_name,String name_in_group,String profile_image_url,Bitmap cached_profile_image_preview){
+        this(id,name,screen_name,name_in_group,profile_image_url);
         this.cached_profile_image_preview = cached_profile_image_preview;
     }
 
-    public TwitterUser(String id,String name,String screen_name,String nameInGroup,String profile_image_url,Bitmap cached_profile_image_preview, Bitmap cached_profile_image){
-        this(id,name,screen_name,nameInGroup,profile_image_url,cached_profile_image_preview);
+    public TwitterUser(String id,String name,String screen_name,String name_in_group,String profile_image_url,Bitmap cached_profile_image_preview, Bitmap cached_profile_image){
+        this(id,name,screen_name,name_in_group,profile_image_url,cached_profile_image_preview);
         this.cached_profile_image = cached_profile_image;
     }
 
@@ -88,6 +81,37 @@ public class TwitterUser implements Parcelable{
         cached_profile_image = in.readParcelable(Bitmap.class.getClassLoader());
     }
 
+    /**
+     * Notice that this method will not check {@code name_in_group}.<br>
+     * 注意该方法不检查{@code name_in_group}属性
+     * @param checkCounts
+     *        whether check {@code followers_count}, {@code friends_count} and {@code statuses_count}<br>
+     *        是否检查{@code followers_count}、{@code friends_count}和{@code statuses_count}
+     * @return {@code true} if the given object represents a {@code TwitterUser}
+     *         equivalent to this twitterUser, {@code false} otherwise
+     */
+    public boolean equals(Object obj, boolean checkCounts) {
+        if(this==obj) return true;
+        if(obj instanceof TwitterUser) {
+            TwitterUser anotherTwitterUser = (TwitterUser)obj;
+            if(checkCounts) {
+                if(followers_count!=anotherTwitterUser.followers_count || friends_count!=anotherTwitterUser.friends_count || statuses_count!=anotherTwitterUser.statuses_count)
+                    return false;
+            }
+            return id.equals(anotherTwitterUser.id) && name.equals(anotherTwitterUser.name) && screen_name.equals(anotherTwitterUser.screen_name)
+                    && location!=null?location.equals(anotherTwitterUser.location):anotherTwitterUser.location==null
+                    && profile_image_url!=null?profile_image_url.equals(anotherTwitterUser.profile_image_url):anotherTwitterUser.profile_image_url==null;
+        }
+        return false;
+    }
+
+    /**
+     * @see #equals(Object, boolean)
+     */
+    public boolean equals(Object obj) {
+        return equals(obj, false);
+    }
+
     public void setNameInGroup(String name_in_group) {
         this.name_in_group = name_in_group;
     }
@@ -99,10 +123,10 @@ public class TwitterUser implements Parcelable{
                 @Override
                 public void run() {
                     try {
-                        while(TweetList.connection.webService==null) {
+                        while(Timeline.connection.webService==null) {
                             Thread.sleep(10);
                         }
-                        Response response = TweetList.connection.webService.get(profile_image_url);
+                        Response response = Timeline.connection.webService.get(profile_image_url);
                         int code = response.code();
                         if (code == 200) {
                             byte[] data = response.body().bytes();

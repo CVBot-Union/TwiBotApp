@@ -7,7 +7,7 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.cvbotunion.cvtwipush.Activities.TweetList;
+import com.cvbotunion.cvtwipush.Activities.Timeline;
 import com.cvbotunion.cvtwipush.Adapters.TweetDetailCardAdapter;
 import com.cvbotunion.cvtwipush.CustomViews.TweetDetailCard;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
@@ -28,6 +28,9 @@ import java.util.Locale;
 
 import okhttp3.Response;
 
+/**
+ * In order to avoid {@code NullPointerException}, all ArrayList objects should NOT be {@code null} even nothing inside.
+ */
 public class TwitterStatus implements Parcelable {
     //推文类型
     public final static int NORMAL=0;
@@ -48,10 +51,10 @@ public class TwitterStatus implements Parcelable {
     @Nullable public String in_reply_to_screen_name;
     @Nullable public String quoted_status_id;
     @Nullable public String location;
-    @Nullable public ArrayList<String> hashtags;
-    @Nullable public ArrayList<TwitterUser> user_mentions;
-    @Nullable public ArrayList<TwitterMedia> media;
-    @Nullable public ArrayList<HashMap<String,String>> translations;  // keys: "userName","groupName","content"
+    public ArrayList<String> hashtags;
+    public ArrayList<TwitterUser> user_mentions;
+    public ArrayList<TwitterMedia> media;
+    public ArrayList<HashMap<String,String>> translations;  // keys: "userName","groupName","content"
 
     public TwitterStatus(){
         hashtags = new ArrayList<>();
@@ -142,8 +145,10 @@ public class TwitterStatus implements Parcelable {
         } else if(tweet.has("quoted_status")) {
             TwitterStatus quotedStatus = new TwitterStatus(tweet.getJSONObject("quoted_status"));
             this.quoted_status_id = quotedStatus.id;
-            DBTwitterStatus dbQuotedStatus = new DBTwitterStatus(quotedStatus);
-            dbQuotedStatus.save();
+            if (LitePal.where("tsid = ?", this.quoted_status_id).find(DBTwitterStatus.class).isEmpty()) {
+                DBTwitterStatus dbQuotedStatus = new DBTwitterStatus(quotedStatus);
+                dbQuotedStatus.save();
+            }
         }
         if(tweet.has("extended_entities")) {
             TransformMedia(tweet.getJSONObject("extended_entities").getJSONArray("media"));
@@ -160,6 +165,30 @@ public class TwitterStatus implements Parcelable {
                 dbStatus.save();
             }
         }
+    }
+
+    /**
+     * Will not check {@code location}, {@code hashtags}, {@code user_mentions} and {@code translations}.<br>
+     * 不检查{@code location}、{@code hashtags}、{@code user_mentions}和{@code translations}<br>
+     * When it comes to REPLY fields, will only check {@code in_reply_to_status_id}.<br>
+     * 当涉及关于回复的字段时，只检查{@code in_reply_to_status_id}
+     */
+    public boolean equals(Object obj) {
+        if(this==obj) return true;
+        if(obj instanceof TwitterStatus) {
+            TwitterStatus anotherStatus = (TwitterStatus)obj;
+            if(media.size()!=anotherStatus.media.size())
+                return false;
+            for(int i=0;i<media.size();i++) {
+                if(!media.get(i).equals(anotherStatus.media.get(i)))
+                    return false;
+            }
+            return created_at.equals(anotherStatus.created_at) && id.equals(anotherStatus.id) && user.equals(anotherStatus.user)
+                    && text!=null?text.equals(anotherStatus.text):anotherStatus.text==null
+                    && in_reply_to_status_id!=null?in_reply_to_status_id.equals(anotherStatus.in_reply_to_status_id):anotherStatus.in_reply_to_status_id==null
+                    && quoted_status_id!=null?quoted_status_id.equals(anotherStatus.quoted_status_id):anotherStatus.quoted_status_id==null;
+        }
+        return false;
     }
 
     private void TransformMedia(JSONArray medias) throws JSONException {
@@ -205,7 +234,7 @@ public class TwitterStatus implements Parcelable {
             @Override
             public void run() {
                 try {
-                    Response response = TweetList.connection.webService.get(WebService.SERVER_API+"tweet/"+finalId+"/translations");
+                    Response response = Timeline.connection.webService.get(WebService.SERVER_API+"tweet/"+finalId+"/translations");
                     if(response.code()==200) {
                         JSONObject resJson = new JSONObject(response.body().string());
                         response.close();
@@ -374,41 +403,6 @@ public class TwitterStatus implements Parcelable {
                 parentStatus==null?"":"#"+parentStatus.user.name_in_group+"#",
                 parentStatus==null?"":parentStatus.user.screen_name,
                 parentStatus==null?"":parentStatus.text);
-    }
-
-    @Nullable
-    public String getIn_reply_to_status_id(){
-        return in_reply_to_status_id;
-    }
-
-    @Nullable
-    public String getIn_reply_to_screen_name(){
-        return in_reply_to_screen_name;
-    }
-
-    @Nullable
-    public String getQuoted_status_id(){
-        return quoted_status_id;
-    }
-
-    @Nullable
-    public String getLocation(){
-        return location;
-    }
-
-    @Nullable
-    public ArrayList<String> getHashtags(){
-        return hashtags;
-    }
-
-    @Nullable
-    public ArrayList<TwitterUser> getUser_mentions(){
-        return user_mentions;
-    }
-
-    @Nullable
-    public ArrayList<TwitterMedia> getMedia(){
-        return media;
     }
 
     public void clearMediaCache(){

@@ -46,7 +46,7 @@
             android:launchMode="singleTop"/>
 
         <activity
-            android:name="com.cvbotunion.cvtwipush.Activities.TweetList"
+            android:name="com.cvbotunion.cvtwipush.Activities.Timeline"
             android:launchMode="singleTop"
             android:alwaysRetainTaskState="true"
             android:clearTaskOnLaunch="false">

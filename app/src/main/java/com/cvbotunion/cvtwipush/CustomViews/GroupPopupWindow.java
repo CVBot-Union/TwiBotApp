@@ -14,26 +14,23 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cvbotunion.cvtwipush.Adapters.GroupRecyclerAdapter;
-import com.cvbotunion.cvtwipush.Model.RTGroup;
 import com.cvbotunion.cvtwipush.Model.User;
 import com.cvbotunion.cvtwipush.R;
 
-import java.util.ArrayList;
-
 public class GroupPopupWindow extends PopupWindow {
     private View view;
-    private TextView username;
-    private ImageView avatar;
+    private TextView usernameView;
+    private ImageView avatarView;
     private ImageButton exit;
-    private RecyclerView groupList;
+    private RecyclerView groupListView;
     public GroupRecyclerAdapter grAdapter;
     public User user;
     public String currentGroup;
 
     public void initView(final Context context){
-        username = view.findViewById(R.id.user_name_text_view);
-        avatar = view.findViewById(R.id.user_avatar);
-        groupList = view.findViewById(R.id.group_list_recycler_view);
+        usernameView = view.findViewById(R.id.user_name_text_view);
+        avatarView = view.findViewById(R.id.user_avatar);
+        groupListView = view.findViewById(R.id.group_list_recycler_view);
         exit = view.findViewById(R.id.exit_btn);
         exit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -44,16 +41,14 @@ public class GroupPopupWindow extends PopupWindow {
         setOutsideTouchable(true);
 
         if(user != null){
-            if(user.name != null) {
-                username.setText(user.name);
-            }
+            usernameView.setText(user.name);
             if(user.avatar != null){
-                avatar.setImageBitmap(user.avatar);
-            }
+                avatarView.setImageBitmap(user.avatar);
+            }  // TODO 下载用户头像并刷新UI
         }
-        groupList.setLayoutManager(new LinearLayoutManager(context));
+        groupListView.setLayoutManager(new LinearLayoutManager(context));
         grAdapter = new GroupRecyclerAdapter(context,this,user.jobs,currentGroup);
-        groupList.setAdapter(grAdapter);
+        groupListView.setAdapter(grAdapter);
     }
 
     public GroupPopupWindow(Context context, User user,String currentGroup) {

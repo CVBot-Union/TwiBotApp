@@ -15,7 +15,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.cvbotunion.cvtwipush.Activities.TweetList;
+import com.cvbotunion.cvtwipush.Activities.Timeline;
 import com.cvbotunion.cvtwipush.Service.WebService;
 import com.cvbotunion.cvtwipush.TwiPush;
 
@@ -94,6 +94,16 @@ public class TwitterMedia implements Parcelable{
         cached_image = in.readParcelable(Bitmap.class.getClassLoader());
     }
 
+    public boolean equals(Object obj) {
+        if(this==obj) return true;
+        if(obj instanceof TwitterMedia) {
+            TwitterMedia anotherMedia = (TwitterMedia)obj;
+            return id.equals(anotherMedia.id) && url.equals(anotherMedia.url)
+                    && previewImageURL.equals(anotherMedia.previewImageURL) && type==anotherMedia.type;
+        }
+        return false;
+    }
+
     public void loadImage(boolean isPreview, RecyclerView.Adapter<?> tAdapter, Handler handler, @Nullable Integer position) {
         underProcessing = true;
         if(isPreview && previewImageURL != null) {
@@ -123,10 +133,10 @@ public class TwitterMedia implements Parcelable{
             @Override
             public void run() {
                 try {
-                    while(TweetList.connection.webService==null) {
+                    while(Timeline.connection.webService==null) {
                        Thread.sleep(10);
                     }
-                    Response response = TweetList.connection.webService.get(downloadURL);
+                    Response response = Timeline.connection.webService.get(downloadURL);
                     int code = response.code();
                     if (code == 200) {
                         byte[] data = response.body().bytes();

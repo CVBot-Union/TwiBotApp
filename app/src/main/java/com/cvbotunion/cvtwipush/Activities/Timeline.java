@@ -27,13 +27,10 @@ import android.widget.TextView;
 
 import com.cvbotunion.cvtwipush.Adapters.TweetDetailCardAdapter;
 import com.cvbotunion.cvtwipush.CustomViews.GroupPopupWindow;
-import com.cvbotunion.cvtwipush.DBModel.DBFollow;
-import com.cvbotunion.cvtwipush.DBModel.DBJob;
-import com.cvbotunion.cvtwipush.DBModel.DBRTGroup;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterMedia;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterUser;
-import com.cvbotunion.cvtwipush.DBModel.DBUser;
+import com.cvbotunion.cvtwipush.Model.Job;
 import com.cvbotunion.cvtwipush.Model.RTGroup;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
@@ -60,7 +57,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TweetList extends AppCompatActivity {
+public class Timeline extends AppCompatActivity {
     //每次从数据库和服务器获取的最大推文数目
     public static final int LIMIT = 20;
     public static MyServiceConnection connection = new MyServiceConnection();
@@ -82,7 +79,7 @@ public class TweetList extends AppCompatActivity {
     private ArrayList<TwitterStatus> usedDataSet = new ArrayList<>();
     private static User currentUser;
     private static RTGroup currentGroup;
-    private Map<Integer, String> idToName;
+    private Map<Integer, String> chipIdToName;
     private SQLiteDatabase db;
 
     @Override
@@ -107,7 +104,7 @@ public class TweetList extends AppCompatActivity {
             public boolean onMenuItemClick(MenuItem item) {
                 int menuID = item.getItemId();
                 if (menuID == R.id.group_menu_item){
-                    View view = getLayoutInflater().inflate(R.layout.group_switch_menu,null);
+                    View view = getLayoutInflater().inflate(R.layout.group_switch_menu, (ViewGroup)getWindow().getDecorView(),false);
                     GroupPopupWindow popupWindow = new GroupPopupWindow(
                             view, ViewGroup.LayoutParams.MATCH_PARENT,
                             ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -125,7 +122,7 @@ public class TweetList extends AppCompatActivity {
             chip.setText(currentGroup.following.get(i).name_in_group);
             int viewId = ViewCompat.generateViewId();
             chip.setId(viewId);
-            idToName.put(viewId, currentGroup.following.get(i).name_in_group);
+            chipIdToName.put(viewId, currentGroup.following.get(i).name_in_group);
             chipGroup.addView(chip);
         }
 
@@ -133,7 +130,7 @@ public class TweetList extends AppCompatActivity {
             @Override
             public void onCheckedChanged(ChipGroup group, int checkedId) {
                 usedDataSet.clear();
-                String checkedName = idToName.getOrDefault(checkedId, null);
+                String checkedName = chipIdToName.getOrDefault(checkedId, null);
                 for (TwitterStatus s : dataSet) {
                     if (checkedName == null || s.user.name.equals(checkedName))
                         usedDataSet.add(s);
@@ -171,7 +168,7 @@ public class TweetList extends AppCompatActivity {
         if(connectivityManager != null) {
             networkCallback = new ConnectivityManager.NetworkCallback() {
                 @Override
-                public void onLost(Network network) {
+                public void onLost(@NonNull Network network) {
                     super.onLost(network);
                     TweetCardAdapter.isConnected = false;
                     TweetDetailCardAdapter.isConnected = false;
@@ -179,7 +176,7 @@ public class TweetList extends AppCompatActivity {
                 }
 
                 @Override
-                public void onAvailable(Network network) {
+                public void onAvailable(@NonNull Network network) {
                     super.onAvailable(network);
                     TweetCardAdapter.isConnected = true;
                     TweetDetailCardAdapter.isConnected = true;
@@ -195,7 +192,7 @@ public class TweetList extends AppCompatActivity {
         super.onDestroy();
         db.close();
         unbindService(connection);
-        idToName.clear();
+        chipIdToName.clear();
         if(Math.random()>0.9) {  //十分之一的概率
             StorageUtils.deleteFile(VideoViewer.cacheDir);  //删除整个目录
             StorageUtils.deleteFiles(TwitterMedia.internalFilesDir);  //删除子文件
@@ -208,7 +205,7 @@ public class TweetList extends AppCompatActivity {
     private  void initData() {
         dataSet = new ArrayList<>();
         usedDataSet = new ArrayList<>();
-        idToName = new HashMap<>();
+        chipIdToName = new HashMap<>();
         // TODO initData实际应用
         //readData()
         //if not found, netRefresh()
@@ -282,20 +279,11 @@ public class TweetList extends AppCompatActivity {
         following.add(new TwitterUser("5", "中島由貴", "Yuki_Nakashim", "中岛由贵", ""));
         following.add(new TwitterUser("6", "櫻川めぐ", "sakuragawa_megu", "樱川惠", ""));
         following.add(new TwitterUser("7", "志崎樺音", "Kanon_Shizaki", "志崎桦音", ""));
-        currentGroup = new RTGroup("1", "蔷薇之心", "", following);
-        if (LitePal.where("gid = ?", currentGroup.id).find(DBRTGroup.class).isEmpty()) {
-            DBRTGroup dbrtGroup = new DBRTGroup(currentGroup);
-            dbrtGroup.save();
-        }
+        currentGroup = new RTGroup("1", "蔷薇之心", "", following, null);
 
-        RTGroup.Job job = new RTGroup.Job("翻译/搬运", 1);
-        HashMap<String, RTGroup.Job> jobMap = new HashMap<>();
-        jobMap.put(currentGroup.id, job);
-        currentUser = new User("1", "用户1", null, null, jobMap);
-        if(LitePal.where("uid = ?", currentUser.id).find(DBUser.class).isEmpty()) {
-            DBUser dbUser = new DBUser(currentUser);
-            dbUser.save();
-        }
+        Job job = new Job("翻译/搬运", 1, currentGroup);
+        currentUser = new User("1", "用户1", null, null,null);
+        currentUser.addJob(job);
         //end 模拟数据
     }
 
@@ -333,10 +321,6 @@ public class TweetList extends AppCompatActivity {
         litePalDB.addClassName(DBTwitterStatus.class.getName());
         litePalDB.addClassName(DBTwitterUser.class.getName());
         litePalDB.addClassName(DBTwitterMedia.class.getName());
-        litePalDB.addClassName(DBRTGroup.class.getName());
-        litePalDB.addClassName(DBUser.class.getName());
-        litePalDB.addClassName(DBJob.class.getName());
-        litePalDB.addClassName(DBFollow.class.getName());
         LitePal.use(litePalDB);
         db = LitePal.getDatabase();
     }
@@ -344,7 +328,7 @@ public class TweetList extends AppCompatActivity {
     public void netRefresh(int checkedId, RefreshLayout refreshlayout, int mode) {
         // 每个AsyncTask实例只能execute()一次
         RefreshTask task = new RefreshTask(refreshlayout, tAdapter, mode);
-        String checkedName = idToName.getOrDefault(checkedId, null);
+        String checkedName = chipIdToName.getOrDefault(checkedId, null);
         task.setData(usedDataSet, dataSet, checkedName);
         task.execute();
     }

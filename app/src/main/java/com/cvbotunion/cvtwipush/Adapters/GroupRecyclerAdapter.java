@@ -16,34 +16,25 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.cvbotunion.cvtwipush.Activities.TweetList;
+import com.cvbotunion.cvtwipush.Activities.Timeline;
 import com.cvbotunion.cvtwipush.CustomViews.GroupPopupWindow;
-import com.cvbotunion.cvtwipush.DBModel.DBRTGroup;
+import com.cvbotunion.cvtwipush.Model.Job;
 import com.cvbotunion.cvtwipush.Model.RTGroup;
 import com.cvbotunion.cvtwipush.R;
 
-import org.litepal.LitePal;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdapter.ViewHolder> {
     public Context context;
     public GroupPopupWindow popupWindow;
-    public ArrayList<String> gidList;
-    public ArrayList<RTGroup.Job> jobList;
-    public String groupNow = "0";
+    public ArrayList<Job> jobs;
+    public String groupNow;
 
-    public GroupRecyclerAdapter(Context context, GroupPopupWindow popupWindow, HashMap<String,RTGroup.Job> jobs,String groupNow){
+    public GroupRecyclerAdapter(Context context, GroupPopupWindow popupWindow, ArrayList<Job> jobs, String groupNow){
         this.context = context;
         this.popupWindow = popupWindow;
+        this.jobs = jobs;
         this.groupNow = groupNow;
-        this.gidList = new ArrayList<>();
-        this.jobList = new ArrayList<>();
-        for(HashMap.Entry<String, RTGroup.Job> e : jobs.entrySet()) {
-            gidList.add(e.getKey());
-            jobList.add(e.getValue());
-        }
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
@@ -68,8 +59,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
 
     @Override
     public void onBindViewHolder(@NonNull GroupRecyclerAdapter.ViewHolder holder, final int position) {
-        RTGroup currentGroup = LitePal.where("gid = ?",gidList.get(position)).findFirst(DBRTGroup.class).toRTGroup();
-
+        final RTGroup currentGroup = jobs.get(position).group;
         if(groupNow.equals(currentGroup.id)){
             holder.groupName.setTextColor(context.getColor(R.color.colorPrimary));
             int alphaBackground = ColorUtils.setAlphaComponent(context.getColor(R.color.colorPrimary), 25);
@@ -81,9 +71,9 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
             @Override
             public void onClick(View v) {
                 popupWindow.dismiss();
-                Intent intent = new Intent(context, TweetList.class);
+                Intent intent = new Intent(context, Timeline.class);
                 Bundle bundle = new Bundle();
-                bundle.putString("groupId",gidList.get(position));
+                bundle.putString("groupId",currentGroup.id);
                 intent.putExtras(bundle);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 try {
@@ -98,19 +88,14 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
 
         if(currentGroup.avatar != null){
             holder.groupImageView.setImageBitmap(currentGroup.avatar);
-        }
+        }  // TODO 下载群头像并刷新UI
 
-        if(currentGroup.name != null) {
-            holder.groupName.setText(currentGroup.name);
-        }
-
-        if(jobList.get(position) != null) {
-            holder.myJobInGroup.setText(jobList.get(position).jobName);
-        }
+        holder.groupName.setText(currentGroup.name);
+        holder.myJobInGroup.setText(jobs.get(position).jobName);
     }
 
     @Override
     public int getItemCount() {
-        return gidList.size();
+        return jobs.size();
     }
 }

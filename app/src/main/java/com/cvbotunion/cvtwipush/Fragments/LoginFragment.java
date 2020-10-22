@@ -13,7 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.cvbotunion.cvtwipush.Activities.TweetList;
+import com.cvbotunion.cvtwipush.Activities.Timeline;
 import com.cvbotunion.cvtwipush.R;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -76,10 +76,10 @@ public class LoginFragment extends Fragment {
                         @Override
                         public void run() {
                             try {
-                                while(TweetList.connection.webService==null) {
+                                while(Timeline.connection.webService==null) {
                                     Thread.sleep(10);
                                 }
-                                TweetList.connection.webService.login(username, password);
+                                Timeline.connection.webService.login(username, password);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

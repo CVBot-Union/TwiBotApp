@@ -99,8 +99,8 @@
         android:layout_margin="16dp"
         android:text="失败信息（注册尚未实装）记得删掉这行"
         android:textColor="#FF0000"
-        app:layout_constraintTop_toBottomOf="@id/login_password_text_layout"
-        tools:layout_editor_absoluteX="16dp" />
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@id/login_password_text_layout" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/button_layout"
@@ -116,7 +116,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="注册"
-            android:textSize="20sp"
+            android:textSize="16sp"
             app:layout_constraintStart_toStartOf="@id/button_layout"
             tools:ignore="MissingConstraints" />
 
@@ -126,6 +126,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="登录"
+            android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="@id/button_layout"
             tools:ignore="MissingConstraints" />
 

@@ -6,6 +6,8 @@ import android.os.Parcelable;
 
 import androidx.annotation.Nullable;
 
+import org.litepal.LitePal;
+
 import java.util.ArrayList;
 
 public class RTGroup implements Parcelable {
@@ -28,85 +30,38 @@ public class RTGroup implements Parcelable {
     public String name;
     public String avatarURL;
     public ArrayList<TwitterUser> following;
+    public ArrayList<String> members; // String -> User.id
     public String tweetFormat;
-
     @Nullable public Bitmap avatar;
 
-    public static class Job implements Parcelable{
-        public String jobName;
-        private int priority;  //权限级别
-
-        public Job(String jobName){
-            this.jobName = jobName;
-            this.priority = 0;
-        }
-
-        public Job(String jobName, int priority){
-            this.jobName = jobName;
-            this.priority = priority;
-        }
-
-        protected Job(Parcel in) {
-            jobName = in.readString();
-            priority = in.readInt();
-        }
-
-        public int getPriority() {
-            return priority;
-        }
-
-        public void setPriority(int priority) {
-            this.priority = priority;
-        }
-
-        public static final Creator<Job> CREATOR = new Creator<Job>() {
-            @Override
-            public Job createFromParcel(Parcel in) {
-                return new Job(in);
-            }
-
-            @Override
-            public Job[] newArray(int size) {
-                return new Job[size];
-            }
-        };
-
-        @Override
-        public int describeContents() {
-            return 0;
-        }
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            dest.writeString(jobName);
-            dest.writeInt(priority);
-        }
-    }
-
     public RTGroup(){
-
-    }
-
-    public RTGroup(String id,String name,String avatarURL,ArrayList<TwitterUser> following) {
-        this.id = id;
-        this.name = name;
-        this.avatarURL = avatarURL;
-        this.following = following;
+        this.following = new ArrayList<>();
+        this.members = new ArrayList<>();
         initDefaultTweetFormat();
     }
 
-    public RTGroup(String id,String name,String avatarURL,ArrayList<TwitterUser> following,Bitmap avatar){
-        this(id,name,avatarURL,following);
+    public RTGroup(String id,String name,String avatarURL,ArrayList<TwitterUser> following,ArrayList<String> members) {
+        this();
+        this.id = id;
+        this.name = name;
+        this.avatarURL = avatarURL;
+        if(following != null) {
+            this.following = following;
+        }
+        if(members != null) {
+            this.members = members;
+        }
+    }
+
+    public RTGroup(String id,String name,String avatarURL,ArrayList<TwitterUser> following,ArrayList<String> members,Bitmap avatar){
+        this(id,name,avatarURL,following,members);
         if(avatar != null) {
             this.avatar = avatar;
         }
     }
 
-    public RTGroup(String id,String name,String avatarURL,ArrayList<TwitterUser> following,Bitmap avatar,String tweetFormat){
-        this(id,name,avatarURL,following);
-        if(avatar != null) {
-            this.avatar = avatar;
-        }
+    public RTGroup(String id,String name,String avatarURL,ArrayList<TwitterUser> following,ArrayList<String> members,Bitmap avatar,String tweetFormat){
+        this(id,name,avatarURL,following,members,avatar);
         if(tweetFormat != null){
             this.tweetFormat = tweetFormat;
         }
@@ -117,7 +72,30 @@ public class RTGroup implements Parcelable {
         name = in.readString();
         avatarURL = in.readString();
         following = in.createTypedArrayList(TwitterUser.CREATOR);
-        avatar = in.readParcelable(Bitmap.class.getClassLoader());
+        members = in.createStringArrayList();
+        tweetFormat = in.readString();
+        // avatar = in.readParcelable(Bitmap.class.getClassLoader());
+    }
+
+    public boolean equals(Object obj) {
+        if(this==obj) return true;
+        if(obj instanceof RTGroup) {
+            RTGroup anotherGroup = (RTGroup)obj;
+            if(following.size()!=anotherGroup.following.size() || members.size()!=anotherGroup.members.size())
+                return false;
+            for(int i=0;i<following.size();i++) {
+                if(!following.get(i).equals(anotherGroup.following.get(i)))
+                    return false;
+            }
+            for(int j=0;j<members.size();j++) {
+                if(!members.get(j).equals(anotherGroup.members.get(j)))
+                    return false;
+            }
+            return id.equals(anotherGroup.id) && name.equals(anotherGroup.name)
+                    && avatarURL!=null?avatarURL.equals(anotherGroup.avatarURL):anotherGroup.avatarURL==null
+                    && tweetFormat.equals(anotherGroup.tweetFormat);
+        }
+        return false;
     }
 
     public void initDefaultTweetFormat(){
@@ -144,24 +122,35 @@ public class RTGroup implements Parcelable {
     }
 
     public void addFollowing(TwitterUser twitterUser) {
-        if(following != null)
-            following.add(twitterUser);
+        if(following == null) { following = new ArrayList<>(); }
+        following.add(twitterUser);
     }
 
     public void deleteFollowing(TwitterUser twitterUser) {
+        deleteFollowing(twitterUser.id);
+    }
+
+    public void deleteFollowing(String twitterUserId) {
         if(following != null && !following.isEmpty())
             for(int i=following.size()-1;i>=0;i--)
-                if(following.get(i).screen_name.equals(twitterUser.screen_name))
+                if(following.get(i).id.equals(twitterUserId))
                     following.remove(i);
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
-        dest.writeString(name);
-        dest.writeString(avatarURL);
-        dest.writeTypedList(following);
-        dest.writeParcelable(avatar, flags);
+    public void addMember(User user) {
+        if(members==null) { members = new ArrayList<>(); }
+        members.add(user.id);
+    }
+
+    public void deleteMember(User user) {
+        deleteMember(user.id);
+    }
+
+    public void deleteMember(String userId) {
+        if(members != null && !members.isEmpty())
+            for(int i=members.size()-1;i>=0;i--)
+                if(members.get(i).equals(userId))
+                    members.remove(i);
     }
 
     @Override
@@ -180,4 +169,15 @@ public class RTGroup implements Parcelable {
             return new RTGroup[size];
         }
     };
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(name);
+        dest.writeString(avatarURL);
+        dest.writeTypedList(following);
+        dest.writeStringList(members);
+        dest.writeString(tweetFormat);
+        // dest.writeParcelable(avatar, flags);
+    }
 }

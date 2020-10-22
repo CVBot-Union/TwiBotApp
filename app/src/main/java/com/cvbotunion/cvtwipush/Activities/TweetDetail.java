@@ -112,7 +112,7 @@ public class TweetDetail extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    Response response = TweetList.connection.webService.get(WebService.SERVER_API+"tweet/"+statusId);
+                    Response response = Timeline.connection.webService.get(WebService.SERVER_API+"tweet/"+statusId);
                     if(response.code()==200) {
                         JSONObject resJson = new JSONObject(response.body().string());
                         response.close();

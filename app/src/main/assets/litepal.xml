@@ -6,10 +6,6 @@
         <mapping class="com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus" />
         <mapping class="com.cvbotunion.cvtwipush.DBModel.DBTwitterMedia" />
         <mapping class="com.cvbotunion.cvtwipush.DBModel.DBTwitterUser" />
-        <mapping class="com.cvbotunion.cvtwipush.DBModel.DBRTGroup" />
-        <mapping class="com.cvbotunion.cvtwipush.DBModel.DBUser" />
-        <mapping class="com.cvbotunion.cvtwipush.DBModel.DBJob" />
-        <mapping class="com.cvbotunion.cvtwipush.DBModel.DBFollow" />
     </list>
     <storage value="internal" />
 </litepal>

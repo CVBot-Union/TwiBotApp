@@ -5,7 +5,7 @@ import android.util.Log;
 
 import androidx.annotation.IntRange;
 
-import com.cvbotunion.cvtwipush.Activities.TweetList;
+import com.cvbotunion.cvtwipush.Activities.Timeline;
 import com.cvbotunion.cvtwipush.Adapters.TweetCardAdapter;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
@@ -55,8 +55,8 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
     protected Boolean doInBackground(String... params) {
         try {
             if(mode == REFRESH) {
-                url += ("group="+TweetList.getCurrentGroup().id+"&afterID="+dataSet.get(0).id+"&sortKey=ASC");
-                Response response = TweetList.connection.webService.get(url);
+                url += ("group="+ Timeline.getCurrentGroup().id+"&afterID="+dataSet.get(0).id+"&sortKey=ASC");
+                Response response = Timeline.connection.webService.get(url);
                 if(response.code()==200) {
                     JSONObject resJson = new JSONObject(response.body().string());
                     response.close();
@@ -79,18 +79,18 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
                 }
             } else if(mode == LOADMORE) {
                 String lastId = dataSet.get(dataSet.size()-1).id;
-                List<DBTwitterStatus> dbTweets = LitePal.where("tsid < ?", lastId).order("tsid desc").limit(TweetList.LIMIT).find(DBTwitterStatus.class);
+                List<DBTwitterStatus> dbTweets = LitePal.where("tsid < ?", lastId).order("tsid desc").limit(Timeline.LIMIT).find(DBTwitterStatus.class);
                 for(DBTwitterStatus dbTweet : dbTweets) {
                     TwitterStatus tweet = dbTweet.toTwitterStatus();
                     if (checkedName == null || tweet.user.name_in_group.equals(checkedName))
                         usedDataSet.add(tweet);
                     dataSet.add(tweet);
                 }
-                if(dbTweets.size()<TweetList.LIMIT) {
+                if(dbTweets.size()< Timeline.LIMIT) {
                     lastId = dataSet.get(dataSet.size()-1).id;
-                    int leftNeed = TweetList.LIMIT-dbTweets.size();
-                    url += ("page=1&limit="+leftNeed+"&group="+TweetList.getCurrentGroup().id+"&beforeID="+lastId+"&sortKey=DESC");
-                    Response response = TweetList.connection.webService.get(url);
+                    int leftNeed = Timeline.LIMIT-dbTweets.size();
+                    url += ("page=1&limit="+leftNeed+"&group="+ Timeline.getCurrentGroup().id+"&beforeID="+lastId+"&sortKey=DESC");
+                    Response response = Timeline.connection.webService.get(url);
                     if(response.code()==200) {
                         JSONObject resJson = new JSONObject(response.body().string());
                         response.close();

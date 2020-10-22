@@ -18,7 +18,7 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cvbotunion.cvtwipush.Activities.ImageViewer;
-import com.cvbotunion.cvtwipush.Activities.TweetList;
+import com.cvbotunion.cvtwipush.Activities.Timeline;
 import com.cvbotunion.cvtwipush.Activities.VideoViewer;
 import com.cvbotunion.cvtwipush.CustomViews.TweetDetailCard;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
@@ -236,8 +236,8 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                             try {
                                 String data = "translationContent="
                                         +URLEncoder.encode(holder.tweetCard.getTranslatedText(),"UTF-8")
-                                        +"&sessionGroupID="+TweetList.getCurrentGroup().id;
-                                Response response= TweetList.connection.webService.request(
+                                        +"&sessionGroupID="+ Timeline.getCurrentGroup().id;
+                                Response response= Timeline.connection.webService.request(
                                         "PUT", WebService.SERVER_API+"tweet/"+lastTweet.id+"/translation", data, WebService.FORM_URLENCODED);
                                 if(response.code()==200) {
                                     JSONObject resJson = new JSONObject(response.body().string());
