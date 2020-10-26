@@ -3,28 +3,38 @@ package com.cvbotunion.cvtwipush.Model;
 import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
 import com.cvbotunion.cvtwipush.Activities.Timeline;
+import com.cvbotunion.cvtwipush.TwiPush;
 
 import org.json.JSONException;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class User implements Parcelable, Serializable {
+public class User implements Parcelable, Serializable, Updatable {
+    public static final String serialPath = TwiPush.getContext().getFilesDir().getAbsolutePath();
+    public static final String serialFileName = "logged_in_user.ser";
+    private static final long serialVersionUID = 1603572591191L;
 
     public String id;
     public String name;
-    private transient String password;
+    private String password;  // 推荐RSA加密过的字符串，不建议存储白文
     private String auth;
     @Nullable public String avatarURL;
     @Nullable public Bitmap avatar;
-    public transient ArrayList<Job> jobs;
+    public transient ArrayList<Job> jobs;  // 不序列化
 
-    public User(String id, String name, @Nullable String avatarURL,@Nullable Bitmap avatar, ArrayList<Job> jobs){
+    public User(String id, String name, @Nullable String avatarURL,@Nullable Bitmap avatar,ArrayList<Job> jobs){
         this.id = id;
         this.name = name;
         if (avatarURL != null){
@@ -73,6 +83,15 @@ public class User implements Parcelable, Serializable {
         return password;
     }
 
+    /**
+     * Should only be used if the password changes.<br>
+     * 仅当账户密码改变时才应使用
+     * @param password new password String
+     */
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public String getAuth() {
         return auth;
     }
@@ -91,8 +110,10 @@ public class User implements Parcelable, Serializable {
      * DO NOT use this method in main Thread, as it will block the current Thread.
      */
     public String login() throws IOException, JSONException, InterruptedException {
-        while(Timeline.connection.webService==null) {
-            Thread.sleep(10);
+        if(Timeline.connection.webService==null) {
+            synchronized (Timeline.connection.flag) {
+                Timeline.connection.flag.wait();
+            }
         }
         this.auth = Timeline.connection.webService.login(this.name, this.password);
         return auth;
@@ -124,5 +145,46 @@ public class User implements Parcelable, Serializable {
         dest.writeString(avatarURL);
         // dest.writeParcelable(avatar, flags);
         dest.writeTypedList(jobs);
+    }
+
+    /**
+     * Serialization method for User object.
+     * @return {@code boolean} Whether successful or not.
+     */
+    public boolean writeToDisk() {
+        try {
+            File userFile = new File(serialPath, serialFileName);
+            if (!userFile.exists()) {
+                userFile.mkdirs();
+            }
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(userFile));
+            oos.writeObject(this);
+            oos.close();
+            return true;
+        } catch (Exception e) {
+            Log.w("User.writeToDisk", e.toString());
+            return false;
+        }
+    }
+
+    public static User readFromDisk() {
+        try {
+            File userFile = new File(serialPath, serialFileName);
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(userFile));
+            User savedUser = (User)ois.readObject();
+            ois.close();
+            // TODO jobs恢复
+            savedUser.jobs = ;
+            return savedUser;
+        } catch (Exception e) {
+            Log.w("User.readFromDisk", e.toString());
+            return null;
+        }
+    }
+
+    @Override
+    public boolean update() {
+        // TODO User更新操作
+        return false;
     }
 }

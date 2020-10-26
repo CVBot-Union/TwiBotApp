@@ -6,11 +6,9 @@ import android.os.Parcelable;
 
 import androidx.annotation.Nullable;
 
-import org.litepal.LitePal;
-
 import java.util.ArrayList;
 
-public class RTGroup implements Parcelable {
+public class RTGroup implements Parcelable, Updatable {
     /*默认形如
     #用户名#
     09-26 12:34
@@ -179,5 +177,11 @@ public class RTGroup implements Parcelable {
         dest.writeStringList(members);
         dest.writeString(tweetFormat);
         // dest.writeParcelable(avatar, flags);
+    }
+
+    @Override
+    public boolean update() {
+        // TODO RTGroup的更新操作
+        return false;
     }
 }

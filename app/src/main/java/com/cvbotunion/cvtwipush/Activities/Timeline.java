@@ -39,6 +39,7 @@ import com.cvbotunion.cvtwipush.Model.User;
 import com.cvbotunion.cvtwipush.R;
 import com.cvbotunion.cvtwipush.Service.MyServiceConnection;
 import com.cvbotunion.cvtwipush.Service.WebService;
+import com.cvbotunion.cvtwipush.Utils.RSACrypto;
 import com.cvbotunion.cvtwipush.Utils.RefreshTask;
 import com.cvbotunion.cvtwipush.Adapters.TweetCardAdapter;
 import com.danikula.videocache.StorageUtils;
@@ -85,7 +86,7 @@ public class Timeline extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tweet_list);
+        setContentView(R.layout.activity_timeline);
 
         //动态权限申请
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -94,6 +95,7 @@ public class Timeline extends AppCompatActivity {
 
         initBackground();
         initView();
+
         initData();
         initRecyclerView();
         initConnectivityReceiver();
@@ -163,42 +165,18 @@ public class Timeline extends AppCompatActivity {
 
     }
 
-    private void initConnectivityReceiver() {
-        connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-        if(connectivityManager != null) {
-            networkCallback = new ConnectivityManager.NetworkCallback() {
-                @Override
-                public void onLost(@NonNull Network network) {
-                    super.onLost(network);
-                    TweetCardAdapter.isConnected = false;
-                    TweetDetailCardAdapter.isConnected = false;
-                    Snackbar.make(tweetListRecyclerView, "网络连接丢失", 3000).show();
-                }
-
-                @Override
-                public void onAvailable(@NonNull Network network) {
-                    super.onAvailable(network);
-                    TweetCardAdapter.isConnected = true;
-                    TweetDetailCardAdapter.isConnected = true;
-                    refreshLayout.autoRefresh();
-                }
-            };
-            connectivityManager.registerDefaultNetworkCallback(networkCallback);
-        }
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         db.close();
         unbindService(connection);
         chipIdToName.clear();
+        if(connectivityManager != null) {
+            connectivityManager.unregisterNetworkCallback(networkCallback);
+        }
         if(Math.random()>0.9) {  //十分之一的概率
             StorageUtils.deleteFile(VideoViewer.cacheDir);  //删除整个目录
             StorageUtils.deleteFiles(TwitterMedia.internalFilesDir);  //删除子文件
-        }
-        if(connectivityManager != null) {
-            connectivityManager.unregisterNetworkCallback(networkCallback);
         }
     }
 
@@ -314,6 +292,8 @@ public class Timeline extends AppCompatActivity {
     }
 
     private void initBackground() {
+        RSACrypto.init();
+
         Intent serviceIntent = new Intent(this, WebService.class);
         bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
 
@@ -323,6 +303,30 @@ public class Timeline extends AppCompatActivity {
         litePalDB.addClassName(DBTwitterMedia.class.getName());
         LitePal.use(litePalDB);
         db = LitePal.getDatabase();
+    }
+
+    private void initConnectivityReceiver() {
+        connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        if(connectivityManager != null) {
+            networkCallback = new ConnectivityManager.NetworkCallback() {
+                @Override
+                public void onLost(@NonNull Network network) {
+                    super.onLost(network);
+                    TweetCardAdapter.isConnected = false;
+                    TweetDetailCardAdapter.isConnected = false;
+                    Snackbar.make(tweetListRecyclerView, "网络连接丢失", 3000).show();
+                }
+
+                @Override
+                public void onAvailable(@NonNull Network network) {
+                    super.onAvailable(network);
+                    TweetCardAdapter.isConnected = true;
+                    TweetDetailCardAdapter.isConnected = true;
+                    refreshLayout.autoRefresh();
+                }
+            };
+            connectivityManager.registerDefaultNetworkCallback(networkCallback);
+        }
     }
 
     public void netRefresh(int checkedId, RefreshLayout refreshlayout, int mode) {

@@ -5,6 +5,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.cvbotunion.cvtwipush.Activities.Timeline;
@@ -53,7 +54,7 @@ public class TwitterStatus implements Parcelable {
     @Nullable public String location;
     public ArrayList<String> hashtags;
     public ArrayList<TwitterUser> user_mentions;
-    public ArrayList<TwitterMedia> media;
+    @NonNull public ArrayList<TwitterMedia> media;
     public ArrayList<HashMap<String,String>> translations;  // keys: "userName","groupName","content"
 
     public TwitterStatus(){

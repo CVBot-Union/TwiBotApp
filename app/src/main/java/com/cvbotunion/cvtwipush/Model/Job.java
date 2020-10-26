@@ -3,7 +3,7 @@ package com.cvbotunion.cvtwipush.Model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Job implements Parcelable {
+public class Job implements Parcelable, Updatable {
     public String jobName;
     private int priority;  //权限级别
     public RTGroup group;
@@ -59,5 +59,11 @@ public class Job implements Parcelable {
         dest.writeString(jobName);
         dest.writeInt(priority);
         dest.writeParcelable(group, flags);
+    }
+
+    @Override
+    public boolean update() {
+        // TODO Job的更新操作
+        return false;
     }
 }

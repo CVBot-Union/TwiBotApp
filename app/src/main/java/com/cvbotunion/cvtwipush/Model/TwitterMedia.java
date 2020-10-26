@@ -29,8 +29,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import okhttp3.Response;
 
-public class TwitterMedia implements Parcelable{
-    public static final String savePath = Environment.getExternalStorageDirectory().getPath() + "/DCIM/CVTwiPush/";
+public class TwitterMedia implements Parcelable {
+    public static final String savePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DCIM/CVTwiPush/";
     public static final File internalFilesDir = TwiPush.getContext().getFilesDir();
     public static final String previewTag = "preview_";  //推特同一张图的不同尺寸可能具有相同名称，预览图文件名添加此tag以避免覆盖
     public static final String urlPreviewParam = "x-oss-process=image/auto-orient,1/resize,p_70/quality,q_70";
@@ -63,7 +63,7 @@ public class TwitterMedia implements Parcelable{
         this.cached_image_preview=cached_image_preview;
     }
     public TwitterMedia(String id, String url, int type, String previewImageURL, Bitmap cached_image_preview, @Nullable Bitmap cached_image){
-        this(id,url,type,previewImageURL);
+        this(id,url,type,previewImageURL,cached_image_preview);
         this.cached_image = cached_image;
     }
 
@@ -133,8 +133,10 @@ public class TwitterMedia implements Parcelable{
             @Override
             public void run() {
                 try {
-                    while(Timeline.connection.webService==null) {
-                       Thread.sleep(10);
+                    if(Timeline.connection.webService==null) {
+                        synchronized (Timeline.connection.flag) {
+                            Timeline.connection.flag.wait();
+                        }
                     }
                     Response response = Timeline.connection.webService.get(downloadURL);
                     int code = response.code();

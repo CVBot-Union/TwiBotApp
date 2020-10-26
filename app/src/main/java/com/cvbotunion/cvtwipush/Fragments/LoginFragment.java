@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 
 import com.cvbotunion.cvtwipush.Activities.Timeline;
 import com.cvbotunion.cvtwipush.R;
+import com.cvbotunion.cvtwipush.Utils.RSACrypto;
 import com.google.android.material.snackbar.Snackbar;
 
 public class LoginFragment extends Fragment {
@@ -22,9 +23,12 @@ public class LoginFragment extends Fragment {
     private EditText passwordText;
     private Button loginButton;
 
+    private String publicKey;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        initPublicKey();
         initView();
     }
 
@@ -35,9 +39,30 @@ public class LoginFragment extends Fragment {
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         // 备用
+    }
+
+    private void initPublicKey() {
+        new Thread(() -> {
+            try {
+                if(Timeline.connection.webService==null) {
+                    synchronized (Timeline.connection.flag) {
+                        Timeline.connection.flag.wait();
+                    }
+                }
+                publicKey = Timeline.connection.webService.queryPublicKey();
+            } catch (Exception e) {
+                e.printStackTrace();
+                // TODO 获取失败的处理
+            }
+        });
     }
 
     private void initView() {
@@ -66,28 +91,27 @@ public class LoginFragment extends Fragment {
         });
         loginButton.setClickable(false);
         loginButton.setBackgroundColor(getContext().getColor(R.color.colorGray));
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final String username = usernameText.getText().toString();
-                final String password = passwordText.getText().toString();
-                if(!username.contains(" ") && !password.contains(" ")) {
-                    new Thread() {
-                        @Override
-                        public void run() {
-                            try {
-                                while(Timeline.connection.webService==null) {
-                                    Thread.sleep(10);
-                                }
-                                Timeline.connection.webService.login(username, password);
-                            } catch (Exception e) {
-                                e.printStackTrace();
+        loginButton.setOnClickListener(view -> {
+            loginButton.setClickable(false);
+            final String username = usernameText.getText().toString();
+            final String password = RSACrypto.getInstance().encrypt(passwordText.getText().toString(), publicKey);
+            if(password==null) {
+                // TODO
+            } else if(username.length()!=0 && !username.contains(" ") && !password.contains(" ")) {
+                new Thread(() -> {
+                    try {
+                        if(Timeline.connection.webService==null) {
+                            synchronized (Timeline.connection.flag) {
+                                Timeline.connection.flag.wait();
                             }
                         }
-                    }.start();
-                } else {
-                    Snackbar.make(view, "用户名或密码包含空格", 1000);
-                }
+                        Timeline.connection.webService.login(username, password);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+            } else {
+                Snackbar.make(view, "用户名/密码为空或包含空格", 1000);
             }
         });
     }

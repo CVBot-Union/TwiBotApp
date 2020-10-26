@@ -52,6 +52,31 @@ public class WebService extends Service {
         return mClient;
     }
 
+    public String getAuth() {
+        return auth;
+    }
+
+    public void setAuth(String auth) {
+        this.auth = auth;
+    }
+
+    public String queryPublicKey() throws IOException {
+        Request request = new Request.Builder()
+                .url(SERVER_API+"auth/public-key")
+                .get()
+                .build();
+        Response response = mClient.newCall(request).execute();
+        if(response.code()==200) {
+            String key = response.body().string();
+            response.close();
+            return key;
+        } else {
+            Log.e("WebService.queryPublicKey", response.message());
+            response.close();
+            throw new IllegalStateException();
+        }
+    }
+
     public String login(String username, String password) throws IOException, JSONException {
         JSONObject data = new JSONObject();
         data.put("username", username);
@@ -59,6 +84,7 @@ public class WebService extends Service {
         RequestBody body = RequestBody.create(data.toString(), JSON);
         Request request = new Request.Builder()
                 .url(SERVER_API+"auth/login")
+                .header("x-tian-wang-gai-di-hu", "bao-ta-zhen-he-yao")
                 .method("POST", body)
                 .build();
         Response response = mClient.newCall(request).execute();
@@ -77,14 +103,6 @@ public class WebService extends Service {
             response.close();
             return null;
         }
-    }
-
-    public String getAuth() {
-        return auth;
-    }
-
-    public void setAuth(String auth) {
-        this.auth = auth;
     }
 
     public Response request(String method, String url, String data, MediaType contentType) throws IOException {

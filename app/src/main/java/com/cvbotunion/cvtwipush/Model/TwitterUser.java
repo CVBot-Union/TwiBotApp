@@ -18,7 +18,7 @@ import org.json.JSONObject;
 
 import okhttp3.Response;
 
-public class TwitterUser implements Parcelable{
+public class TwitterUser implements Parcelable, Updatable {
     public boolean avatarUnderProcessing = false;
 
     public String id;
@@ -123,8 +123,10 @@ public class TwitterUser implements Parcelable{
                 @Override
                 public void run() {
                     try {
-                        while(Timeline.connection.webService==null) {
-                            Thread.sleep(10);
+                        if(Timeline.connection.webService==null) {
+                            synchronized (Timeline.connection.flag) {
+                                Timeline.connection.flag.wait();
+                            }
                         }
                         Response response = Timeline.connection.webService.get(profile_image_url);
                         int code = response.code();
@@ -186,4 +188,10 @@ public class TwitterUser implements Parcelable{
             return new TwitterUser[size];
         }
     };
+
+    @Override
+    public boolean update() {
+        // TODO TwitterUser更新操作
+        return false;
+    }
 }
