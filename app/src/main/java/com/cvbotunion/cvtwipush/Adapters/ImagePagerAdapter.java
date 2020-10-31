@@ -1,7 +1,6 @@
 package com.cvbotunion.cvtwipush.Adapters;
 
 import android.content.Context;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.R;
+import com.cvbotunion.cvtwipush.Utils.ImageLoader;
 import com.github.chrisbanes.photoview.PhotoView;
 
 import java.util.ArrayList;
@@ -19,13 +19,11 @@ import java.util.ArrayList;
 public class ImagePagerAdapter extends RecyclerView.Adapter<ImagePagerAdapter.ViewHolder> {
     private ArrayList<TwitterMedia> twitterMediaArrayList;
     private Context context;
-    private Handler handler;
     private ArrayList<ViewHolder> holders;
 
     public ImagePagerAdapter(Context context, ArrayList<TwitterMedia> mediaArrayList) {
         this.context = context;
         this.twitterMediaArrayList = mediaArrayList;
-        handler = new Handler();
         this.holders = new ArrayList<>();
     }
 
@@ -49,10 +47,8 @@ public class ImagePagerAdapter extends RecyclerView.Adapter<ImagePagerAdapter.Vi
         holder.photoView.setScaleType(ImageView.ScaleType.FIT_CENTER);
         if(twitterMediaArrayList.get(position).cached_image != null){
             holder.photoView.setImageBitmap(twitterMediaArrayList.get(position).cached_image);
-        } else if(twitterMediaArrayList.get(position).cached_image_preview != null){
-            holder.photoView.setImageBitmap(twitterMediaArrayList.get(position).cached_image_preview);
         } else if(!twitterMediaArrayList.get(position).underProcessing){
-            twitterMediaArrayList.get(position).loadImage(false,this, handler, position);
+            new ImageLoader().setAdapter(this, position).load(twitterMediaArrayList.get(position), false);
         }
     }
 

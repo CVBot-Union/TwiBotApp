@@ -6,9 +6,10 @@ import android.os.Parcelable;
 
 import androidx.annotation.Nullable;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class RTGroup implements Parcelable, Updatable {
+public class RTGroup implements Parcelable, Serializable, Updatable {
     /*默认形如
     #用户名#
     09-26 12:34
@@ -30,7 +31,7 @@ public class RTGroup implements Parcelable, Updatable {
     public ArrayList<TwitterUser> following;
     public ArrayList<String> members; // String -> User.id
     public String tweetFormat;
-    @Nullable public Bitmap avatar;
+    @Nullable public transient Bitmap avatar;
 
     public RTGroup(){
         this.following = new ArrayList<>();

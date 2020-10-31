@@ -21,6 +21,7 @@ import com.cvbotunion.cvtwipush.CustomViews.GroupPopupWindow;
 import com.cvbotunion.cvtwipush.Model.Job;
 import com.cvbotunion.cvtwipush.Model.RTGroup;
 import com.cvbotunion.cvtwipush.R;
+import com.cvbotunion.cvtwipush.Utils.ImageLoader;
 
 import java.util.ArrayList;
 
@@ -67,28 +68,27 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
         }
 
         LinearLayout layout = (LinearLayout) holder.itemView.findViewById(R.id.group_item_layout);
-        layout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                popupWindow.dismiss();
-                Intent intent = new Intent(context, Timeline.class);
-                Bundle bundle = new Bundle();
-                bundle.putString("groupId",currentGroup.id);
-                intent.putExtras(bundle);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                try {
-                    ((AppCompatActivity) context).startActivityForResult(intent, 1);
-                    ((AppCompatActivity) context).overridePendingTransition(0, 0);
-                    ((AppCompatActivity) context).finish();
-                } catch (Exception e){
-                    Toast.makeText(context,e.toString(),Toast.LENGTH_SHORT).show();
-                }
+        layout.setOnClickListener(v -> {
+            popupWindow.dismiss();
+            Intent intent = new Intent(context, Timeline.class);
+            Bundle bundle = new Bundle();
+            bundle.putString("groupId",currentGroup.id);
+            intent.putExtras(bundle);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            try {
+                ((AppCompatActivity) context).startActivityForResult(intent, 1);
+                ((AppCompatActivity) context).overridePendingTransition(0, 0);
+                ((AppCompatActivity) context).finish();
+            } catch (Exception e){
+                Toast.makeText(context,e.toString(),Toast.LENGTH_SHORT).show();
             }
         });
 
         if(currentGroup.avatar != null){
             holder.groupImageView.setImageBitmap(currentGroup.avatar);
-        }  // TODO 下载群头像并刷新UI
+        } else {
+            new ImageLoader().setAdapter(this, position).load(currentGroup);
+        }
 
         holder.groupName.setText(currentGroup.name);
         holder.myJobInGroup.setText(jobs.get(position).jobName);

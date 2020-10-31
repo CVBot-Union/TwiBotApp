@@ -46,21 +46,13 @@ public class TranslationCardAdapter extends RecyclerView.Adapter<TranslationCard
     @Override
     public void onBindViewHolder(@NonNull TranslationCardAdapter.TranslationCardViewHolder holder, final int position) {
         final CardView card = holder.itemView.findViewById(R.id.history_translation_card);
-        card.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "长按复制翻译", 1000).show();
-            }
-        });
-        card.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData mClipData = ClipData.newPlainText("translation", translations.get(position).get("content"));
-                clipboardManager.setPrimaryClip(mClipData);
-                Snackbar.make(view, "已复制翻译", 1000).show();
-                return true;  // 不再调用其他回调函数
-            }
+        card.setOnClickListener(view -> Snackbar.make(view, "长按复制翻译", 1000).show());
+        card.setOnLongClickListener(view -> {
+            ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData mClipData = ClipData.newPlainText("translation", translations.get(position).get("content"));
+            clipboardManager.setPrimaryClip(mClipData);
+            Snackbar.make(view, "已复制翻译", 1000).show();
+            return true;  // 不再调用其他回调函数
         });
 
         holder.translationCard.setUserName(translations.get(position).get("userName"));

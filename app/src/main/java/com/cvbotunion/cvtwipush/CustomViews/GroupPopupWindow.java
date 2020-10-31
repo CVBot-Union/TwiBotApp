@@ -16,12 +16,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.cvbotunion.cvtwipush.Adapters.GroupRecyclerAdapter;
 import com.cvbotunion.cvtwipush.Model.User;
 import com.cvbotunion.cvtwipush.R;
+import com.cvbotunion.cvtwipush.Utils.ImageLoader;
 
 public class GroupPopupWindow extends PopupWindow {
     private View view;
     private TextView usernameView;
     private ImageView avatarView;
-    private ImageButton exit;
+    private ImageButton exitButton;
     private RecyclerView groupListView;
     public GroupRecyclerAdapter grAdapter;
     public User user;
@@ -31,20 +32,17 @@ public class GroupPopupWindow extends PopupWindow {
         usernameView = view.findViewById(R.id.user_name_text_view);
         avatarView = view.findViewById(R.id.user_avatar);
         groupListView = view.findViewById(R.id.group_list_recycler_view);
-        exit = view.findViewById(R.id.exit_btn);
-        exit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
-            }
-        });
+        exitButton = view.findViewById(R.id.exit_btn);
+        exitButton.setOnClickListener(v -> dismiss());
         setOutsideTouchable(true);
 
         if(user != null){
             usernameView.setText(user.name);
             if(user.avatar != null){
                 avatarView.setImageBitmap(user.avatar);
-            }  // TODO 下载用户头像并刷新UI
+            } else {
+                new ImageLoader().setImageView(avatarView).load(user);
+            }
         }
         groupListView.setLayoutManager(new LinearLayoutManager(context));
         grAdapter = new GroupRecyclerAdapter(context,this,user.jobs,currentGroup);

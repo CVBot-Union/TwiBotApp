@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +23,7 @@ import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.R;
 import com.cvbotunion.cvtwipush.CustomViews.TweetCard;
+import com.cvbotunion.cvtwipush.Utils.ImageLoader;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -68,39 +68,33 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
     public void onBindViewHolder(@NonNull final TweetCardAdapter.TweetCardViewHolder holder, final int position) {
         //卡片
         final CardView card = holder.itemView.findViewById(R.id.tweet_card);
-        card.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //参数传递
-                AppCompatActivity activity = (AppCompatActivity) context;
-                Intent intent = new Intent(v.getContext(), TweetDetail.class);
-                Bundle bundle = new Bundle();
-                bundle.putString("twitterStatusId",tweets.get(position).getId());
-                bundle.putString("tweetFormat",tweetFormat);
-                intent.putExtras(bundle);
-                ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(activity,card,"activityOption");
-                v.getContext().startActivity(intent,optionsCompat.toBundle());
-            }
+        card.setOnClickListener(v -> {
+            //参数传递
+            AppCompatActivity activity = (AppCompatActivity) context;
+            Intent intent = new Intent(v.getContext(), TweetDetail.class);
+            Bundle bundle = new Bundle();
+            bundle.putString("twitterStatusId",tweets.get(position).getId());
+            bundle.putString("tweetFormat",tweetFormat);
+            intent.putExtras(bundle);
+            ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(activity,card,"activityOption");
+            v.getContext().startActivity(intent,optionsCompat.toBundle());
         });
-        holder.tweetCard.setBtn1OnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                TwitterStatus tweet = tweets.get(position);
-                ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData mClipData = ClipData.newPlainText("tweet", tweet.getFullText(tweetFormat));
-                clipboardManager.setPrimaryClip(mClipData);
-                String result = "成功";
-                //保存媒体
-                if (tweet.media != null && !tweet.media.isEmpty()) {
-                    for (TwitterMedia singleMedia : tweet.media) {
-                        if (!singleMedia.saveToFile(v.getContext())) {
-                            result = "失败";
-                            break;
-                        }
+        holder.tweetCard.setBtn1OnClickListener(v -> {
+            TwitterStatus tweet = tweets.get(position);
+            ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData mClipData = ClipData.newPlainText("tweet", tweet.getFullText(tweetFormat));
+            clipboardManager.setPrimaryClip(mClipData);
+            String result = "成功";
+            //保存媒体
+            if (tweet.media != null && !tweet.media.isEmpty()) {
+                for (TwitterMedia singleMedia : tweet.media) {
+                    if (!singleMedia.saveToFile(v.getContext())) {
+                        result = "失败";
+                        break;
                     }
                 }
-                Snackbar.make(v, "保存" + result, Snackbar.LENGTH_SHORT).show();
             }
+            Snackbar.make(v, "保存" + result, Snackbar.LENGTH_SHORT).show();
         });
 
         //姓名
@@ -125,10 +119,10 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
         holder.tweetCard.setTime(tweets.get(position).getCreated_at());
 
         //头像
-        if(tweets.get(position).user.cached_profile_image_preview != null){
-            holder.tweetCard.setAvatarImg(tweets.get(position).user.cached_profile_image_preview);
+        if(tweets.get(position).user.cached_profile_image != null){
+            holder.tweetCard.setAvatarImg(tweets.get(position).user.cached_profile_image);
         } else if(isConnected && !tweets.get(position).user.avatarUnderProcessing) {
-            tweets.get(position).user.downloadAvatar(this, handler, position);
+            new ImageLoader().setAdapter(this, position).load(tweets.get(position).user);
         }
 
         //媒体
@@ -144,39 +138,33 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
                         case TwitterMedia.IMAGE:
                             if (media.cached_image_preview != null) {
                                 final int page = i;
-                                holder.tweetCard.setImageOnClickListener(tweets.get(position).media.size(), i, new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        Intent intent = new Intent(v.getContext(), ImageViewer.class);
-                                        Bundle bundle = new Bundle();
-                                        bundle.putInt("page", page);
-                                        bundle.putString("twitterStatusId", tweets.get(position).id);
-                                        intent.putExtras(bundle);
-                                        v.getContext().startActivity(intent);
-                                    }
+                                holder.tweetCard.setImageOnClickListener(tweets.get(position).media.size(), i, v -> {
+                                    Intent intent = new Intent(v.getContext(), ImageViewer.class);
+                                    Bundle bundle = new Bundle();
+                                    bundle.putInt("page", page);
+                                    bundle.putString("twitterStatusId", tweets.get(position).id);
+                                    intent.putExtras(bundle);
+                                    v.getContext().startActivity(intent);
                                 });
                                 holder.tweetCard.setTweetImage(tweets.get(position).media.size(), i, media.cached_image_preview);
                             } else if(isConnected && !media.underProcessing) {
-                                media.loadImage(true,this, handler,position);
+                                new ImageLoader().setAdapter(this, position).load(media,true);
                             }
                             break;
                         //视频
                         case TwitterMedia.VIDEO:
                             holder.tweetCard.initVideo();
                             if (media.cached_image_preview != null) {
-                                holder.tweetCard.setVideoOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        Intent intent = new Intent(v.getContext(), VideoViewer.class);
-                                        Bundle bundle = new Bundle();
-                                        bundle.putString("url", media.url);
-                                        intent.putExtras(bundle);
-                                        v.getContext().startActivity(intent);
-                                    }
+                                holder.tweetCard.setVideoOnClickListener(v -> {
+                                    Intent intent = new Intent(v.getContext(), VideoViewer.class);
+                                    Bundle bundle = new Bundle();
+                                    bundle.putString("url", media.url);
+                                    intent.putExtras(bundle);
+                                    v.getContext().startActivity(intent);
                                 });
                                 holder.tweetCard.setVideoBackground(media.cached_image_preview);
                             } else if(isConnected && !media.underProcessing) {
-                                media.loadImage(true,this, handler,position);
+                                new ImageLoader().setAdapter(this, position).load(media, true);
                             }
                             break;
                     }

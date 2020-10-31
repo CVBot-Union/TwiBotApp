@@ -9,5 +9,5 @@ public interface Updatable {
      * 更新
      * @return 是否成功更新
      */
-    public abstract boolean update();
+    boolean update();
 }

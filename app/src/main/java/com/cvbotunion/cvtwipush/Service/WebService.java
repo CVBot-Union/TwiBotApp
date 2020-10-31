@@ -8,7 +8,6 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -21,6 +20,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class WebService extends Service {
+    // 备用 https://cn.api.cvbot.powerlayout.com/
     public static final String SERVER_API = "https://api.cvbot.powerlayout.com/";
     public static final String SERVER_IMAGE = "https://cdn.cvbot.powerlayout.com/images/";
     public static final String SERVER_VIDEO = "https://cdn.cvbot.powerlayout.com/videos/";
@@ -60,7 +60,7 @@ public class WebService extends Service {
         this.auth = auth;
     }
 
-    public String queryPublicKey() throws IOException {
+    public String queryPublicKey() throws Exception {
         Request request = new Request.Builder()
                 .url(SERVER_API+"auth/public-key")
                 .get()
@@ -73,11 +73,11 @@ public class WebService extends Service {
         } else {
             Log.e("WebService.queryPublicKey", response.message());
             response.close();
-            throw new IllegalStateException();
+            throw new Exception("连接失败");
         }
     }
 
-    public String login(String username, String password) throws IOException, JSONException {
+    public String login(String username, String password) throws Exception {
         JSONObject data = new JSONObject();
         data.put("username", username);
         data.put("password", password);
@@ -93,7 +93,7 @@ public class WebService extends Service {
             response.close();
             if(!resJson.getBoolean("success")) {
                 Log.e("WebService.login", resJson.toString());
-                return null;
+                throw new Exception("login failed");
             }
             String token = resJson.getJSONObject("response").getString("token");
             auth = "Bearer "+token;
@@ -101,7 +101,7 @@ public class WebService extends Service {
         } else {
             Log.e("WebService.login", response.message());
             response.close();
-            return null;
+            throw new Exception("login connection failed");
         }
     }
 

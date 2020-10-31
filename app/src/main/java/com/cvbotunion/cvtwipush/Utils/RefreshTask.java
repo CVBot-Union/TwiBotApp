@@ -8,6 +8,7 @@ import androidx.annotation.IntRange;
 import com.cvbotunion.cvtwipush.Activities.Timeline;
 import com.cvbotunion.cvtwipush.Adapters.TweetCardAdapter;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
+import com.cvbotunion.cvtwipush.Model.RTGroup;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.Service.WebService;
 import com.cvbotunion.cvtwipush.TwiPush;
@@ -30,13 +31,13 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
 
     private String url = WebService.SERVER_API+"tweet/range?";
 
-    private WeakReference<RefreshLayout> refreshLayoutRef;
-    private TweetCardAdapter tAdapter;
+    private final WeakReference<RefreshLayout> refreshLayoutRef;
+    private final TweetCardAdapter tAdapter;
     private ArrayList<TwitterStatus> usedDataSet;
     private ArrayList<TwitterStatus> dataSet;
     //用于在特定chip下刷新
     private String checkedName;
-    private int mode;
+    private final int mode;
 
     public RefreshTask(RefreshLayout refreshLayout, TweetCardAdapter tAdapter, @IntRange(from=0,to=1) int mode) {
         super();
@@ -79,7 +80,14 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
                 }
             } else if(mode == LOADMORE) {
                 String lastId = dataSet.get(dataSet.size()-1).id;
-                List<DBTwitterStatus> dbTweets = LitePal.where("tsid < ?", lastId).order("tsid desc").limit(Timeline.LIMIT).find(DBTwitterStatus.class);
+                // 过滤得当前转推组的追踪
+                StringBuilder condition = new StringBuilder();
+                RTGroup cGroup = Timeline.getCurrentGroup();
+                for(int i=0;i<cGroup.following.size();i++) {
+                    condition.append(cGroup.following.get(i).id);
+                    if(i!=cGroup.following.size()-1) { condition.append(","); }
+                }
+                List<DBTwitterStatus> dbTweets = LitePal.where("tuid in (?) AND tsid < ?", condition.toString(), lastId).order("tsid desc").find(DBTwitterStatus.class);
                 for(DBTwitterStatus dbTweet : dbTweets) {
                     TwitterStatus tweet = dbTweet.toTwitterStatus();
                     if (checkedName == null || tweet.user.name_in_group.equals(checkedName))

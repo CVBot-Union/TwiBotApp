@@ -2,7 +2,6 @@ package com.cvbotunion.cvtwipush.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
@@ -19,22 +18,23 @@ import android.net.Network;
 import android.net.Uri;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cvbotunion.cvtwipush.Adapters.TweetDetailCardAdapter;
 import com.cvbotunion.cvtwipush.CustomViews.GroupPopupWindow;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterMedia;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterUser;
+import com.cvbotunion.cvtwipush.Fragments.LoginFragment;
 import com.cvbotunion.cvtwipush.Model.Job;
 import com.cvbotunion.cvtwipush.Model.RTGroup;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
-import com.cvbotunion.cvtwipush.Model.TwitterUser;
 import com.cvbotunion.cvtwipush.Model.User;
 import com.cvbotunion.cvtwipush.R;
 import com.cvbotunion.cvtwipush.Service.MyServiceConnection;
@@ -48,14 +48,13 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.snackbar.Snackbar;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
-import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener;
-import com.scwang.smart.refresh.layout.listener.OnRefreshListener;
 
 import org.litepal.LitePal;
 import org.litepal.LitePalDB;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Timeline extends AppCompatActivity {
@@ -65,7 +64,6 @@ public class Timeline extends AppCompatActivity {
 
     private RecyclerView tweetListRecyclerView;
     private TweetCardAdapter tAdapter;
-    private RecyclerView.LayoutManager layoutManager;
     private RefreshLayout refreshLayout;
     private ChipGroup chipGroup;
 
@@ -95,28 +93,33 @@ public class Timeline extends AppCompatActivity {
 
         initBackground();
         initView();
-
+        currentUser = User.readFromDisk();
+        if(currentUser==null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.main_fragment_container, new LoginFragment())
+                    .addToBackStack(null)
+                    .commit();
+        }
+        Log.i("Timeline.onCreate","FRAGMENT FINISHED!");
+        if(currentUser==null) { onBackPressed(); }
         initData();
         initRecyclerView();
         initConnectivityReceiver();
 
         title.setText(currentGroup.name);
-        mdToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                int menuID = item.getItemId();
-                if (menuID == R.id.group_menu_item){
-                    View view = getLayoutInflater().inflate(R.layout.group_switch_menu, (ViewGroup)getWindow().getDecorView(),false);
-                    GroupPopupWindow popupWindow = new GroupPopupWindow(
-                            view, ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT,
-                            true,
-                            currentUser, currentGroup.id);
-                    popupWindow.showAsDropDown(findViewById(R.id.group_menu_item),0, 0, Gravity.END);
-                    popupWindow.dimBehind();
-                }
-                return true;
+        mdToolbar.setOnMenuItemClickListener(item -> {
+            int menuID = item.getItemId();
+            if (menuID == R.id.group_menu_item){
+                View view = getLayoutInflater().inflate(R.layout.group_switch_menu, (ViewGroup)getWindow().getDecorView(),false);
+                GroupPopupWindow popupWindow = new GroupPopupWindow(
+                        view, ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        true,
+                        currentUser, currentGroup.id);
+                popupWindow.showAsDropDown(findViewById(R.id.group_menu_item),0, 0, Gravity.END);
+                popupWindow.dimBehind();
             }
+            return true;
         });
 
         for(int i=0;i<currentGroup.following.size();i++){
@@ -128,39 +131,23 @@ public class Timeline extends AppCompatActivity {
             chipGroup.addView(chip);
         }
 
-        chipGroup.setOnCheckedChangeListener(new ChipGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(ChipGroup group, int checkedId) {
-                usedDataSet.clear();
-                String checkedName = chipIdToName.getOrDefault(checkedId, null);
-                for (TwitterStatus s : dataSet) {
-                    if (checkedName == null || s.user.name.equals(checkedName))
-                        usedDataSet.add(s);
-                }
-                tAdapter.notifyDataSetChanged();
+        chipGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            usedDataSet.clear();
+            String checkedName = chipIdToName.getOrDefault(checkedId, null);
+            for (TwitterStatus s : dataSet) {
+                if (checkedName == null || s.user.name.equals(checkedName))
+                    usedDataSet.add(s);
             }
+            tAdapter.notifyDataSetChanged();
         });
 
         refreshLayout.setHeaderTriggerRate(0.7f);  //触发刷新距离 与 HeaderHeight 的比率
-        refreshLayout.setOnRefreshListener(new OnRefreshListener() {
-            @Override
-            public void onRefresh(@NonNull RefreshLayout refreshlayout) {
-                netRefresh(chipGroup.getCheckedChipId(),refreshlayout, RefreshTask.REFRESH);
-            }
-        });
-        refreshLayout.setOnLoadMoreListener(new OnLoadMoreListener() {
-            @Override
-            public void onLoadMore(@NonNull RefreshLayout refreshlayout) {
-                netRefresh(chipGroup.getCheckedChipId(),refreshlayout, RefreshTask.LOADMORE);
-            }
-        });
+        refreshLayout.setOnRefreshListener(refreshlayout -> netRefresh(chipGroup.getCheckedChipId(),refreshlayout, RefreshTask.REFRESH));
+        refreshLayout.setOnLoadMoreListener(refreshlayout -> netRefresh(chipGroup.getCheckedChipId(),refreshlayout, RefreshTask.LOADMORE));
 
-        mdToolbar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                tweetListRecyclerView.smoothScrollToPosition(0);
-                refreshLayout.autoRefresh();
-            }
+        mdToolbar.setOnClickListener(view -> {
+            tweetListRecyclerView.smoothScrollToPosition(0);
+            refreshLayout.autoRefresh();
         });
 
     }
@@ -184,89 +171,52 @@ public class Timeline extends AppCompatActivity {
         dataSet = new ArrayList<>();
         usedDataSet = new ArrayList<>();
         chipIdToName = new HashMap<>();
-        // TODO initData实际应用
-        //readData()
-        //if not found, netRefresh()
-
-        //List<DBTwitterStatus> dbStatusList = LitePal.limit(LIMIT).order("tsid desc").find(DBTwitterStatus.class);
-        //for(DBTwitterStatus s : dbStatusList) {
-        //"0"使得最新的放上面
-        //dataSet.add(0, s.toTwitterStatus());
-        //}
-        //usedDataSet = (ArrayList<TwitterStatus>) dataSet.clone();
 
         Intent intent = getIntent();
-        String groupId;
-        String userScreenName;
-        if(intent != null){
-            try {
-                Bundle bundle = intent.getExtras();
-                if (bundle != null) {
-                    groupId = bundle.getString("groupId");
-                    //group = LitePal.where("gid = ?",groupId).findFirst(DBRTGroup.class).toRTGroup();
-                }
-            } catch (Exception e) {
-                Uri uri = intent.getData();
-                if (uri == null) {
-                    return;
-                }
-                groupId = uri.getQueryParameter("groupId");
-                userScreenName = uri.getQueryParameter("user");
-            }
+        if(intent == null) {
+            currentGroup = currentUser.jobs.get(0).group;
         } else {
-            //currentUser = LitePal.findFirst(DBUser.class).toUser();
-            //String firstGid = (String) currentUser.jobs.keySet().toArray()[0];
-            //currentGroup = LitePal.where("gid = ?",firstGid).findFirst(DBRTGroup.class).toRTGroup();
+            String groupId = null;
+            Bundle bundle;
+            Uri uri;
+            if ((bundle = intent.getExtras()) != null) {
+                groupId = bundle.getString("groupId");
+            } else if((uri = intent.getData()) != null) {
+                groupId = uri.getQueryParameter("groupId");
+                // userScreenName = uri.getQueryParameter("user");
+                // TODO use statusId instead
+                String statusId = uri.getQueryParameter("statusId");
+            }
+            if(groupId!=null) {
+                for (Job j : currentUser.jobs) {
+                    if (j.group.id.equals(groupId)) {
+                        currentGroup = j.group;
+                        break;
+                    }
+                }
+            }
         }
 
-        //start 模拟数据
-        TwitterUser user = new TwitterUser("1", "sb", "sbsb", "SB", "http://101.200.184.98:8080/media/MO4FkO4N_400x400.jpg");
-        TwitterMedia media = new TwitterMedia("1", "http://101.200.184.98:8080/media/MO4FkO4N_400x400.jpg", TwitterMedia.IMAGE, "http://101.200.184.98:8080/media/MO4FkO4N_400x400.jpg");
-        ArrayList<TwitterMedia> newList = new ArrayList<>();
-        newList.add(media);
-        newList.add(media);
-        newList.add(media);
-        TwitterStatus status = new TwitterStatus("11:14", "1", "测试，https://github.com", user, newList);
-
-        TwitterMedia videoMedia = new TwitterMedia("10","http://101.200.184.98:8080/abe.mp4",TwitterMedia.VIDEO,"http://101.200.184.98:8080/227组标.jpg");
-        ArrayList<TwitterMedia> videoList = new ArrayList<>();
-        videoList.add(videoMedia);
-        TwitterStatus status1 = new TwitterStatus("2:06","10","视频推文",user,videoList);
-
-        //由于不同推文可能会使用同一个media，所以没有给media设置UNIQUE字段，
-        //  使用DBTwitterMedia.save()方法前请通过statusId和tid字段进行查重
-        if (LitePal.where("tsid = ?", status.id).find(DBTwitterStatus.class).isEmpty()) {
-            DBTwitterStatus dbTweet = new DBTwitterStatus(status);
-            dbTweet.save();
-        }
-        if (LitePal.where("tsid = ?", status1.id).find(DBTwitterStatus.class).isEmpty()) {
-            DBTwitterStatus dbTweet = new DBTwitterStatus(status1);
-            dbTweet.save();
+        if(currentGroup==null) {
+            Toast.makeText(getApplicationContext(), "获取转推组信息失败", Toast.LENGTH_LONG).show();
+            onBackPressed();
         }
 
-        dataSet.add(status1);
-        dataSet.add(status);
-        dataSet.add(status);
-        dataSet.add(status);
-        dataSet.add(status);
-        usedDataSet = (ArrayList<TwitterStatus>) dataSet.clone();
-
-        ArrayList<TwitterUser> following = new ArrayList<>();
-        following.add(new TwitterUser("3", "相羽あいな", "aibaaiai", "相羽爱奈", "http://101.200.184.98:8080/aiai.jpg"));
-        following.add(new TwitterUser("4", "工藤晴香", "kudoharuka910", "工藤晴香", ""));
-        following.add(new TwitterUser("5", "中島由貴", "Yuki_Nakashim", "中岛由贵", ""));
-        following.add(new TwitterUser("6", "櫻川めぐ", "sakuragawa_megu", "樱川惠", ""));
-        following.add(new TwitterUser("7", "志崎樺音", "Kanon_Shizaki", "志崎桦音", ""));
-        currentGroup = new RTGroup("1", "蔷薇之心", "", following, null);
-
-        Job job = new Job("翻译/搬运", 1, currentGroup);
-        currentUser = new User("1", "用户1", null, null,null);
-        currentUser.addJob(job);
-        //end 模拟数据
+        StringBuilder condition = new StringBuilder();
+        for(int i=0;i<currentGroup.following.size();i++) {
+            condition.append(currentGroup.following.get(i).id);
+            if(i!=currentGroup.following.size()-1) { condition.append(","); }
+        }
+        List<DBTwitterStatus> dbStatusList = LitePal.where("tuid in (?)", condition.toString()).order("tsid desc").find(DBTwitterStatus.class);
+        for(DBTwitterStatus dbStatus:dbStatusList) {
+            dataSet.add(dbStatus.toTwitterStatus());
+            if(dataSet.size()>=LIMIT) { break; }
+        }
+        usedDataSet.addAll(dataSet);
     }
 
     private void initRecyclerView(){
-        layoutManager = new LinearLayoutManager(this){
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this) {
             @Override
             public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
                 try {
@@ -345,4 +295,7 @@ public class Timeline extends AppCompatActivity {
         return currentUser;
     }
 
+    public void setCurrentUser(User user) {
+        currentUser = user;
+    }
 }

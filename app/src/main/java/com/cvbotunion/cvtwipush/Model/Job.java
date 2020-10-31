@@ -3,7 +3,12 @@ package com.cvbotunion.cvtwipush.Model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Job implements Parcelable, Updatable {
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.Serializable;
+
+public class Job implements Parcelable, Serializable, Updatable {
     public String jobName;
     private int priority;  //权限级别
     public RTGroup group;
@@ -12,6 +17,13 @@ public class Job implements Parcelable, Updatable {
         this.jobName = jobName;
         this.priority = priority;
         this.group = group;
+    }
+
+    public Job(JSONObject jobJson) throws JSONException {
+        this.jobName = jobJson.getString("jobName");
+        this.priority = jobJson.getInt("priority");
+        this.group = new RTGroup();
+        this.group.id = jobJson.getString("groupId");
     }
 
     protected Job(Parcel in) {

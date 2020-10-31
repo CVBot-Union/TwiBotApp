@@ -1,8 +1,6 @@
 package com.cvbotunion.cvtwipush.Utils;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.IBinder;
 import android.text.TextUtils;
 
 import com.xiaomi.mipush.sdk.ErrorCode;

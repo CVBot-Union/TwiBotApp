@@ -4,18 +4,13 @@ import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.cvbotunion.cvtwipush.Activities.Timeline;
 import com.cvbotunion.cvtwipush.Service.WebService;
 import com.cvbotunion.cvtwipush.TwiPush;
 
@@ -23,11 +18,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import okhttp3.Response;
 
 public class TwitterMedia implements Parcelable {
     public static final String savePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DCIM/CVTwiPush/";
@@ -102,124 +95,6 @@ public class TwitterMedia implements Parcelable {
                     && previewImageURL.equals(anotherMedia.previewImageURL) && type==anotherMedia.type;
         }
         return false;
-    }
-
-    public void loadImage(boolean isPreview, RecyclerView.Adapter<?> tAdapter, Handler handler, @Nullable Integer position) {
-        underProcessing = true;
-        if(isPreview && previewImageURL != null) {
-            File file = new File(internalFilesDir, previewTag+Uri.parse(previewImageURL).getLastPathSegment());
-            if(file.exists())
-                readImageFromFile(true, tAdapter, handler, position);
-            else
-                downloadImage(true, tAdapter, handler, position);
-        }
-        else if(!isPreview && url != null) {
-            File savedFile = new File(savePath, Uri.parse(url).getLastPathSegment());
-            File cachedFile = new File(internalFilesDir, Uri.parse(url).getLastPathSegment());
-            if(savedFile.exists() || cachedFile.exists())
-                readImageFromFile(false, tAdapter, handler, position);
-            else
-                downloadImage(false, tAdapter, handler, position);
-        }
-    }
-
-    public void downloadImage(final boolean isPreview, final RecyclerView.Adapter<?> tAdapter, final Handler handler, final Integer position) {
-        final String downloadURL;
-        if(isPreview)
-            downloadURL = previewImageURL;
-        else
-            downloadURL = url;
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    if(Timeline.connection.webService==null) {
-                        synchronized (Timeline.connection.flag) {
-                            Timeline.connection.flag.wait();
-                        }
-                    }
-                    Response response = Timeline.connection.webService.get(downloadURL);
-                    int code = response.code();
-                    if (code == 200) {
-                        byte[] data = response.body().bytes();
-                        response.close();
-                        if(isPreview)
-                            cached_image_preview = BitmapFactory.decodeByteArray(data,0,data.length);
-                        else
-                            cached_image = BitmapFactory.decodeByteArray(data,0,data.length);
-                        if(tAdapter != null && handler != null) {
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (position != null)
-                                        tAdapter.notifyItemChanged(position);
-                                    else
-                                        tAdapter.notifyDataSetChanged();
-                                }
-                            });
-                        }
-                        if(isPreview) {
-                            File file = new File(internalFilesDir, previewTag+Uri.parse(downloadURL).getLastPathSegment());
-                            if(!file.exists())
-                                file.createNewFile();
-                            FileOutputStream fos = new FileOutputStream(file);
-                            cached_image_preview.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                            fos.close();
-                        } else {
-                            File file = new File(internalFilesDir, Uri.parse(downloadURL).getLastPathSegment());
-                            if(!file.exists())
-                                file.createNewFile();
-                            FileOutputStream fos = new FileOutputStream(file);
-                            cached_image.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                            fos.close();
-                        }
-                    } else {
-                        Log.e("download", response.message());
-                        response.close();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    underProcessing = false;
-                }
-            }
-        }.start();
-    }
-
-    private void readImageFromFile(final boolean isPreview, final RecyclerView.Adapter<?> tAdapter, final Handler handler, final Integer position) {
-        final File file;
-        if(isPreview) {
-            file = new File(internalFilesDir, previewTag+Uri.parse(previewImageURL).getLastPathSegment());
-        } else {
-            File tmpFile = new File(savePath, Uri.parse(url).getLastPathSegment());
-            file = tmpFile.exists() ? tmpFile : new File(internalFilesDir, Uri.parse(url).getLastPathSegment());
-        }
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    FileInputStream fis = new FileInputStream(file);
-                    if(isPreview)
-                        cached_image_preview = BitmapFactory.decodeStream(fis);
-                    else
-                        cached_image = BitmapFactory.decodeStream(fis);
-                    fis.close();
-                    if(handler!=null && tAdapter!=null) handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (position != null)
-                                tAdapter.notifyItemChanged(position);
-                            else
-                                tAdapter.notifyDataSetChanged();
-                        }
-                    });
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    underProcessing = false;
-                }
-            }
-        }.start();
     }
 
     public boolean saveToFile(Context context) {

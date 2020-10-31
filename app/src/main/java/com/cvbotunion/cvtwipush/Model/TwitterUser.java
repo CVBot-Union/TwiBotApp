@@ -1,24 +1,19 @@
 package com.cvbotunion.cvtwipush.Model;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.cvbotunion.cvtwipush.Activities.Timeline;
 import com.cvbotunion.cvtwipush.Service.WebService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import okhttp3.Response;
+import java.io.Serializable;
 
-public class TwitterUser implements Parcelable, Updatable {
+public class TwitterUser implements Parcelable, Serializable, Updatable {
     public boolean avatarUnderProcessing = false;
 
     public String id;
@@ -29,9 +24,10 @@ public class TwitterUser implements Parcelable, Updatable {
     public int followers_count;
     public int friends_count;
     public int statuses_count;
-    @Nullable public String profile_image_url;
-    @Nullable public Bitmap cached_profile_image_preview;
-    @Nullable public Bitmap cached_profile_image;
+    public String profile_image_url;
+    // TODO 考虑合并以下两者
+    @Nullable public transient Bitmap cached_profile_image_preview;
+    @Nullable public transient Bitmap cached_profile_image;
 
     public TwitterUser(String id,String name,String screen_name,String name_in_group){
         this.id = id;
@@ -114,47 +110,6 @@ public class TwitterUser implements Parcelable, Updatable {
 
     public void setNameInGroup(String name_in_group) {
         this.name_in_group = name_in_group;
-    }
-
-    public void downloadAvatar(final RecyclerView.Adapter<?> tAdapter, final Handler handler, @Nullable final Integer position) {
-        avatarUnderProcessing = true;
-        if(profile_image_url != null) {
-            new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        if(Timeline.connection.webService==null) {
-                            synchronized (Timeline.connection.flag) {
-                                Timeline.connection.flag.wait();
-                            }
-                        }
-                        Response response = Timeline.connection.webService.get(profile_image_url);
-                        int code = response.code();
-                        if (code == 200) {
-                            byte[] data = response.body().bytes();
-                            response.close();
-                            cached_profile_image_preview = BitmapFactory.decodeByteArray(data, 0, data.length);
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if(position != null)
-                                        tAdapter.notifyItemChanged(position);
-                                    else
-                                        tAdapter.notifyDataSetChanged();
-                                }
-                            });
-                        } else {
-                            Log.e("downloadAvatar", response.message());
-                            response.close();
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    } finally {
-                        avatarUnderProcessing = false;
-                    }
-                }
-            }.start();
-        }
     }
 
     @Override

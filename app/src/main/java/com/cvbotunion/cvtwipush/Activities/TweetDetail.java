@@ -1,6 +1,5 @@
 package com.cvbotunion.cvtwipush.Activities;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -11,7 +10,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.View;
 
 import com.cvbotunion.cvtwipush.Adapters.TweetDetailCardAdapter;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
@@ -20,7 +18,6 @@ import com.cvbotunion.cvtwipush.R;
 import com.cvbotunion.cvtwipush.Service.WebService;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
-import com.scwang.smart.refresh.layout.listener.OnRefreshListener;
 
 import org.json.JSONObject;
 import org.litepal.LitePal;
@@ -78,22 +75,12 @@ public class TweetDetail extends AppCompatActivity {
     private void initView(){
         tweetDetailRecyclerView = findViewById(R.id.tweet_detail_recycler_view);
         mdToolbar = findViewById(R.id.detail_top_tool_bar);
-        mdToolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onBackPressed();
-            }
-        });
+        mdToolbar.setNavigationOnClickListener(view -> onBackPressed());
         refreshLayout = findViewById(R.id.tweet_detail_refresh_layout);
         refreshLayout.setEnableLoadMore(false);  //关闭上拉加载功能
         refreshLayout.setEnableScrollContentWhenRefreshed(false);  //在刷新完成时不滚动列表，避免与initRecyclerView的滚动操作冲突
         refreshLayout.setHeaderTriggerRate(0.7f);  //触发刷新距离 与 HeaderHeight 的比率
-        refreshLayout.setOnRefreshListener(new OnRefreshListener() {
-            @Override
-            public void onRefresh(@NonNull RefreshLayout refreshlayout) {
-                dataSet.get(dataSet.size()-1).queryTranslations(new Handler(),tAdapter, refreshlayout);
-            }
-        });
+        refreshLayout.setOnRefreshListener(refreshlayout -> dataSet.get(dataSet.size()-1).queryTranslations(new Handler(),tAdapter, refreshlayout));
     }
 
     private void initRecyclerView(){
