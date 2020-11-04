@@ -2,8 +2,10 @@ package com.cvbotunion.cvtwipush.CustomViews;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,24 +23,22 @@ import java.util.HashMap;
 public class TweetDetailCard extends TweetCard {
     public Button copyToTextField;
     public Button historyButton;
-    public Button copyTextButton;
+    public ImageButton copyTextButton;
+    public ImageButton saveMediaButton;
     public Button uploadButton;
     public TextInputLayout translationTextInputLayout;
     public TextInputEditText translationTextInputEditText;
     public RecyclerView historyTranslationsView;
-    private TranslationCardAdapter tAdapter;
+    private TranslationCardAdapter historyAdapter;
 
-    public Boolean isTranslationMode = true;
+    public boolean isTranslationMode = true;
 
     public TweetDetailCard(@NonNull final Context context, View view) {
         super(context, view);
         copyToTextField = view.findViewById(R.id.copy_to_input);
-        copyToTextField.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(getStatusText() != null) {
-                    translationTextInputEditText.setText(getStatusText());
-                }
+        copyToTextField.setOnClickListener(v -> {
+            if(getStatusText() != null) {
+                translationTextInputEditText.setText(getStatusText());
             }
         });
         historyButton = view.findViewById(R.id.history_btn);
@@ -54,16 +54,47 @@ public class TweetDetailCard extends TweetCard {
         super(context, attrs);
     }
 
+    @Override
+    protected void initView(Context context, View view) {
+        View thisView;
+        if(view != null){
+            thisView = view;
+        } else {
+            thisView = LayoutInflater.from(context).inflate(R.layout.tweet_detail_card,this,true);
+        }
+        avatarImg = thisView.findViewById(R.id.avatar_img);
+        nameTextView = thisView.findViewById(R.id.name_text);
+        tweetTypeTextView = thisView.findViewById(R.id.tweet_type_text);
+        tweetTimeTextView = thisView.findViewById(R.id.tweet_time);
+        imageSetLayout = thisView.findViewById(R.id.img_set_layout);
+        leftImageLayout = thisView.findViewById(R.id.left_linear_layout);
+        rightImageLayout = thisView.findViewById(R.id.right_linear_layout);
+        leftTopImageView = thisView.findViewById(R.id.left_top_image);
+        leftBottomImageView = thisView.findViewById(R.id.left_bottom_image);
+        rightTopImageView = thisView.findViewById(R.id.right_top_image);
+        rightBottomImageView = thisView.findViewById(R.id.right_bottom_image);
+        videoSet = thisView.findViewById(R.id.video_set);
+        defaultVideoBackground = thisView.findViewById(R.id.video_background);
+        videoNotLoading = thisView.findViewById(R.id.video_not_loading_image);
+        tweetStatusTextView = thisView.findViewById(R.id.status_text);
+        saveMediaButton = thisView.findViewById(R.id.quick_save_btn);
+    }
+
+    @Override
+    public void setQSButtonOnClickListener(OnClickListener listener) {
+        this.saveMediaButton.setOnClickListener(listener);
+    }
+
     public void initHistoryTranslationView(Context context, ArrayList<HashMap<String,String>> translations) {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context);
         historyTranslationsView.setLayoutManager(layoutManager);
-        tAdapter = new TranslationCardAdapter(translations, context);
-        historyTranslationsView.setAdapter(tAdapter);
+        historyAdapter = new TranslationCardAdapter(translations, context);
+        historyTranslationsView.setAdapter(historyAdapter);
         ((SimpleItemAnimator) historyTranslationsView.getItemAnimator()).setSupportsChangeAnimations(false);
     }
 
     public TranslationCardAdapter getHistoryAdapter() {
-        return tAdapter;
+        return historyAdapter;
     }
 
     public String getTranslatedText(){
@@ -82,23 +113,13 @@ public class TweetDetailCard extends TweetCard {
         translationTextInputLayout.setVisibility(VISIBLE);
     }
 
-    public void hideDoneButton(){
-        uploadButton.setVisibility(GONE);
-    }
-
-    public void showDoneButton(){
-        uploadButton.setVisibility(VISIBLE);
-    }
-
     public void setTranslationMode(Boolean bool){
         if(bool) {
             isTranslationMode = true;
             showTranslationTextField();
-            showDoneButton();
         } else {
             isTranslationMode = false;
             hideTranslationTextField();
-            hideDoneButton();
         }
     }
 }

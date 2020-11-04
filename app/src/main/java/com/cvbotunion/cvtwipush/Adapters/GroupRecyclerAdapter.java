@@ -61,13 +61,18 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
     @Override
     public void onBindViewHolder(@NonNull GroupRecyclerAdapter.ViewHolder holder, final int position) {
         final RTGroup currentGroup = jobs.get(position).group;
+
+        LinearLayout layout = holder.itemView.findViewById(R.id.group_item_layout);
         if(groupNow.equals(currentGroup.id)){
             holder.groupName.setTextColor(context.getColor(R.color.colorPrimary));
             int alphaBackground = ColorUtils.setAlphaComponent(context.getColor(R.color.colorPrimary), 25);
-            holder.itemView.findViewById(R.id.group_item_layout).setBackgroundColor(alphaBackground);
+            layout.setBackgroundColor(alphaBackground);
+            layout.setEnabled(false);  // 当前组禁止点击
+        } else {
+            holder.groupName.setTextColor(context.getColor(R.color.colorGray));
+            layout.setBackgroundColor(context.getColor(R.color.colorWhite));
+            layout.setEnabled(true);
         }
-
-        LinearLayout layout = (LinearLayout) holder.itemView.findViewById(R.id.group_item_layout);
         layout.setOnClickListener(v -> {
             popupWindow.dismiss();
             Intent intent = new Intent(context, Timeline.class);

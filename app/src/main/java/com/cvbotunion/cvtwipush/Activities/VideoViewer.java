@@ -1,13 +1,10 @@
 package com.cvbotunion.cvtwipush.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.MenuItem;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -27,9 +24,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
+// TODO 考虑修改为Fragment
 public class VideoViewer extends AppCompatActivity {
-    public static final String cacheDir = TwiPush.getContext().getExternalCacheDir().getPath();
+    public static final File videoCacheDir = new File(TwiPush.getContext().getCacheDir(), "video-cache");  // 视频缓存目录
     VideoView<IjkPlayer> playerView;
     TwitterMedia video;
     MaterialToolbar toolbar;
@@ -55,6 +52,7 @@ public class VideoViewer extends AppCompatActivity {
         }
         else {
             cacheServer = new HttpProxyCacheServer.Builder(this)
+                    .cacheDirectory(videoCacheDir)
                     .maxCacheSize(256*1024*1024)  // 256MB
                     .build();
             verifiedUrl = cacheServer.getProxyUrl(url);
@@ -69,27 +67,15 @@ public class VideoViewer extends AppCompatActivity {
         playerView.start();
 
         toolbar = findViewById(R.id.video_viewer_toolbar);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
+        toolbar.setOnMenuItemClickListener(item -> {
+            int itemId = item.getItemId();
+            if(itemId==R.id.save_menu_item) {
+                saveVideo();
+            } else if(itemId==R.id.share_menu_item) {
+                shareVideo();
             }
-        });
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch(item.getItemId()) {
-                    case R.id.save_menu_item:
-                        saveVideo();
-                        break;
-                    case R.id.share_menu_item:
-                        shareVideo();
-                        break;
-                    default:
-                        break;
-                }
-                return true;
-            }
+            return true;
         });
     }
 

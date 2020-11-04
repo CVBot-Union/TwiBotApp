@@ -129,7 +129,7 @@ public class TwitterStatus implements Parcelable {
             this.user.name_in_group = tweet.getJSONObject("userNickname").getString("nickname");
         }
         this.location = tweet.isNull("place") ? null : tweet.getJSONObject("place").getString("full_name");
-        if(tweet.getBoolean("truncated")) {
+        if(tweet.getBoolean("truncated") && tweet.has("extended_tweet")) {
             this.text = tweet.getJSONObject("extended_tweet").getString("full_text");
             if(tweet.getJSONObject("extended_tweet").has("extended_entities")) {
                 TransformMedia(tweet.getJSONObject("extended_tweet").getJSONObject("extended_entities").getJSONArray("media"));
@@ -141,8 +141,10 @@ public class TwitterStatus implements Parcelable {
             this.text = "";
             TwitterStatus retweetedStatus = new TwitterStatus(tweet.getJSONObject("retweeted_status"));
             this.quoted_status_id = retweetedStatus.id;
-            DBTwitterStatus dbRetweetedStatus = new DBTwitterStatus(retweetedStatus);
-            dbRetweetedStatus.save();
+            if (LitePal.where("tsid = ?", this.quoted_status_id).find(DBTwitterStatus.class).isEmpty()) {
+                DBTwitterStatus dbRetweetedStatus = new DBTwitterStatus(retweetedStatus);
+                dbRetweetedStatus.save();
+            }
         } else if(tweet.has("quoted_status")) {
             TwitterStatus quotedStatus = new TwitterStatus(tweet.getJSONObject("quoted_status"));
             this.quoted_status_id = quotedStatus.id;
@@ -243,24 +245,18 @@ public class TwitterStatus implements Parcelable {
                             final JSONArray translations = resJson.getJSONArray("response");
                             for(int i=0;i<translations.length();i++) {
                                 addTranslation(translations.getJSONObject(i));
-                                if(handler!=null) {
-                                    if (parentCard!=null) {
-                                        handler.post(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                parentCard.historyButton.setText(String.valueOf(translations.length()));
-                                                parentCard.getHistoryAdapter().notifyDataSetChanged();
-                                            }
-                                        });
-                                    } else if(parentAdapter!=null&&refreshLayout!=null) {
-                                        handler.post(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                refreshLayout.finishRefresh(true);
-                                                parentAdapter.notifyDataSetChanged();
-                                            }
-                                        });
-                                    }
+                            }
+                            if(handler!=null) {
+                                if (parentCard!=null) {
+                                    handler.post(() -> {
+                                        parentCard.historyButton.setText(String.valueOf(translations.length()));
+                                        parentCard.getHistoryAdapter().notifyDataSetChanged();
+                                    });
+                                } else if(parentAdapter!=null&&refreshLayout!=null) {
+                                    handler.post(() -> {
+                                        refreshLayout.finishRefresh(true);
+                                        parentAdapter.notifyDataSetChanged();
+                                    });
                                 }
                             }
                         } else {
@@ -274,12 +270,7 @@ public class TwitterStatus implements Parcelable {
                     e.printStackTrace();
                 } finally {
                     if(handler!=null&&refreshLayout!=null&&refreshLayout.isRefreshing()) {
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                refreshLayout.finishRefresh(false);
-                            }
-                        });
+                        handler.post(() -> refreshLayout.finishRefresh(false));
                     }
                 }
             }
@@ -349,7 +340,7 @@ public class TwitterStatus implements Parcelable {
     }
 
     public String getText(){
-        return text;
+        return text==null?"":text;
     }
 
     public TwitterUser getUser(){

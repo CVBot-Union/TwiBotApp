@@ -23,7 +23,8 @@ public class TranslationCardAdapter extends RecyclerView.Adapter<TranslationCard
     public Context context;
 
     public TranslationCardAdapter(ArrayList<HashMap<String,String>> translations, Context context) {
-        this.translations = translations;
+        // TODO 由于不明原因传入的translations总是为null，需要修改
+        this.translations = translations==null?new ArrayList<>():translations;
         this.context = context;
     }
 

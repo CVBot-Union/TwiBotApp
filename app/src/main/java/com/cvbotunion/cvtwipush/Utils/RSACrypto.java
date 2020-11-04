@@ -45,7 +45,7 @@ public final class RSACrypto {
      */
     public String encrypt(String str, String publicKeyString) throws Exception {
         setPublicKey(publicKeyString);
-        instance.cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        instance.cipher.init(Cipher.ENCRYPT_MODE, instance.publicKey);
         return new String(Base64.encode(instance.cipher.doFinal(str.getBytes(StandardCharsets.UTF_8)), Base64.NO_WRAP), StandardCharsets.UTF_8);
     }
 }

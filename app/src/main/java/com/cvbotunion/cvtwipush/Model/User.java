@@ -54,6 +54,7 @@ public class User implements Parcelable, Serializable, Updatable {
         this.id = userJson.getString("id");
         this.name = userJson.getString("name");
         this.avatarURL = userJson.getString("avatarURL");
+        this.jobs = new ArrayList<>();
         JSONArray jobArray = userJson.getJSONArray("jobs");
         for(int i=0;i<jobArray.length();i++) {
             this.jobs.add(new Job(jobArray.getJSONObject(i)));
@@ -147,11 +148,14 @@ public class User implements Parcelable, Serializable, Updatable {
         try {
             File userFile = new File(serialPath, serialFileName);
             if (!userFile.exists()) {
-                userFile.mkdirs();
+                userFile.createNewFile();
             }
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(userFile));
+            FileOutputStream fos = new FileOutputStream(userFile);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(this);
             oos.close();
+            fos.close();
+            Log.i("User.writeToDisk", "user saved successfully");
             return true;
         } catch (Exception e) {
             Log.w("User.writeToDisk", e.toString());
@@ -162,9 +166,11 @@ public class User implements Parcelable, Serializable, Updatable {
     public static User readFromDisk() {
         try {
             File userFile = new File(serialPath, serialFileName);
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(userFile));
+            FileInputStream fis = new FileInputStream(userFile);
+            ObjectInputStream ois = new ObjectInputStream(fis);
             User savedUser = (User)ois.readObject();
             ois.close();
+            fis.close();
             return savedUser;
         } catch (Exception e) {
             Log.w("User.readFromDisk", e.toString());

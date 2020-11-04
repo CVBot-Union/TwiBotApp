@@ -24,7 +24,7 @@ import java.nio.file.Files;
 
 public class TwitterMedia implements Parcelable {
     public static final String savePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DCIM/CVTwiPush/";
-    public static final File internalFilesDir = TwiPush.getContext().getFilesDir();
+    public static final File mediaFilesDir = new File(TwiPush.getContext().getFilesDir(), "media");  // 图片缓存目录
     public static final String previewTag = "preview_";  //推特同一张图的不同尺寸可能具有相同名称，预览图文件名添加此tag以避免覆盖
     public static final String urlPreviewParam = "x-oss-process=image/auto-orient,1/resize,p_70/quality,q_70";
     public static final int AVATAR=0;
@@ -40,9 +40,7 @@ public class TwitterMedia implements Parcelable {
     @Nullable public Bitmap cached_image_preview;
     @Nullable public Bitmap cached_image;
 
-    public TwitterMedia(){
-
-    }
+    public TwitterMedia(){ }
 
     public TwitterMedia(String id,String url,int type,String previewImageURL){
         this.id=id;
@@ -83,8 +81,8 @@ public class TwitterMedia implements Parcelable {
         url = in.readString();
         previewImageURL = in.readString();
         type = in.readInt();
-        cached_image_preview = in.readParcelable(Bitmap.class.getClassLoader());
-        cached_image = in.readParcelable(Bitmap.class.getClassLoader());
+        //cached_image_preview = in.readParcelable(Bitmap.class.getClassLoader());
+        //cached_image = in.readParcelable(Bitmap.class.getClassLoader());
     }
 
     public boolean equals(Object obj) {
@@ -115,7 +113,7 @@ public class TwitterMedia implements Parcelable {
     private boolean saveBitmap2file(Context context) {
         String fileName = Uri.parse(url).getLastPathSegment();
         File file = new File(savePath, fileName);
-        File cachedFile = new File(internalFilesDir, fileName);
+        File cachedFile = new File(mediaFilesDir, fileName);
         if(file.exists())
             return true;
         if(cachedFile.exists()) {
@@ -186,8 +184,8 @@ public class TwitterMedia implements Parcelable {
         dest.writeString(url);
         dest.writeString(previewImageURL);
         dest.writeInt(type);
-        dest.writeParcelable(cached_image_preview, flags);
-        dest.writeParcelable(cached_image, flags);
+        //dest.writeParcelable(cached_image_preview, flags);
+        //dest.writeParcelable(cached_image, flags);
     }
 
     @Override

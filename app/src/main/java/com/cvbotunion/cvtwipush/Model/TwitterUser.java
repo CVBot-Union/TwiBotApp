@@ -25,8 +25,6 @@ public class TwitterUser implements Parcelable, Serializable, Updatable {
     public int friends_count;
     public int statuses_count;
     public String profile_image_url;
-    // TODO 考虑合并以下两者
-    @Nullable public transient Bitmap cached_profile_image_preview;
     @Nullable public transient Bitmap cached_profile_image;
 
     public TwitterUser(String id,String name,String screen_name,String name_in_group){
@@ -41,13 +39,8 @@ public class TwitterUser implements Parcelable, Serializable, Updatable {
         this.profile_image_url = profile_image_url;
     }
 
-    public TwitterUser(String id,String name,String screen_name,String name_in_group,String profile_image_url,Bitmap cached_profile_image_preview){
+    public TwitterUser(String id,String name,String screen_name,String name_in_group,String profile_image_url,Bitmap cached_profile_image){
         this(id,name,screen_name,name_in_group,profile_image_url);
-        this.cached_profile_image_preview = cached_profile_image_preview;
-    }
-
-    public TwitterUser(String id,String name,String screen_name,String name_in_group,String profile_image_url,Bitmap cached_profile_image_preview, Bitmap cached_profile_image){
-        this(id,name,screen_name,name_in_group,profile_image_url,cached_profile_image_preview);
         this.cached_profile_image = cached_profile_image;
     }
 
@@ -60,7 +53,7 @@ public class TwitterUser implements Parcelable, Serializable, Updatable {
         this.followers_count = twitterUser.getInt("followers_count");
         this.friends_count = twitterUser.getInt("friends_count");
         this.statuses_count = twitterUser.getInt("statuses_count");
-        this.profile_image_url = WebService.SERVER_API+"lookup/avatar/id/"+id;
+        this.profile_image_url = WebService.SERVER_API+"lookup/avatar/id/"+id+".png";
     }
 
     protected TwitterUser(Parcel in) {
@@ -73,8 +66,7 @@ public class TwitterUser implements Parcelable, Serializable, Updatable {
         friends_count = in.readInt();
         statuses_count = in.readInt();
         profile_image_url = in.readString();
-        cached_profile_image_preview = in.readParcelable(Bitmap.class.getClassLoader());
-        cached_profile_image = in.readParcelable(Bitmap.class.getClassLoader());
+        //cached_profile_image = in.readParcelable(Bitmap.class.getClassLoader());
     }
 
     /**
@@ -123,8 +115,7 @@ public class TwitterUser implements Parcelable, Serializable, Updatable {
         dest.writeInt(friends_count);
         dest.writeInt(statuses_count);
         dest.writeString(profile_image_url);
-        dest.writeParcelable(cached_profile_image_preview, flags);
-        dest.writeParcelable(cached_profile_image, flags);
+        //dest.writeParcelable(cached_profile_image, flags);
     }
 
     @Override

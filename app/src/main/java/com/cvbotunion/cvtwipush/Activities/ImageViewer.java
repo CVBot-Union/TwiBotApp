@@ -1,15 +1,12 @@
 package com.cvbotunion.cvtwipush.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.MenuItem;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,6 +14,7 @@ import android.widget.Toast;
 import com.cvbotunion.cvtwipush.Adapters.ImagePagerAdapter;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
+import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.R;
 import com.google.android.material.appbar.MaterialToolbar;
 
@@ -25,7 +23,7 @@ import org.litepal.LitePal;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
+// TODO 考虑修改为Fragment
 public class ImageViewer extends AppCompatActivity {
     private MaterialToolbar toolbar;
     private ViewPager2 viewPager2;
@@ -42,31 +40,19 @@ public class ImageViewer extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         getWindow().getDecorView().setSystemUiVisibility(0);
         setContentView(R.layout.activity_image_viewer);
-        toolbar = (MaterialToolbar) findViewById(R.id.image_viewer_toolbar);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
+        toolbar = findViewById(R.id.image_viewer_toolbar);
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
+        toolbar.setOnMenuItemClickListener(item -> {
+            int itemId = item.getItemId();
+            if(itemId==R.id.save_menu_item) {
+                saveImage();
+            } else if(itemId==R.id.share_menu_item) {
+                shareImage();
             }
+            return true;
         });
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch(item.getItemId()) {
-                    case R.id.save_menu_item:
-                        saveImage();
-                        break;
-                    case R.id.share_menu_item:
-                        shareImage();
-                        break;
-                    default:
-                        break;
-                }
-                return true;
-            }
-        });
-        viewPager2 = (ViewPager2) findViewById(R.id.image_view_pager);
-        pageNum = (TextView) findViewById(R.id.page_num);
+        viewPager2 = findViewById(R.id.image_view_pager);
+        pageNum = findViewById(R.id.page_num);
         initData();
         initViewPager();
     }
@@ -83,7 +69,7 @@ public class ImageViewer extends AppCompatActivity {
         TwitterMedia currentMedia = mediaList.get(viewPager2.getCurrentItem());
         if(currentMedia.cached_image != null) {
             Uri imageUri = FileProvider.getUriForFile(getApplicationContext(), getApplicationContext().getPackageName()+".fileProvider",
-                    new File(TwitterMedia.internalFilesDir, Uri.parse(currentMedia.url).getLastPathSegment()));
+                    new File(TwitterMedia.mediaFilesDir, Uri.parse(currentMedia.url).getLastPathSegment()));
             Intent shareIntent = new Intent();
             shareIntent.setAction(Intent.ACTION_SEND);
             shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
@@ -97,11 +83,8 @@ public class ImageViewer extends AppCompatActivity {
         Bundle bundle = intent.getExtras();
         if(bundle != null) {
             page = bundle.getInt("page");
-            String statusId = bundle.getString("twitterStatusId");
-            List<DBTwitterMedia> dbMediaList = LitePal.where("tsid = ?", statusId).find(DBTwitterMedia.class);
-            for(DBTwitterMedia m:dbMediaList) {
-                mediaList.add(m.toTwitterMedia());
-            }
+            TwitterStatus status = bundle.getParcelable("twitterStatus");
+            mediaList.addAll(status.media);
         }
     }
 

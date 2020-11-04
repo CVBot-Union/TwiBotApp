@@ -56,11 +56,11 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
     }
 
     public static class TweetDetailCardViewHolder extends RecyclerView.ViewHolder{
-        public TweetDetailCard tweetCard;
+        public TweetDetailCard tweetDetailCard;
 
         public TweetDetailCardViewHolder(@NonNull View itemView) {
             super(itemView);
-            this.tweetCard = new TweetDetailCard(itemView.getContext(),itemView);
+            this.tweetDetailCard = new TweetDetailCard(itemView.getContext(),itemView);
         }
     }
 
@@ -75,11 +75,11 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
     public void onBindViewHolder(@NonNull final TweetDetailCardAdapter.TweetDetailCardViewHolder holder, final int position) {
         final CardView card = holder.itemView.findViewById(R.id.tweet_detail_card);
 
-        holder.tweetCard.setName(tweets.get(position).getUser().name_in_group);
+        holder.tweetDetailCard.setName(tweets.get(position).getUser().name_in_group);
 
-        holder.tweetCard.setTweetText(tweets.get(position).getText());
+        holder.tweetDetailCard.setTweetText(tweets.get(position).getText());
 
-        holder.tweetCard.getTweetStatusTextView().setOnLongClickListener(view -> {
+        holder.tweetDetailCard.getTweetStatusTextView().setOnLongClickListener(view -> {
             if(tweets.get(position).getText() != null) {
                 ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData mClipData = ClipData.newPlainText("tweet", tweets.get(position).getText());
@@ -91,19 +91,19 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
 
         switch(tweets.get(position).getTweetType()){
             case TwitterStatus.REPLY:
-                holder.tweetCard.setType("回复");
+                holder.tweetDetailCard.setType("回复");
                 break;
             case TwitterStatus.QUOTE:
-                holder.tweetCard.setType("转推");
+                holder.tweetDetailCard.setType("转推");
                 break;
             default:
                 break;
         }
 
-        holder.tweetCard.setTime(tweets.get(position).getCreated_at());
+        holder.tweetDetailCard.setTime(tweets.get(position).getCreated_at());
 
         if(tweets.get(position).user.cached_profile_image != null){
-            holder.tweetCard.setAvatarImg(tweets.get(position).user.cached_profile_image);
+            holder.tweetDetailCard.setAvatarImg(tweets.get(position).user.cached_profile_image);
         } else if(isConnected && !tweets.get(position).user.avatarUnderProcessing) {
             new ImageLoader().setAdapter(this, position).load(tweets.get(position).user);
         }
@@ -111,7 +111,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
         int i=1;
         if(tweets.get(position).media != null && !tweets.get(position).media.isEmpty()) {
                 if (tweets.get(position).media.size() <= 4 && tweets.get(position).media.get(0).type == TwitterMedia.IMAGE) {
-                    holder.tweetCard.tweetImageInit(tweets.get(position).media.size());
+                    holder.tweetDetailCard.tweetImageInit(tweets.get(position).media.size());
                 }
 
                 for (final TwitterMedia media : tweets.get(position).media) {
@@ -119,30 +119,30 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                         case TwitterMedia.IMAGE:
                             if (media.cached_image_preview != null) {
                                 final int page = i;
-                                holder.tweetCard.setImageOnClickListener(tweets.get(position).media.size(), i, v -> {
+                                holder.tweetDetailCard.setImageOnClickListener(tweets.get(position).media.size(), i, v -> {
                                     Intent intent = new Intent(v.getContext(), ImageViewer.class);
                                     Bundle bundle = new Bundle();
                                     bundle.putInt("page", page);
-                                    bundle.putString("twitterStatusId", tweets.get(position).id);
+                                    bundle.putParcelable("twitterStatus", tweets.get(position));
                                     intent.putExtras(bundle);
                                     v.getContext().startActivity(intent);
                                 });
-                                holder.tweetCard.setTweetImage(tweets.get(position).media.size(), i, media.cached_image_preview);
+                                holder.tweetDetailCard.setTweetImage(tweets.get(position).media.size(), i, media.cached_image_preview);
                             } else if(isConnected && !media.underProcessing) {
-                                new ImageLoader().setAdapter(this, position).load(media,false);
+                                new ImageLoader().setAdapter(this, position).load(media,true);
                             }
                             break;
                         case TwitterMedia.VIDEO:
-                            holder.tweetCard.initVideo();
+                            holder.tweetDetailCard.initVideo();
                             if (media.cached_image_preview != null) {
-                                holder.tweetCard.setVideoOnClickListener(v -> {
+                                holder.tweetDetailCard.setVideoOnClickListener(v -> {
                                     Intent intent = new Intent(v.getContext(), VideoViewer.class);
                                     Bundle bundle = new Bundle();
                                     bundle.putString("url", media.url);
                                     intent.putExtras(bundle);
                                     v.getContext().startActivity(intent);
                                 });
-                                holder.tweetCard.setVideoBackground(media.cached_image_preview);
+                                holder.tweetDetailCard.setVideoBackground(media.cached_image_preview);
                             } else if(isConnected && !media.underProcessing) {
                                 // isPreview为true时对应加载封面
                                 new ImageLoader().setAdapter(this, position).load(media,true);
@@ -168,26 +168,24 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
 
         if(position == tweets.size()-1){
             final TwitterStatus lastTweet = tweets.get(position);
-            holder.tweetCard.setTranslationMode(true);
-            holder.tweetCard.translationTextInputLayout.setVisibility(View.VISIBLE);
-            holder.tweetCard.copyToTextField.setVisibility(View.VISIBLE);
-            holder.tweetCard.uploadButton.setVisibility(View.VISIBLE);
+            holder.tweetDetailCard.setTranslationMode(true);
+            if(lastTweet.text==null || lastTweet.text.equals("")) holder.tweetDetailCard.copyToTextField.setVisibility(View.GONE);
 
-            holder.tweetCard.historyButton.setText(lastTweet.translations!=null ? String.valueOf(lastTweet.translations.size()) : "0");
+            holder.tweetDetailCard.historyButton.setText(lastTweet.translations!=null ? String.valueOf(lastTweet.translations.size()) : "0");
             // 阻止更新界面时反复查询
-            if(!lastTweet.hadQueried || holder.tweetCard.getHistoryAdapter()==null) {
-                holder.tweetCard.initHistoryTranslationView(context, lastTweet.translations);
-                lastTweet.queryTranslations(handler, holder.tweetCard);
+            if(!lastTweet.hadQueried || holder.tweetDetailCard.getHistoryAdapter()==null) {
+                holder.tweetDetailCard.initHistoryTranslationView(context, lastTweet.translations);
+                lastTweet.queryTranslations(handler, holder.tweetDetailCard);
             } else {
-                holder.tweetCard.getHistoryAdapter().notifyDataSetChanged();
+                holder.tweetDetailCard.getHistoryAdapter().notifyDataSetChanged();
             }
-            holder.tweetCard.historyButton.setOnClickListener(view -> {
+            holder.tweetDetailCard.historyButton.setOnClickListener(view -> {
                 // 显示历史翻译区
-                holder.tweetCard.historyTranslationsView.setVisibility(View.VISIBLE);
+                holder.tweetDetailCard.historyTranslationsView.setVisibility(View.VISIBLE);
             });
 
-            if(lastTweet.media==null || lastTweet.media.isEmpty()) holder.tweetCard.setBtn1Invisible();
-            else holder.tweetCard.setBtn1OnClickListener(v -> {
+            if(lastTweet.media==null || lastTweet.media.isEmpty()) holder.tweetDetailCard.saveMediaButton.setVisibility(View.GONE);
+            else holder.tweetDetailCard.saveMediaButton.setOnClickListener(v -> {
                 //保存媒体
                 String result = "成功";
                 for (TwitterMedia singleMedia : lastTweet.media) {
@@ -199,20 +197,20 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                 Snackbar.make(v, "保存媒体" + result, 1000).show();
             });
 
-            holder.tweetCard.copyTextButton.setOnClickListener(v -> {
+            holder.tweetDetailCard.copyTextButton.setOnClickListener(v -> {
                 //复制原文+翻译
                 ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData mClipData = ClipData.newPlainText("tweetAndTranslation", lastTweet.getFullText(tweetFormat, holder.tweetCard.getTranslatedText()));
+                ClipData mClipData = ClipData.newPlainText("tweetAndTranslation", lastTweet.getFullText(tweetFormat, holder.tweetDetailCard.getTranslatedText()));
                 clipboardManager.setPrimaryClip(mClipData);
                 Snackbar.make(v,"已复制原文及翻译",1000).show();
             });
-            holder.tweetCard.uploadButton.setOnClickListener(view -> {
+            holder.tweetDetailCard.uploadButton.setOnClickListener(view -> {
                 // 上传翻译
                 if(isConnected) new Thread(() -> {
                     String result = "失败";
                     try {
                         String data = "translationContent="
-                                +URLEncoder.encode(holder.tweetCard.getTranslatedText(),"UTF-8")
+                                +URLEncoder.encode(holder.tweetDetailCard.getTranslatedText(),"UTF-8")
                                 +"&sessionGroupID="+ Timeline.getCurrentGroup().id;
                         Response response= Timeline.connection.webService.request(
                                 "PUT", WebService.SERVER_API+"tweet/"+lastTweet.id+"/translation", data, WebService.FORM_URLENCODED);

@@ -12,6 +12,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -29,7 +31,9 @@ public class WebService extends Service {
     public static final MediaType PLAIN = MediaType.get("text/plain; charset=utf-8");
     public static final MediaType FORM_URLENCODED = MediaType.get("application/x-www-form-urlencoded; charset=utf-8");
 
-    private String auth;
+    public Pattern keyPattern = Pattern.compile("-\\s+(.+?)\\s+-", Pattern.DOTALL);
+
+    private static String auth;
     private final IBinder mBinder = new WebBinder();
     private final OkHttpClient mClient = new OkHttpClient.Builder()
             //.retryOnConnectionFailure(false)
@@ -56,11 +60,12 @@ public class WebService extends Service {
         return auth;
     }
 
-    public void setAuth(String auth) {
-        this.auth = auth;
+    public static void setAuth(String newAuth) {
+        auth = newAuth;
     }
 
     public String queryPublicKey() throws Exception {
+        Log.i("web connection", SERVER_API+"auth/public-key");
         Request request = new Request.Builder()
                 .url(SERVER_API+"auth/public-key")
                 .get()
@@ -69,6 +74,9 @@ public class WebService extends Service {
         if(response.code()==200) {
             String key = response.body().string();
             response.close();
+            Matcher matcher = keyPattern.matcher(key);
+            matcher.find();
+            key = matcher.group(1);
             return key;
         } else {
             Log.e("WebService.queryPublicKey", response.message());
@@ -77,7 +85,27 @@ public class WebService extends Service {
         }
     }
 
+    public String encryptPassword(String password) throws Exception {
+        Log.i("web connection", SERVER_API+"auth/encrypt");
+        RequestBody body = RequestBody.create("password="+password, FORM_URLENCODED);
+        Request request = new Request.Builder()
+                .url(SERVER_API+"auth/encrypt")
+                .post(body)
+                .build();
+        Response response = mClient.newCall(request).execute();
+        if(response.code()==200) {
+            String pwd = response.body().string();
+            response.close();
+            return pwd;
+        } else {
+            Log.e("WebService.encryptPassword", response.code()+" "+response.message());
+            response.close();
+            throw new Exception("encryptPassword connection failed");
+        }
+    }
+
     public String login(String username, String password) throws Exception {
+        Log.i("web connection", SERVER_API+"auth/login");
         JSONObject data = new JSONObject();
         data.put("username", username);
         data.put("password", password);
@@ -99,15 +127,13 @@ public class WebService extends Service {
             auth = "Bearer "+token;
             return auth;
         } else {
-            Log.e("WebService.login", response.message());
+            String msg = response.code()+" "+response.message();
             response.close();
-            throw new Exception("login connection failed");
+            throw new Exception(msg);
         }
     }
 
     public Response request(String method, String url, String data, MediaType contentType) throws IOException {
-        //TODO 删掉下一行
-        auth = "Bearer xxxxxxxxx";
         Log.i("web connection", url);
         RequestBody body = (data!=null)? RequestBody.create(data, contentType) : null;
         Request request = new Request.Builder()

@@ -20,15 +20,26 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.LinkedHashMap;
 
 import okhttp3.Response;
 
 public class ImageLoader {
-    private static final Handler handler = new Handler();
+    private final Handler handler;
+    private static final LinkedHashMap<String, Bitmap> avatarCachedPool = new LinkedHashMap<String, Bitmap>() {
+        @Override
+        protected boolean removeEldestEntry(Entry eldest) {
+            return size()>15;
+        }
+    };
 
     private RecyclerView.Adapter<?> tAdapter;
     private Integer position;
     private WeakReference<ImageView> imageViewRef;
+
+    public ImageLoader() {
+        this.handler = new Handler();
+    }
 
     public ImageLoader setAdapter(RecyclerView.Adapter<?> tAdapter, Integer position) {
         this.tAdapter = tAdapter;
@@ -53,7 +64,7 @@ public class ImageLoader {
         media.underProcessing = true;
         new Thread(() -> {
             if (isPreview && media.previewImageURL != null) {
-                File file = new File(TwitterMedia.internalFilesDir, TwitterMedia.previewTag + Uri.parse(media.previewImageURL).getLastPathSegment());
+                File file = new File(TwitterMedia.mediaFilesDir, TwitterMedia.previewTag + Uri.parse(media.previewImageURL).getLastPathSegment());
                 if (file.exists()) {
                     media.cached_image_preview = readFromFile(file);
                 } else {
@@ -61,7 +72,7 @@ public class ImageLoader {
                 }
             } else if (!isPreview && media.url != null) {
                 File savedFile = new File(TwitterMedia.savePath, Uri.parse(media.url).getLastPathSegment());
-                File cachedFile = new File(TwitterMedia.internalFilesDir, Uri.parse(media.url).getLastPathSegment());
+                File cachedFile = new File(TwitterMedia.mediaFilesDir, Uri.parse(media.url).getLastPathSegment());
                 if (savedFile.exists()) {
                     media.cached_image = readFromFile(savedFile);
                 } else if (cachedFile.exists()) {
@@ -77,25 +88,42 @@ public class ImageLoader {
 
     public void load(final TwitterUser twitterUser) {
         twitterUser.avatarUnderProcessing = true;
-        new Thread(() -> {
-            twitterUser.cached_profile_image = download(twitterUser.profile_image_url, null);
+        if((twitterUser.cached_profile_image=avatarCachedPool.getOrDefault(twitterUser.id, null))
+                !=null) {
             this.notifyUI(twitterUser.cached_profile_image);
             twitterUser.avatarUnderProcessing = false;
-        }).start();
+        } else {
+            new Thread(() -> {
+                twitterUser.cached_profile_image = download(twitterUser.profile_image_url, null);
+                avatarCachedPool.put(twitterUser.id, twitterUser.cached_profile_image);
+                this.notifyUI(twitterUser.cached_profile_image);
+                twitterUser.avatarUnderProcessing = false;
+            }).start();
+        }
     }
 
     public void load(final User user) {
-        new Thread(() -> {
-            user.avatar = download(user.avatarURL, null);
+        if((user.avatar=avatarCachedPool.getOrDefault(user.id, null))!=null) {
             this.notifyUI(user.avatar);
-        }).start();
+        } else {
+            new Thread(() -> {
+                user.avatar = download(user.avatarURL, null);
+                avatarCachedPool.put(user.id, user.avatar);
+                this.notifyUI(user.avatar);
+            }).start();
+        }
     }
 
     public void load(final RTGroup rtGroup) {
-        new Thread(() -> {
-            rtGroup.avatar = download(rtGroup.avatarURL, null);
+        if((rtGroup.avatar=avatarCachedPool.getOrDefault(rtGroup.id, null))!=null) {
             this.notifyUI(rtGroup.avatar);
-        }).start();
+        } else {
+            new Thread(() -> {
+                rtGroup.avatar = download(rtGroup.avatarURL, null);
+                avatarCachedPool.put(rtGroup.id, rtGroup.avatar);
+                this.notifyUI(rtGroup.avatar);
+            }).start();
+        }
     }
 
     private Bitmap download(String downloadURL, File file) {

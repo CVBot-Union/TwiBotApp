@@ -73,13 +73,13 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
             AppCompatActivity activity = (AppCompatActivity) context;
             Intent intent = new Intent(v.getContext(), TweetDetail.class);
             Bundle bundle = new Bundle();
-            bundle.putString("twitterStatusId",tweets.get(position).getId());
+            bundle.putParcelable("twitterStatus",tweets.get(position));
             bundle.putString("tweetFormat",tweetFormat);
             intent.putExtras(bundle);
             ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(activity,card,"activityOption");
             v.getContext().startActivity(intent,optionsCompat.toBundle());
         });
-        holder.tweetCard.setBtn1OnClickListener(v -> {
+        holder.tweetCard.setQSButtonOnClickListener(v -> {
             TwitterStatus tweet = tweets.get(position);
             ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
             ClipData mClipData = ClipData.newPlainText("tweet", tweet.getFullText(tweetFormat));
@@ -112,6 +112,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
                 holder.tweetCard.setType("转推");
                 break;
             default:
+                holder.tweetCard.setType("");
                 break;
         }
 
@@ -142,7 +143,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
                                     Intent intent = new Intent(v.getContext(), ImageViewer.class);
                                     Bundle bundle = new Bundle();
                                     bundle.putInt("page", page);
-                                    bundle.putString("twitterStatusId", tweets.get(position).id);
+                                    bundle.putParcelable("twitterStatus", tweets.get(position));
                                     intent.putExtras(bundle);
                                     v.getContext().startActivity(intent);
                                 });
@@ -173,7 +174,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
         }
         else {
             //无媒体的情况
-            holder.tweetCard.hideAllImageView();
+            holder.tweetCard.hideAllMediaView();
         }
     }
 

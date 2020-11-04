@@ -1,6 +1,7 @@
 package com.cvbotunion.cvtwipush.Activities;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -18,10 +19,10 @@ import android.net.Network;
 import android.net.Uri;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,11 +31,11 @@ import com.cvbotunion.cvtwipush.CustomViews.GroupPopupWindow;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterMedia;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
 import com.cvbotunion.cvtwipush.DBModel.DBTwitterUser;
-import com.cvbotunion.cvtwipush.Fragments.LoginFragment;
 import com.cvbotunion.cvtwipush.Model.Job;
 import com.cvbotunion.cvtwipush.Model.RTGroup;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
+import com.cvbotunion.cvtwipush.Model.TwitterUser;
 import com.cvbotunion.cvtwipush.Model.User;
 import com.cvbotunion.cvtwipush.R;
 import com.cvbotunion.cvtwipush.Service.MyServiceConnection;
@@ -66,6 +67,7 @@ public class Timeline extends AppCompatActivity {
     private TweetCardAdapter tAdapter;
     private RefreshLayout refreshLayout;
     private ChipGroup chipGroup;
+    private FrameLayout fragmentContainer;  // TODO 保留待定
 
     private ConnectivityManager connectivityManager;
     private ConnectivityManager.NetworkCallback networkCallback;
@@ -78,7 +80,7 @@ public class Timeline extends AppCompatActivity {
     private ArrayList<TwitterStatus> usedDataSet = new ArrayList<>();
     private static User currentUser;
     private static RTGroup currentGroup;
-    private Map<Integer, String> chipIdToName;
+    private Map<Integer, String> chipIdToUid;
     private SQLiteDatabase db;
 
     @Override
@@ -86,6 +88,9 @@ public class Timeline extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timeline);
 
+        if(!TwitterMedia.mediaFilesDir.exists()) {
+            TwitterMedia.mediaFilesDir.mkdirs();
+        }
         //动态权限申请
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
@@ -95,61 +100,89 @@ public class Timeline extends AppCompatActivity {
         initView();
         currentUser = User.readFromDisk();
         if(currentUser==null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.main_fragment_container, new LoginFragment())
-                    .addToBackStack(null)
-                    .commit();
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivityForResult(intent, 123);
+        } else {
+            getReady();
         }
-        Log.i("Timeline.onCreate","FRAGMENT FINISHED!");
-        if(currentUser==null) { onBackPressed(); }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==123) {
+            if(resultCode==123) getReady();
+        }
+    }
+
+    private void getReady() {
+        WebService.setAuth(currentUser.getAuth());
+        currentUser.update();
         initData();
         initRecyclerView();
         initConnectivityReceiver();
-
         title.setText(currentGroup.name);
         mdToolbar.setOnMenuItemClickListener(item -> {
             int menuID = item.getItemId();
-            if (menuID == R.id.group_menu_item){
-                View view = getLayoutInflater().inflate(R.layout.group_switch_menu, (ViewGroup)getWindow().getDecorView(),false);
+            if (menuID == R.id.group_menu_item) {
+                View view = getLayoutInflater().inflate(R.layout.group_switch_menu, (ViewGroup) getWindow().getDecorView(), false);
                 GroupPopupWindow popupWindow = new GroupPopupWindow(
                         view, ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT,
                         true,
                         currentUser, currentGroup.id);
-                popupWindow.showAsDropDown(findViewById(R.id.group_menu_item),0, 0, Gravity.END);
+                popupWindow.showAsDropDown(findViewById(R.id.group_menu_item), 0, 0, Gravity.END);
                 popupWindow.dimBehind();
             }
             return true;
         });
 
-        for(int i=0;i<currentGroup.following.size();i++){
-            Chip chip = (Chip) getLayoutInflater().inflate(R.layout.chip_view,chipGroup,false);
+        for (int i = 0; i < currentGroup.following.size(); i++) {
+            Chip chip = (Chip) getLayoutInflater().inflate(R.layout.chip_view, chipGroup, false);
             chip.setText(currentGroup.following.get(i).name_in_group);
             int viewId = ViewCompat.generateViewId();
             chip.setId(viewId);
-            chipIdToName.put(viewId, currentGroup.following.get(i).name_in_group);
+            chipIdToUid.put(viewId, currentGroup.following.get(i).id);
             chipGroup.addView(chip);
         }
 
         chipGroup.setOnCheckedChangeListener((group, checkedId) -> {
             usedDataSet.clear();
-            String checkedName = chipIdToName.getOrDefault(checkedId, null);
+            String checkedUid = chipIdToUid.getOrDefault(checkedId, null);
             for (TwitterStatus s : dataSet) {
-                if (checkedName == null || s.user.name.equals(checkedName))
+                if (checkedUid == null || s.user.id.equals(checkedUid))
                     usedDataSet.add(s);
             }
             tAdapter.notifyDataSetChanged();
         });
 
         refreshLayout.setHeaderTriggerRate(0.7f);  //触发刷新距离 与 HeaderHeight 的比率
-        refreshLayout.setOnRefreshListener(refreshlayout -> netRefresh(chipGroup.getCheckedChipId(),refreshlayout, RefreshTask.REFRESH));
-        refreshLayout.setOnLoadMoreListener(refreshlayout -> netRefresh(chipGroup.getCheckedChipId(),refreshlayout, RefreshTask.LOADMORE));
+        refreshLayout.setOnRefreshListener(refreshlayout -> netRefresh(chipGroup.getCheckedChipId(), refreshlayout, RefreshTask.REFRESH));
+        refreshLayout.setOnLoadMoreListener(refreshlayout -> netRefresh(chipGroup.getCheckedChipId(), refreshlayout, RefreshTask.LOADMORE));
 
         mdToolbar.setOnClickListener(view -> {
             tweetListRecyclerView.smoothScrollToPosition(0);
             refreshLayout.autoRefresh();
         });
+    }
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if(currentUser==null) {
+            onBackPressed();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // TODO 如果不点返回键而是直接点击任务键，侧滑杀死进程来关闭应用，应用将没有机会调用onDestroy
+        //  但其他activity抢占前台（即Timeline不在栈顶的情况）也会调用onStop
+        //  请谨慎取舍在此处的操作
+
+        // 保存已登录的user
+        if(currentUser!=null) currentUser.writeToDisk();
     }
 
     @Override
@@ -157,23 +190,23 @@ public class Timeline extends AppCompatActivity {
         super.onDestroy();
         db.close();
         unbindService(connection);
-        chipIdToName.clear();
+        if(chipIdToUid !=null) chipIdToUid.clear();
         if(connectivityManager != null) {
             connectivityManager.unregisterNetworkCallback(networkCallback);
         }
         if(Math.random()>0.9) {  //十分之一的概率
-            StorageUtils.deleteFile(VideoViewer.cacheDir);  //删除整个目录
-            StorageUtils.deleteFiles(TwitterMedia.internalFilesDir);  //删除子文件
+            StorageUtils.deleteFiles(VideoViewer.videoCacheDir);
+            StorageUtils.deleteFiles(TwitterMedia.mediaFilesDir);  //删除子文件
         }
     }
 
-    private  void initData() {
+    private void initData() {
         dataSet = new ArrayList<>();
         usedDataSet = new ArrayList<>();
-        chipIdToName = new HashMap<>();
+        chipIdToUid = new HashMap<>();
 
         Intent intent = getIntent();
-        if(intent == null) {
+        if(intent.getExtras()==null && intent.getData()==null) {
             currentGroup = currentUser.jobs.get(0).group;
         } else {
             String groupId = null;
@@ -199,17 +232,25 @@ public class Timeline extends AppCompatActivity {
 
         if(currentGroup==null) {
             Toast.makeText(getApplicationContext(), "获取转推组信息失败", Toast.LENGTH_LONG).show();
-            onBackPressed();
+            finish();
+            return;
         }
 
-        StringBuilder condition = new StringBuilder();
-        for(int i=0;i<currentGroup.following.size();i++) {
-            condition.append(currentGroup.following.get(i).id);
-            if(i!=currentGroup.following.size()-1) { condition.append(","); }
+        List<DBTwitterStatus> dbStatusList = new ArrayList<>();
+        for(TwitterUser tu:currentGroup.following) {
+            List<DBTwitterStatus> tmpList = LitePal.where("tuid = ?", tu.id).order("tsid desc").find(DBTwitterStatus.class);
+            if(!tmpList.isEmpty()) dbStatusList.addAll(tmpList);
         }
-        List<DBTwitterStatus> dbStatusList = LitePal.where("tuid in (?)", condition.toString()).order("tsid desc").find(DBTwitterStatus.class);
+        // 按TwitterStatus Id降序排列
+        dbStatusList.sort((o1, o2) -> Long.compare(o2.getTsid(),o1.getTsid()));
+        // TODO
+        System.out.println("initData 数据库中取得的量:"+dbStatusList.size());
         for(DBTwitterStatus dbStatus:dbStatusList) {
-            dataSet.add(dbStatus.toTwitterStatus());
+            TwitterStatus tweet =dbStatus.toTwitterStatus();
+            currentGroup.following.forEach(tu -> {
+                if(tu.id.equals(tweet.user.id)) tweet.user.name_in_group = tu.name_in_group;
+            });
+            dataSet.add(tweet);
             if(dataSet.size()>=LIMIT) { break; }
         }
         usedDataSet.addAll(dataSet);
@@ -234,11 +275,12 @@ public class Timeline extends AppCompatActivity {
     }
 
     private void initView(){
-        tweetListRecyclerView = (RecyclerView) findViewById(R.id.tweet_list_recycler_view);
-        mdToolbar = (MaterialToolbar) findViewById(R.id.top_app_bar);
-        title = (TextView) findViewById(R.id.title);
-        chipGroup = (ChipGroup) findViewById(R.id.group_chip_group);
-        refreshLayout = (RefreshLayout) findViewById(R.id.refresh_layout);
+        tweetListRecyclerView = findViewById(R.id.tweet_list_recycler_view);
+        mdToolbar = findViewById(R.id.top_app_bar);
+        title = findViewById(R.id.title);
+        chipGroup = findViewById(R.id.group_chip_group);
+        refreshLayout = findViewById(R.id.refresh_layout);
+        // fragmentContainer = findViewById(R.id.main_fragment_container);
     }
 
     private void initBackground() {
@@ -282,8 +324,8 @@ public class Timeline extends AppCompatActivity {
     public void netRefresh(int checkedId, RefreshLayout refreshlayout, int mode) {
         // 每个AsyncTask实例只能execute()一次
         RefreshTask task = new RefreshTask(refreshlayout, tAdapter, mode);
-        String checkedName = chipIdToName.getOrDefault(checkedId, null);
-        task.setData(usedDataSet, dataSet, checkedName);
+        String checkedUid = chipIdToUid.getOrDefault(checkedId, null);
+        task.setData(usedDataSet, dataSet, checkedUid);
         task.execute();
     }
 
@@ -295,7 +337,7 @@ public class Timeline extends AppCompatActivity {
         return currentUser;
     }
 
-    public void setCurrentUser(User user) {
+    public static void setCurrentUser(User user) {
         currentUser = user;
     }
 }

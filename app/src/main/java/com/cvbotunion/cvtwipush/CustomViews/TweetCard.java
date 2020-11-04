@@ -21,45 +21,34 @@ import com.cvbotunion.cvtwipush.R;
 import com.google.android.material.imageview.ShapeableImageView;
 
 public class TweetCard extends CardView{
-    public static int IMAGE = 0;
-    public static int VIDEO = 1;
-
     private String tweetText;
     private String tweetNameText;
     private String tweetTypeText;
     private String tweetTimeText;
 
-    private ShapeableImageView avatarImg; //头像
-    private TextView nameTextView; //姓名
-    private TextView tweetTypeTextView; //推文类型
-    private TextView tweetTimeTextView; //发推时间
-    private LinearLayout imageSetLayout; //推文图片/视频
-    private LinearLayout leftImageLayout;
-    private LinearLayout rightImageLayout;
-    private ImageView leftTopImageView;//图1
-    private ImageView rightTopImageView;//图2
-    private ImageView leftBottomImageView;//图3
-    private ImageView rightBottomImageView;//图4
-    private FrameLayout videoSet;
-    private ImageView defaultVideoBackground;
-    private ImageView videoNotLoading;
-    private TextView tweetStatusTextView; //推文正文文本
-    private Button btn1; //快速保存按钮
-    private OnClickListener btn1Listener;
-    private OnClickListener videoListener;
+    protected ShapeableImageView avatarImg; //头像
+    protected TextView nameTextView; //姓名
+    protected TextView tweetTypeTextView; //推文类型
+    protected TextView tweetTimeTextView; //发推时间
+    protected LinearLayout imageSetLayout; //推文图片/视频
+    protected LinearLayout leftImageLayout;
+    protected LinearLayout rightImageLayout;
+    protected ImageView leftTopImageView;//图1
+    protected ImageView rightTopImageView;//图2
+    protected ImageView leftBottomImageView;//图3
+    protected ImageView rightBottomImageView;//图4
+    protected FrameLayout videoSet;
+    protected ImageView defaultVideoBackground;
+    protected ImageView videoNotLoading;
+    protected TextView tweetStatusTextView; //推文正文文本
+    private Button quickSaveButton; //快速保存按钮
 
-    public void setBtn1OnClickListener(OnClickListener listener){
-        this.btn1Listener = listener;
-        btn1.setOnClickListener(btn1Listener);
-    }
-
-    public void setBtn1Invisible() {
-        btn1.setVisibility(INVISIBLE);
+    public void setQSButtonOnClickListener(OnClickListener listener){
+        quickSaveButton.setOnClickListener(listener);
     }
 
     public void setVideoOnClickListener(OnClickListener listener){
-        this.videoListener = listener;
-        videoSet.setOnClickListener(videoListener);
+        videoSet.setOnClickListener(listener);
     }
 
     public TweetCard(@NonNull Context context,View view) {
@@ -99,22 +88,22 @@ public class TweetCard extends CardView{
         } else {
             thisView = LayoutInflater.from(context).inflate(R.layout.tweet_card,this,true);
         }
-        avatarImg = (ShapeableImageView) thisView.findViewById(R.id.avatar_img);
-        nameTextView = (TextView) thisView.findViewById(R.id.name_text);
-        tweetTypeTextView = (TextView) thisView.findViewById(R.id.tweet_type_text);
-        tweetTimeTextView = (TextView) thisView.findViewById(R.id.tweet_time);
-        imageSetLayout = (LinearLayout) thisView.findViewById(R.id.img_set_layout);
-        leftImageLayout = (LinearLayout) thisView.findViewById(R.id.left_linear_layout);
-        rightImageLayout = (LinearLayout) thisView.findViewById(R.id.right_linear_layout);
-        leftTopImageView = (ImageView) thisView.findViewById(R.id.left_top_image);
-        leftBottomImageView = (ImageView) thisView.findViewById(R.id.left_bottom_image);
-        rightTopImageView = (ImageView) thisView.findViewById(R.id.right_top_image);
-        rightBottomImageView = (ImageView) thisView.findViewById(R.id.right_bottom_image);
-        videoSet = (FrameLayout) thisView.findViewById(R.id.video_set) ;
-        defaultVideoBackground = (ImageView) thisView.findViewById(R.id.video_background);
-        videoNotLoading = (ImageView) thisView.findViewById(R.id.video_not_loading_image);
-        tweetStatusTextView = (TextView) thisView.findViewById(R.id.status_text);
-        btn1 = (Button) thisView.findViewById(R.id.quick_save_btn);
+        avatarImg = thisView.findViewById(R.id.avatar_img);
+        nameTextView = thisView.findViewById(R.id.name_text);
+        tweetTypeTextView = thisView.findViewById(R.id.tweet_type_text);
+        tweetTimeTextView = thisView.findViewById(R.id.tweet_time);
+        imageSetLayout = thisView.findViewById(R.id.img_set_layout);
+        leftImageLayout = thisView.findViewById(R.id.left_linear_layout);
+        rightImageLayout = thisView.findViewById(R.id.right_linear_layout);
+        leftTopImageView = thisView.findViewById(R.id.left_top_image);
+        leftBottomImageView = thisView.findViewById(R.id.left_bottom_image);
+        rightTopImageView = thisView.findViewById(R.id.right_top_image);
+        rightBottomImageView = thisView.findViewById(R.id.right_bottom_image);
+        videoSet = thisView.findViewById(R.id.video_set);
+        defaultVideoBackground = thisView.findViewById(R.id.video_background);
+        videoNotLoading = thisView.findViewById(R.id.video_not_loading_image);
+        tweetStatusTextView = thisView.findViewById(R.id.status_text);
+        quickSaveButton = thisView.findViewById(R.id.quick_save_btn);
     }
 
     protected void loadAttr(){
@@ -270,5 +259,10 @@ public class TweetCard extends CardView{
             videoSet.setVisibility(GONE);
             resetVideoBackground(context);
         }
+    }
+
+    public void hideAllMediaView() {
+        hideAllImageView();
+        videoSet.setVisibility(GONE);
     }
 }

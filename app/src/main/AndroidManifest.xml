@@ -15,6 +15,7 @@
         android:name="com.cvbotunion.cvtwipush.permission.PROCESS_PUSH_MSG"
         android:protectionLevel="signatureOrSystem"/>
     <uses-permission android:name="com.cvbotunion.cvtwipush.permission.PROCESS_PUSH_MSG" />
+    <uses-permission android:name="com.cvbotunion.cvtwipush.permission.MIPUSH_RECEIVE"/>
 
     <application
         android:name=".TwiPush"
@@ -66,6 +67,10 @@
                     android:scheme="scheme" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".Activities.LoginActivity"
+            android:launchMode="singleTask" />
 
         <activity
             android:name=".Activities.TweetDetail"

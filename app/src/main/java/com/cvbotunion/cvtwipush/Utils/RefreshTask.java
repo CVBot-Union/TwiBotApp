@@ -7,8 +7,6 @@ import androidx.annotation.IntRange;
 
 import com.cvbotunion.cvtwipush.Activities.Timeline;
 import com.cvbotunion.cvtwipush.Adapters.TweetCardAdapter;
-import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
-import com.cvbotunion.cvtwipush.Model.RTGroup;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.Service.WebService;
 import com.cvbotunion.cvtwipush.TwiPush;
@@ -17,15 +15,13 @@ import com.scwang.smart.refresh.layout.api.RefreshLayout;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.litepal.LitePal;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.List;
 
 import okhttp3.Response;
 
-public class RefreshTask extends AsyncTask<String,Void,Boolean> {
+public class RefreshTask extends AsyncTask<Void, Void, String> {
     public final static int REFRESH = 0;
     public final static int LOADMORE = 1;
 
@@ -36,7 +32,7 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
     private ArrayList<TwitterStatus> usedDataSet;
     private ArrayList<TwitterStatus> dataSet;
     //用于在特定chip下刷新
-    private String checkedName;
+    private String checkedUid;
     private final int mode;
 
     public RefreshTask(RefreshLayout refreshLayout, TweetCardAdapter tAdapter, @IntRange(from=0,to=1) int mode) {
@@ -46,17 +42,22 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
         this.mode = mode;
     }
 
-    public void setData(ArrayList<TwitterStatus> usedDataSet, ArrayList<TwitterStatus> dataSet, String checkedName) {
+    public void setData(ArrayList<TwitterStatus> usedDataSet, ArrayList<TwitterStatus> dataSet, String checkedUid) {
         this.usedDataSet = usedDataSet;
         this.dataSet = dataSet;
-        this.checkedName = checkedName;
+        this.checkedUid = checkedUid;
     }
 
     @Override
-    protected Boolean doInBackground(String... params) {
+    protected String doInBackground(Void... params) {
         try {
             if(mode == REFRESH) {
-                url += ("group="+ Timeline.getCurrentGroup().id+"&afterID="+dataSet.get(0).id+"&sortKey=ASC");
+                String beforeID = dataSet.isEmpty()?"0":dataSet.get(0).id;
+                if(beforeID.equals("0")) {
+                    url += ("page=1&limit="+Timeline.LIMIT+"&group="+ Timeline.getCurrentGroup().id+"&beforeID=0&sortKey=DESC");
+                } else {
+                    url += ("page=1&limit="+Timeline.LIMIT+"&group="+ Timeline.getCurrentGroup().id+"&beforeID="+beforeID+"&sortKey=ASC");
+                }
                 Response response = Timeline.connection.webService.get(url);
                 if(response.code()==200) {
                     JSONObject resJson = new JSONObject(response.body().string());
@@ -65,85 +66,86 @@ public class RefreshTask extends AsyncTask<String,Void,Boolean> {
                         JSONArray tweets = resJson.getJSONArray("response");
                         for(int i=0;i<tweets.length();i++) {
                             TwitterStatus tweet = new TwitterStatus(tweets.getJSONObject(i), true);
-                            if (checkedName == null || tweet.user.name_in_group.equals(checkedName))
-                                usedDataSet.add(0, tweet);
-                            dataSet.add(0, tweet);
+                            Timeline.getCurrentGroup().following.forEach(tu -> {
+                                if(tu.id.equals(tweet.user.id)) tweet.user.name_in_group = tu.name_in_group;
+                            });
+                            if (checkedUid == null || tweet.user.id.equals(checkedUid)) {
+                                if (beforeID.equals("0")) {
+                                    usedDataSet.add(tweet);
+                                } else {
+                                    usedDataSet.add(0, tweet);
+                                }
+                            }
+                            if (beforeID.equals("0")) {
+                                dataSet.add(tweet);
+                            } else {
+                                dataSet.add(0, tweet);
+                            }
                         }
                     } else {
                         Log.e(TwiPush.TAG+":RefreshTask-REFRESH", resJson.toString());
-                        return false;
+                        return "刷新失败："+resJson.getJSONObject("response").toString();
                     }
                 } else {
-                    Log.e(TwiPush.TAG+":RefreshTask-REFRESH", response.message());
+                    Log.e(TwiPush.TAG+":RefreshTask-REFRESH", response.code()+" "+response.message());
+                    int code = response.code();
                     response.close();
-                    return false;
+                    return "刷新失败，请检查网络连接("+code+")";
                 }
             } else if(mode == LOADMORE) {
-                String lastId = dataSet.get(dataSet.size()-1).id;
-                // 过滤得当前转推组的追踪
-                StringBuilder condition = new StringBuilder();
-                RTGroup cGroup = Timeline.getCurrentGroup();
-                for(int i=0;i<cGroup.following.size();i++) {
-                    condition.append(cGroup.following.get(i).id);
-                    if(i!=cGroup.following.size()-1) { condition.append(","); }
-                }
-                List<DBTwitterStatus> dbTweets = LitePal.where("tuid in (?) AND tsid < ?", condition.toString(), lastId).order("tsid desc").find(DBTwitterStatus.class);
-                for(DBTwitterStatus dbTweet : dbTweets) {
-                    TwitterStatus tweet = dbTweet.toTwitterStatus();
-                    if (checkedName == null || tweet.user.name_in_group.equals(checkedName))
-                        usedDataSet.add(tweet);
-                    dataSet.add(tweet);
-                }
-                if(dbTweets.size()< Timeline.LIMIT) {
-                    lastId = dataSet.get(dataSet.size()-1).id;
-                    int leftNeed = Timeline.LIMIT-dbTweets.size();
-                    url += ("page=1&limit="+leftNeed+"&group="+ Timeline.getCurrentGroup().id+"&beforeID="+lastId+"&sortKey=DESC");
-                    Response response = Timeline.connection.webService.get(url);
-                    if(response.code()==200) {
-                        JSONObject resJson = new JSONObject(response.body().string());
-                        response.close();
-                        if(resJson.getBoolean("success")) {
-                            JSONArray tweets = resJson.getJSONArray("response");
-                            for(int i=0;i<tweets.length();i++) {
-                                TwitterStatus tweet = new TwitterStatus(tweets.getJSONObject(i), true);
-                                if (checkedName == null || tweet.user.name_in_group.equals(checkedName))
-                                    usedDataSet.add(tweet);
-                                dataSet.add(tweet);
-                            }
-                        } else {
-                            Log.e(TwiPush.TAG+":RefreshTask-LOADMORE", resJson.toString());
-                            return false;
+                String lastId = dataSet.isEmpty() ? String.valueOf(Long.MAX_VALUE) : dataSet.get(dataSet.size() - 1).id;
+                url += ("page=1&limit=" + Timeline.LIMIT + "&group=" + Timeline.getCurrentGroup().id + "&afterID=" + lastId + "&sortKey=DESC");
+                Response response = Timeline.connection.webService.get(url);
+                if (response.code() == 200) {
+                    JSONObject resJson = new JSONObject(response.body().string());
+                    response.close();
+                    if (resJson.getBoolean("success")) {
+                        JSONArray tweets = resJson.getJSONArray("response");
+                        for (int i = 0; i < tweets.length(); i++) {
+                            TwitterStatus tweet = new TwitterStatus(tweets.getJSONObject(i), true);
+                            Timeline.getCurrentGroup().following.forEach(tu -> {
+                                if (tu.id.equals(tweet.user.id))
+                                    tweet.user.name_in_group = tu.name_in_group;
+                            });
+                            if (checkedUid == null || tweet.user.id.equals(checkedUid))
+                                usedDataSet.add(tweet);
+                            dataSet.add(tweet);
                         }
                     } else {
-                        Log.e(TwiPush.TAG+":RefreshTask-LOADMORE", response.message());
-                        response.close();
-                        return false;
+                        Log.e(TwiPush.TAG + ":RefreshTask-LOADMORE", resJson.toString());
+                        return "加载失败："+resJson.getJSONObject("response").toString();
                     }
+                } else {
+                    Log.e(TwiPush.TAG + ":RefreshTask-LOADMORE", response.code()+" "+response.message());
+                    int code = response.code();
+                    response.close();
+                    return "加载失败，请检查网络连接("+code+")";
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            Log.e(TwiPush.TAG+":RefreshTask", e.toString());
+            return "刷新/加载失败";
         }
-        return true;
+        return "success";
     }
 
     @Override
-    protected void onPostExecute(Boolean result) {
+    protected void onPostExecute(String result) {
+        boolean flag = result.equals("success");
         switch(mode) {
             case REFRESH:
-                refreshLayoutRef.get().finishRefresh(result);
+                refreshLayoutRef.get().finishRefresh(flag);
                 break;
             case LOADMORE:
-                refreshLayoutRef.get().finishLoadMore(result);
+                refreshLayoutRef.get().finishLoadMore(flag);
                 break;
             default:
                 Log.e(TwiPush.TAG,"wrong RefreshTask mode");
                 break;
         }
 
-        if(!result) {
-            Snackbar.make(refreshLayoutRef.get().getLayout(),"加载失败",Snackbar.LENGTH_SHORT).show();
+        if(!flag) {
+            Snackbar.make(refreshLayoutRef.get().getLayout(),result,Snackbar.LENGTH_SHORT).show();
         } else {
             tAdapter.notifyDataSetChanged();
         }
