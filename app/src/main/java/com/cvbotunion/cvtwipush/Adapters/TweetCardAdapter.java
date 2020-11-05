@@ -78,7 +78,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
             bundle.putString("tweetFormat",tweetFormat);
             intent.putExtras(bundle);
             // TODO 考虑更换动画
-            ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(activity,card,"SingleTweetCard");
+            ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(activity,card,"activityOption");
             v.getContext().startActivity(intent,optionsCompat.toBundle());
         });
         holder.tweetCard.setQSButtonOnClickListener(v -> {
@@ -103,6 +103,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
         holder.tweetCard.setName(tweets.get(position).getUser().name_in_group);
 
         //正文
+        holder.tweetCard.getTweetStatusTextView().setOnClickListener(l -> card.performClick());
         holder.tweetCard.setTweetText(tweets.get(position).getText());
 
         //推文类型

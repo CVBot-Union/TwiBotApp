@@ -54,7 +54,7 @@ public class TwitterStatus implements Parcelable {
     @Nullable public String location;
     public ArrayList<String> hashtags;
     public ArrayList<TwitterUser> user_mentions;
-    @NonNull public ArrayList<TwitterMedia> media;
+    public ArrayList<TwitterMedia> media;
     public ArrayList<HashMap<String,String>> translations;  // keys: "userName","groupName","content"
 
     public TwitterStatus(){
@@ -365,7 +365,6 @@ public class TwitterStatus implements Parcelable {
         return getFullText(format, "");
     }
 
-    //有待修改
     public String getFullText(String format, String translatedText) {
         if(!translatedText.equals(""))
             translatedText = translatedText+"\n\n";

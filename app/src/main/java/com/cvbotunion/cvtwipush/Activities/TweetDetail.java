@@ -77,6 +77,7 @@ public class TweetDetail extends AppCompatActivity {
                 getStatusNotInDB(status.quoted_status_id);
             }
         }
+        tweetDetailRecyclerView.scrollToPosition(dataSet.size()-1);
     }
 
     private void initView(){
@@ -97,7 +98,6 @@ public class TweetDetail extends AppCompatActivity {
         tweetDetailRecyclerView.setAdapter(tAdapter);
         tweetDetailRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         ((SimpleItemAnimator) tweetDetailRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
-        tweetDetailRecyclerView.scrollToPosition(dataSet.size()-1);
     }
 
     public void getStatusNotInDB(final String statusId) {

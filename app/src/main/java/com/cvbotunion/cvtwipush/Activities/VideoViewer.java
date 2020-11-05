@@ -81,9 +81,8 @@ public class VideoViewer extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-        playerView.pause();
         playerView.release();
+        super.onDestroy();
     }
 
     @Override

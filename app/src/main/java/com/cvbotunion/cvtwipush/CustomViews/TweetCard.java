@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.util.AttributeSet;
 
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -65,11 +66,7 @@ public class TweetCard extends CardView{
     }
 
     public CharSequence getStatusText(){
-        if(tweetStatusTextView.getText() != null){
-            return tweetStatusTextView.getText();
-        } else {
-            return null;
-        }
+        return tweetStatusTextView.getText();
     }
 
     protected void initAttr(Context context, AttributeSet attrs){

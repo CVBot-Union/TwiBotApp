@@ -205,7 +205,7 @@
                 android:autoLink="web"
                 android:linksClickable="true"
                 android:text="这是一条Tweet"
-                android:textColor="@color/colorBlack" />
+                android:textColor="@color/colorBlack"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
