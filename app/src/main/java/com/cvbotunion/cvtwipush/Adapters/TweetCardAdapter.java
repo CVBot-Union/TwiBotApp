@@ -7,8 +7,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -78,9 +80,10 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
             bundle.putString("tweetFormat",tweetFormat);
             intent.putExtras(bundle);
             // TODO 考虑更换动画
-            ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(activity,card,"activityOption");
+            ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(activity,holder.tweetCard.card,"activityOption");
             v.getContext().startActivity(intent,optionsCompat.toBundle());
         });
+
         holder.tweetCard.setQSButtonOnClickListener(v -> {
             TwitterStatus tweet = tweets.get(position);
             ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
@@ -103,8 +106,18 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
         holder.tweetCard.setName(tweets.get(position).getUser().name_in_group);
 
         //正文
-        holder.tweetCard.getTweetStatusTextView().setOnClickListener(l -> card.performClick());
         holder.tweetCard.setTweetText(tweets.get(position).getText());
+        if(holder.tweetCard.getTweetStatusTextView().getUrls().length != 0) {
+            holder.tweetCard.getTweetStatusTextView().setOnClickListener(view -> {
+                holder.tweetCard.performClick();
+            });
+        }
+        holder.tweetCard.getTweetStatusTextView().setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return false;
+            }
+        });
 
         //推文类型
         switch(tweets.get(position).getTweetType()){

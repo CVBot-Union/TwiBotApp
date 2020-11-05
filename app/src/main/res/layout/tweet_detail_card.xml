@@ -58,7 +58,7 @@
                             android:layout_weight="1"
                             android:fontFamily="sans-serif-medium"
                             android:text="姓名"
-                            android:textSize="20sp" />
+                            android:textSize="17sp" />
 
                         <TextView
                             android:id="@+id/tweet_type_text"
@@ -86,12 +86,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
-                android:textColor="@color/colorBlack"
-                android:textSize="20sp"
-                android:text="这是一条Tweet"
-                android:visibility="visible"
                 android:autoLink="web"
-                android:linksClickable="true"/>
+                android:linksClickable="true"
+                android:text="这是一条Tweet"
+                android:textColor="@color/colorBlack"
+                android:visibility="visible"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless"/>
 
             <LinearLayout
                 android:layout_width="match_parent"

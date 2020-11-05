@@ -5,10 +5,12 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -85,6 +87,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                 ClipData mClipData = ClipData.newPlainText("tweet", tweets.get(position).getText());
                 clipboardManager.setPrimaryClip(mClipData);
                 Snackbar.make(view, "已复制原文", 1000).show();
+                holder.tweetDetailCard.getTweetStatusTextView().setBackgroundColor(Color.TRANSPARENT);
             }
             return true;
         });
