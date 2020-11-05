@@ -19,6 +19,7 @@ import android.net.Network;
 import android.net.Uri;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -243,8 +244,7 @@ public class Timeline extends AppCompatActivity {
         }
         // 按TwitterStatus Id降序排列
         dbStatusList.sort((o1, o2) -> Long.compare(o2.getTsid(),o1.getTsid()));
-        // TODO
-        System.out.println("initData 数据库中取得的量:"+dbStatusList.size());
+        Log.i("Timeline.initData","数据库中取得的量:"+dbStatusList.size());
         for(DBTwitterStatus dbStatus:dbStatusList) {
             TwitterStatus tweet =dbStatus.toTwitterStatus();
             currentGroup.following.forEach(tu -> {
@@ -269,7 +269,7 @@ public class Timeline extends AppCompatActivity {
         };
 
         tweetListRecyclerView.setLayoutManager(layoutManager);
-        tAdapter = new TweetCardAdapter(usedDataSet,this, currentGroup.tweetFormat);
+        tAdapter = new TweetCardAdapter(usedDataSet,this);
         tweetListRecyclerView.setAdapter(tAdapter);
         ((SimpleItemAnimator) tweetListRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
     }

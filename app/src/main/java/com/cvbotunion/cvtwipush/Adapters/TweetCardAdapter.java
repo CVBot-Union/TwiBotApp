@@ -17,6 +17,7 @@ import androidx.core.app.ActivityOptionsCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cvbotunion.cvtwipush.Activities.ImageViewer;
+import com.cvbotunion.cvtwipush.Activities.Timeline;
 import com.cvbotunion.cvtwipush.Activities.TweetDetail;
 import com.cvbotunion.cvtwipush.Activities.VideoViewer;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
@@ -39,13 +40,13 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
 
     public Handler handler;
     public Context context;
-    private String tweetFormat;
+    private final String tweetFormat;
 
-    public TweetCardAdapter(ArrayList<TwitterStatus> tweets,Context context, String tweetFormat){
+    public TweetCardAdapter(ArrayList<TwitterStatus> tweets,Context context){
         this.tweets = tweets;
         handler = new Handler();
         this.context = context;
-        this.tweetFormat = tweetFormat;
+        this.tweetFormat = Timeline.getCurrentGroup().tweetFormat;
     }
 
     public static class TweetCardViewHolder extends RecyclerView.ViewHolder{
@@ -76,7 +77,8 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
             bundle.putParcelable("twitterStatus",tweets.get(position));
             bundle.putString("tweetFormat",tweetFormat);
             intent.putExtras(bundle);
-            ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(activity,card,"activityOption");
+            // TODO 考虑更换动画
+            ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(activity,card,"SingleTweetCard");
             v.getContext().startActivity(intent,optionsCompat.toBundle());
         });
         holder.tweetCard.setQSButtonOnClickListener(v -> {

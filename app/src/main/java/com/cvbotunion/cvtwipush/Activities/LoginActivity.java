@@ -70,6 +70,7 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setEnabled(false);
         loginButton.setBackgroundColor(getColor(R.color.colorGray));
         loginButton.setOnClickListener(v -> {
+            messageView.setText("");
             final String username = usernameText.getText().toString();
             final String password = passwordText.getText().toString();
             if(username.length()==0 || username.contains(" ")) {

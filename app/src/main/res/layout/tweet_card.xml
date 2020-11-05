@@ -204,7 +204,8 @@
                 android:layout_marginVertical="8dp"
                 android:autoLink="web"
                 android:linksClickable="true"
-                android:text="这是一条Tweet" />
+                android:text="这是一条Tweet"
+                android:textColor="@color/colorBlack" />
 
             <LinearLayout
                 android:layout_width="match_parent"

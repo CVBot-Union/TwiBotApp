@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 
@@ -23,6 +24,9 @@ import com.scwang.smart.refresh.layout.api.RefreshLayout;
 import org.json.JSONObject;
 import org.litepal.LitePal;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 import okhttp3.Response;
@@ -108,7 +112,7 @@ public class TweetDetail extends AppCompatActivity {
                     if(!resJson.getBoolean("success")) {
                         Log.e("TweetDetail.getStatusNotInDB", resJson.toString());
                     }
-                    dataSet.add(0, new TwitterStatus(resJson.getJSONObject("response").getJSONObject("tweet"),true));
+                    dataSet.add(0, new TwitterStatus(resJson.getJSONObject("response"),true));
                     success = true;
                 } else {
                     Log.e("TweetDetail.getStatusNotInDB", response.message());

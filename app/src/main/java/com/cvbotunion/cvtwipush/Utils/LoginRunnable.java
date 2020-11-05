@@ -7,6 +7,7 @@ import android.view.View;
 import com.cvbotunion.cvtwipush.Activities.LoginActivity;
 import com.cvbotunion.cvtwipush.Activities.Timeline;
 import com.cvbotunion.cvtwipush.Model.Job;
+import com.cvbotunion.cvtwipush.Model.RTGroup;
 import com.cvbotunion.cvtwipush.Model.TwitterUser;
 import com.cvbotunion.cvtwipush.Model.User;
 import com.cvbotunion.cvtwipush.Service.WebService;
@@ -70,6 +71,7 @@ public class LoginRunnable implements Runnable {
                         user.jobs.get(i).group.name = groupJson.getString("name");
                         user.jobs.get(i).group.avatarURL = groupJson.getString("avatarURL");
                         // TODO
+                        user.jobs.get(i).group.tweetFormat = RTGroup.DEFAULT_FORMAT;
                         // user.jobs.get(i).group.tweetFormat = groupJson.getString("tweetFormat");
                         JSONArray followingJson = groupJson.getJSONArray("following");
                         for (int j = 0; j < followingJson.length(); j++) {

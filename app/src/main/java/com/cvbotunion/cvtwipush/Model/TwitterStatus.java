@@ -126,7 +126,7 @@ public class TwitterStatus implements Parcelable {
         this.text = tweet.getString("text");
         this.user = new TwitterUser(tweet.getJSONObject("user"));
         if(tweet.has("userNickname")) {
-            this.user.name_in_group = tweet.getJSONObject("userNickname").getString("nickname");
+            this.user.name_in_group = tweet.getString("userNickname");
         }
         this.location = tweet.isNull("place") ? null : tweet.getJSONObject("place").getString("full_name");
         if(tweet.getBoolean("truncated") && tweet.has("extended_tweet")) {

@@ -169,7 +169,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
         if(position == tweets.size()-1){
             final TwitterStatus lastTweet = tweets.get(position);
             holder.tweetDetailCard.setTranslationMode(true);
-            if(lastTweet.text==null || lastTweet.text.equals("")) holder.tweetDetailCard.copyToTextField.setVisibility(View.GONE);
+            if(!lastTweet.getText().equals("")) holder.tweetDetailCard.copyToTextField.setVisibility(View.VISIBLE);
 
             holder.tweetDetailCard.historyButton.setText(lastTweet.translations!=null ? String.valueOf(lastTweet.translations.size()) : "0");
             // 阻止更新界面时反复查询
@@ -235,6 +235,8 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                 }).start();
                 else Snackbar.make(view, "请检查网络连接", 1000).show();
             });
+        } else { // 刷新UI需要隐藏之前显示的翻译区
+            holder.tweetDetailCard.setTranslationMode(false);
         }
     }
 
