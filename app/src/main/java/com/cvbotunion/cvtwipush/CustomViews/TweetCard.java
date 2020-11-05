@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
@@ -27,6 +28,7 @@ public class TweetCard extends CardView{
     private String tweetTypeText;
     private String tweetTimeText;
 
+    public CardView card;
     protected ShapeableImageView avatarImg; //头像
     protected TextView nameTextView; //姓名
     protected TextView tweetTypeTextView; //推文类型
@@ -43,6 +45,21 @@ public class TweetCard extends CardView{
     protected ImageView videoNotLoading;
     protected TextView tweetStatusTextView; //推文正文文本
     private Button quickSaveButton; //快速保存按钮
+
+    @Override
+    public void setOnClickListener(@Nullable OnClickListener l) {
+        card.setOnClickListener(l);
+    }
+
+    @Override
+    public boolean performClick() {
+        return card.performClick();
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        return true;
+    }
 
     public void setQSButtonOnClickListener(OnClickListener listener){
         quickSaveButton.setOnClickListener(listener);
@@ -85,6 +102,7 @@ public class TweetCard extends CardView{
         } else {
             thisView = LayoutInflater.from(context).inflate(R.layout.tweet_card,this,true);
         }
+        card = thisView.findViewById(R.id.tweet_card);
         avatarImg = thisView.findViewById(R.id.avatar_img);
         nameTextView = thisView.findViewById(R.id.name_text);
         tweetTypeTextView = thisView.findViewById(R.id.tweet_type_text);

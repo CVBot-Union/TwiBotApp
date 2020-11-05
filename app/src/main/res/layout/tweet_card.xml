@@ -40,10 +40,10 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_marginEnd="16dp"
-                    app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+                    android:background="@drawable/ic_baseline_person_24"
+                    android:contentDescription="@string/twitteruser_avatar_description"
                     android:scaleType="fitCenter"
-                    android:background="@drawable/ic_baseline_image_24"
-                    android:contentDescription="@string/twitteruser_avatar_description"/>
+                    app:shapeAppearanceOverlay="@style/roundedImageViewRounded" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -64,7 +64,7 @@
                             android:layout_weight="1"
                             android:fontFamily="sans-serif-medium"
                             android:text="姓名"
-                            android:textSize="20sp"/>
+                            android:textSize="17sp" />
 
                         <TextView
                             android:id="@+id/tweet_type_text"
@@ -86,6 +86,20 @@
 
                 </LinearLayout>
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/status_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:autoLink="web"
+                android:clickable="false"
+                android:focusable="false"
+                android:linksClickable="true"
+                android:text="这是一条Tweet"
+                android:textColor="@color/colorBlack" />
 
             <LinearLayout
                 android:id="@+id/img_set_layout"
@@ -195,17 +209,6 @@
                     android:src="@drawable/ic_baseline_play_circle_filled_white_24"
                     android:visibility="gone" />
             </FrameLayout>
-
-            <TextView
-                android:id="@+id/status_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginVertical="8dp"
-                android:autoLink="web"
-                android:linksClickable="true"
-                android:text="这是一条Tweet"
-                android:textColor="@color/colorBlack"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
