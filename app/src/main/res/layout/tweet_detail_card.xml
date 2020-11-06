@@ -102,13 +102,22 @@
                 android:baselineAligned="false">
 
                 <com.google.android.material.button.MaterialButton
-                        android:id="@+id/copy_to_input"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="复制到翻译区"
-                        android:textColor="@color/colorPrimary"
-                        android:visibility="gone" />
+                    android:id="@+id/copy_to_input"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="复制到翻译区"
+                    android:textColor="@color/colorPrimary"
+                    app:icon="@drawable/ic_baseline_file_copy_24" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/quick_save_btn"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="保存媒体"
+                    android:textColor="@color/colorPrimary"
+                    app:icon="@drawable/ic_baseline_save_24" />
             </LinearLayout>
 
             <LinearLayout
@@ -181,7 +190,7 @@
                         android:scaleType="center"
                         android:src="@drawable/ic_baseline_image_24"
                         android:contentDescription="@string/twittermedia_image_description"
-                        android:visibility="gone" />
+                        android:visibility="gone"/>
                 </LinearLayout>
             </LinearLayout>
 
@@ -200,7 +209,7 @@
                     android:scaleType="centerCrop"
                     android:src="@color/colorBlack"
                     android:contentDescription="@string/twittermedia_video_description"
-                    android:visibility="gone" />
+                    android:visibility="gone"/>
 
                 <ImageView
                     android:id="@+id/video_not_loading_image"
@@ -212,7 +221,7 @@
                     android:scaleType="center"
                     android:src="@drawable/ic_baseline_play_circle_filled_white_24"
                     android:contentDescription="@string/twittermedia_video_description"
-                    android:visibility="gone" />
+                    android:visibility="gone"/>
             </FrameLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -264,25 +273,14 @@
                         android:gravity="center_vertical|end"
                         android:orientation="horizontal">
 
-                        <ImageButton
-                            android:id="@+id/quick_save_btn"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginHorizontal="16dp"
-                            android:layout_marginVertical="8dp"
-                            android:background="?android:attr/selectableItemBackgroundBorderless"
-                            android:src="@drawable/ic_baseline_save_24"
-                            android:tint="@color/colorPrimary" />
-
-                        <ImageButton
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/copy_text_btn"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginHorizontal="16dp"
-                            android:layout_marginVertical="8dp"
-                            android:background="?android:attr/selectableItemBackgroundBorderless"
-                            android:tint="@color/colorPrimary"
-                            android:src="@drawable/ic_baseline_file_copy_24" />
+                            android:text="生成格式"
+                            android:textColor="@color/colorPrimary"
+                            app:icon="@drawable/ic_baseline_format_align_left_24" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/upload_btn"
