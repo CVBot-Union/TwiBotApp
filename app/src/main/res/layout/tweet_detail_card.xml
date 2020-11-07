@@ -278,7 +278,7 @@
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="生成格式"
+                            android:text="复制全文"
                             android:textColor="@color/colorPrimary"
                             app:icon="@drawable/ic_baseline_format_align_left_24" />
 

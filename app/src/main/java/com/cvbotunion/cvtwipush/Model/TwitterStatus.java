@@ -121,14 +121,14 @@ public class TwitterStatus implements Parcelable {
         this.created_at = toUTC8(tweet.getString("created_at"));
         this.id = tweet.getString("id_str");
         this.text = tweet.getBoolean("truncated") ?
-                tweet.getString("text") : textFormat(tweet.getString("text"), tweet.getJSONObject("entities").getJSONArray("urls"));
+                tweet.getString("text") : textModify(tweet.getString("text"), tweet.getJSONObject("entities").getJSONArray("urls"));
         this.user = new TwitterUser(tweet.getJSONObject("user"));
         if(tweet.has("userNickname")) {
             this.user.name_in_group = tweet.getString("userNickname");
         }
         this.location = tweet.isNull("place") ? null : tweet.getJSONObject("place").getString("full_name");
         if(tweet.getBoolean("truncated") && tweet.has("extended_tweet")) {
-            this.text = textFormat(tweet.getJSONObject("extended_tweet").getString("full_text"),
+            this.text = textModify(tweet.getJSONObject("extended_tweet").getString("full_text"),
                     tweet.getJSONObject("extended_tweet").getJSONObject("entities").getJSONArray("urls"));
             if(tweet.getJSONObject("extended_tweet").has("extended_entities")) {
                 TransformMedia(tweet.getJSONObject("extended_tweet").getJSONObject("extended_entities").getJSONArray("media"));
@@ -169,7 +169,7 @@ public class TwitterStatus implements Parcelable {
         }
     }
 
-    public static String textFormat(String text, JSONArray urls) throws JSONException {
+    public static String textModify(String text, JSONArray urls) throws JSONException {
         MatchResult lastTcoResult = tcoRegex.find(text,0);
         if(lastTcoResult==null) return text;
         String lastTco = lastTcoResult.getValue();
@@ -402,8 +402,8 @@ public class TwitterStatus implements Parcelable {
                 user.name_in_group,
                 user.screen_name,
                 created_at,
-                text==null?"":text+"\n\n",
-                text==null?"":translatedText,
+                text==null||text.equals("")?"":text+"\n\n",
+                text==null||text.equals("")?"":translatedText,
                 typeString,
                 parentStatus==null?"":"#"+parentStatus.user.name_in_group+"#",
                 parentStatus==null?"":parentStatus.user.screen_name,

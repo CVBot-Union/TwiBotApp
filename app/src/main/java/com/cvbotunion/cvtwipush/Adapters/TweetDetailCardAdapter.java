@@ -172,7 +172,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
         if(position == tweets.size()-1){
             final TwitterStatus lastTweet = tweets.get(position);
             holder.tweetDetailCard.setTranslationMode(true);
-            if(!lastTweet.getText().equals("")) holder.tweetDetailCard.copyToTextField.setVisibility(View.VISIBLE);
+            if(lastTweet.getText().equals("")) holder.tweetDetailCard.copyToTextField.setVisibility(View.GONE);
 
             holder.tweetDetailCard.historyButton.setText(lastTweet.translations!=null ? String.valueOf(lastTweet.translations.size()) : "0");
             // 阻止更新界面时反复查询
@@ -207,6 +207,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                 clipboardManager.setPrimaryClip(mClipData);
                 Snackbar.make(v,"已复制原文及翻译",1000).show();
             });
+
             holder.tweetDetailCard.uploadButton.setOnClickListener(view -> {
                 // 上传翻译
                 if(isConnected) new Thread(() -> {
