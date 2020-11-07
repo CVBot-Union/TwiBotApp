@@ -92,7 +92,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
         if(currentGroup.avatar != null){
             holder.groupImageView.setImageBitmap(currentGroup.avatar);
         } else {
-            new ImageLoader().setAdapter(this, position).load(currentGroup);
+            ImageLoader.setAdapter(this, position).load(currentGroup);
         }
 
         holder.groupName.setText(currentGroup.name);

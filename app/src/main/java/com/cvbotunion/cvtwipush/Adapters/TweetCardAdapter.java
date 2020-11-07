@@ -126,7 +126,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
         if(tweets.get(position).user.cached_profile_image != null){
             holder.tweetCard.setAvatarImg(tweets.get(position).user.cached_profile_image);
         } else if(isConnected && !tweets.get(position).user.avatarUnderProcessing) {
-            new ImageLoader().setAdapter(this, position).load(tweets.get(position).user);
+            ImageLoader.setAdapter(this, position).load(tweets.get(position).user);
         }
 
         //媒体
@@ -152,7 +152,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
                                 });
                                 holder.tweetCard.setTweetImage(tweets.get(position).media.size(), i, media.cached_image_preview);
                             } else if(isConnected && !media.underProcessing) {
-                                new ImageLoader().setAdapter(this, position).load(media,true);
+                                ImageLoader.setAdapter(this, position).load(media,true);
                             }
                             break;
                         //视频
@@ -168,7 +168,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
                                 });
                                 holder.tweetCard.setVideoBackground(media.cached_image_preview);
                             } else if(isConnected && !media.underProcessing) {
-                                new ImageLoader().setAdapter(this, position).load(media, true);
+                                ImageLoader.setAdapter(this, position).load(media, true);
                             }
                             break;
                     }

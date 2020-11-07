@@ -5,7 +5,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.cvbotunion.cvtwipush.Activities.Timeline;
@@ -27,6 +26,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
+import kotlin.text.MatchResult;
+import kotlin.text.Regex;
 import okhttp3.Response;
 
 /**
@@ -40,6 +41,8 @@ public class TwitterStatus implements Parcelable {
 
     public static final SimpleDateFormat dateFormatIn = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy", Locale.UK);
     public static final SimpleDateFormat dateFormatOut = new SimpleDateFormat("HH:mm:ss · yyyy年MM月dd日",Locale.CHINA);
+
+    public static final Regex tcoRegex = new Regex("\n*https://t\\.co/\\w+\\s*\\Z");
 
     public boolean hadQueried = false;  // 是否已经首次调用过queryTranslations()
 
@@ -92,16 +95,10 @@ public class TwitterStatus implements Parcelable {
     public TwitterStatus(String created_at, String id, @Nullable String text, TwitterUser user, @Nullable ArrayList<TwitterMedia> media){
         this(created_at,id,text,user);
         this.media = media;
-        if(text != null) {
-            this.text = text;
-        }
     }
 
     public TwitterStatus(String created_at, String id, @Nullable String text, TwitterUser user, ArrayList<TwitterMedia> media, int type, @Nullable String parent_status_id){
         this(created_at,id,text,user,media);
-        if(text != null) {
-            this.text = text;
-        }
         switch(type){
             case REPLY:
                 this.in_reply_to_status_id = parent_status_id;
@@ -123,14 +120,16 @@ public class TwitterStatus implements Parcelable {
         this();
         this.created_at = toUTC8(tweet.getString("created_at"));
         this.id = tweet.getString("id_str");
-        this.text = tweet.getString("text");
+        this.text = tweet.getBoolean("truncated") ?
+                tweet.getString("text") : textFormat(tweet.getString("text"), tweet.getJSONObject("entities").getJSONArray("urls"));
         this.user = new TwitterUser(tweet.getJSONObject("user"));
         if(tweet.has("userNickname")) {
             this.user.name_in_group = tweet.getString("userNickname");
         }
         this.location = tweet.isNull("place") ? null : tweet.getJSONObject("place").getString("full_name");
         if(tweet.getBoolean("truncated") && tweet.has("extended_tweet")) {
-            this.text = tweet.getJSONObject("extended_tweet").getString("full_text");
+            this.text = textFormat(tweet.getJSONObject("extended_tweet").getString("full_text"),
+                    tweet.getJSONObject("extended_tweet").getJSONObject("entities").getJSONArray("urls"));
             if(tweet.getJSONObject("extended_tweet").has("extended_entities")) {
                 TransformMedia(tweet.getJSONObject("extended_tweet").getJSONObject("extended_entities").getJSONArray("media"));
             }
@@ -168,6 +167,30 @@ public class TwitterStatus implements Parcelable {
                 dbStatus.save();
             }
         }
+    }
+
+    public static String textFormat(String text, JSONArray urls) throws JSONException {
+        MatchResult lastTcoResult = tcoRegex.find(text,0);
+        if(lastTcoResult==null) return text;
+        String lastTco = lastTcoResult.getValue();
+        for(int k=0;k<urls.length();k++) {
+            if(lastTco.contains(urls.getJSONObject(k).getString("url")))
+                return text.replace("&amp;", "&")
+                        .replace("&quot;", "\"")
+                        .replace("&lt;", "<")
+                        .replace("&gt;", ">");
+        }
+        return tcoRegex.replace(text, "")
+                .replace("&amp;", "&")
+                .replace("&quot;", "\"")
+                .replace("&lt;", "<")
+                .replace("&gt;", ">");
+    }
+
+    public static String toUTC8(String created_at) throws ParseException {
+        String timeString = created_at.replace("+0000 ", "");
+        long timeStamp = dateFormatIn.parse(timeString).getTime() + 28800*1000;
+        return dateFormatOut.format(new Date(timeStamp));
     }
 
     /**
@@ -233,48 +256,45 @@ public class TwitterStatus implements Parcelable {
         }else {
             translations.clear();  // 避免重复
         }
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    Response response = Timeline.connection.webService.get(WebService.SERVER_API+"tweet/"+finalId+"/translations");
-                    if(response.code()==200) {
-                        JSONObject resJson = new JSONObject(response.body().string());
-                        response.close();
-                        if(resJson.getBoolean("success")) {
-                            final JSONArray translations = resJson.getJSONArray("response");
-                            for(int i=0;i<translations.length();i++) {
-                                addTranslation(translations.getJSONObject(i));
+        new Thread(() -> {
+            try {
+                Response response = Timeline.connection.webService.get(WebService.SERVER_API+"tweet/"+finalId+"/translations");
+                if(response.code()==200) {
+                    JSONObject resJson = new JSONObject(response.body().string());
+                    response.close();
+                    if(resJson.getBoolean("success")) {
+                        final JSONArray translations = resJson.getJSONArray("response");
+                        for(int i=0;i<translations.length();i++) {
+                            addTranslation(translations.getJSONObject(i));
+                        }
+                        if(handler!=null) {
+                            if (parentCard!=null) {
+                                handler.post(() -> {
+                                    parentCard.historyButton.setText(String.valueOf(translations.length()));
+                                    parentCard.getHistoryAdapter().notifyDataSetChanged();
+                                });
+                            } else if(parentAdapter!=null&&refreshLayout!=null) {
+                                handler.post(() -> {
+                                    refreshLayout.finishRefresh(true);
+                                    parentAdapter.notifyDataSetChanged();
+                                });
                             }
-                            if(handler!=null) {
-                                if (parentCard!=null) {
-                                    handler.post(() -> {
-                                        parentCard.historyButton.setText(String.valueOf(translations.length()));
-                                        parentCard.getHistoryAdapter().notifyDataSetChanged();
-                                    });
-                                } else if(parentAdapter!=null&&refreshLayout!=null) {
-                                    handler.post(() -> {
-                                        refreshLayout.finishRefresh(true);
-                                        parentAdapter.notifyDataSetChanged();
-                                    });
-                                }
-                            }
-                        } else {
-                            Log.e("queryTranslations", resJson.toString());
                         }
                     } else {
-                        Log.e("queryTranslations", response.message());
-                        response.close();
+                        Log.e("queryTranslations", resJson.toString());
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    if(handler!=null&&refreshLayout!=null&&refreshLayout.isRefreshing()) {
-                        handler.post(() -> refreshLayout.finishRefresh(false));
-                    }
+                } else {
+                    Log.e("queryTranslations", response.message());
+                    response.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if(handler!=null&&refreshLayout!=null&&refreshLayout.isRefreshing()) {
+                    handler.post(() -> refreshLayout.finishRefresh(false));
                 }
             }
-        }.start();
+        }).start();
     }
 
     protected TwitterStatus(Parcel in) {
@@ -324,12 +344,6 @@ public class TwitterStatus implements Parcelable {
             return new TwitterStatus[size];
         }
     };
-
-    public static String toUTC8(String created_at) throws ParseException {
-        String timeString = created_at.replace("+0000 ", "");
-        long timeStamp = dateFormatIn.parse(timeString).getTime() + 28800*1000;
-        return dateFormatOut.format(new Date(timeStamp));
-    }
 
     public String getCreated_at(){
         return created_at;

@@ -105,7 +105,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
         if(tweets.get(position).user.cached_profile_image != null){
             holder.tweetDetailCard.setAvatarImg(tweets.get(position).user.cached_profile_image);
         } else if(isConnected && !tweets.get(position).user.avatarUnderProcessing) {
-            new ImageLoader().setAdapter(this, position).load(tweets.get(position).user);
+            ImageLoader.setAdapter(this, position).load(tweets.get(position).user);
         }
 
         int i=1;
@@ -129,7 +129,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                                 });
                                 holder.tweetDetailCard.setTweetImage(tweets.get(position).media.size(), i, media.cached_image_preview);
                             } else if(isConnected && !media.underProcessing) {
-                                new ImageLoader().setAdapter(this, position).load(media,true);
+                                ImageLoader.setAdapter(this, position).load(media,true);
                             }
                             break;
                         case TwitterMedia.VIDEO:
@@ -145,7 +145,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                                 holder.tweetDetailCard.setVideoBackground(media.cached_image_preview);
                             } else if(isConnected && !media.underProcessing) {
                                 // isPreview为true时对应加载封面
-                                new ImageLoader().setAdapter(this, position).load(media,true);
+                                ImageLoader.setAdapter(this, position).load(media,true);
                             }
                             break;
                     }

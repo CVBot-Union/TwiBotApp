@@ -13,7 +13,7 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 
-public class TwitterUser implements Parcelable, Serializable, Updatable {
+public class TwitterUser implements Parcelable, Serializable {
     public boolean avatarUnderProcessing = false;
 
     public String id;
@@ -134,10 +134,4 @@ public class TwitterUser implements Parcelable, Serializable, Updatable {
             return new TwitterUser[size];
         }
     };
-
-    @Override
-    public boolean update() {
-        // TODO TwitterUser更新操作
-        return false;
-    }
 }

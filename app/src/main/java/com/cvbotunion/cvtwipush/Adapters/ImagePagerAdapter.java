@@ -48,7 +48,7 @@ public class ImagePagerAdapter extends RecyclerView.Adapter<ImagePagerAdapter.Vi
         if(twitterMediaArrayList.get(position).cached_image != null){
             holder.photoView.setImageBitmap(twitterMediaArrayList.get(position).cached_image);
         } else if(!twitterMediaArrayList.get(position).underProcessing){
-            new ImageLoader().setAdapter(this, position).load(twitterMediaArrayList.get(position), false);
+            ImageLoader.setAdapter(this, position).load(twitterMediaArrayList.get(position), false);
         }
     }
 
