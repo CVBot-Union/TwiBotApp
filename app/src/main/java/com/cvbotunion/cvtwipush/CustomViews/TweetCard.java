@@ -53,12 +53,7 @@ public class TweetCard extends CardView{
 
     @Override
     public boolean performClick() {
-        return card.performClick();
-    }
-
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return true;
+        return card.performClick()||super.performClick();
     }
 
     public void setQSButtonOnClickListener(OnClickListener listener){

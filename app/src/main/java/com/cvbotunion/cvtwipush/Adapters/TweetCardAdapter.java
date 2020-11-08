@@ -1,5 +1,6 @@
 package com.cvbotunion.cvtwipush.Adapters;
 
+import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -35,9 +36,6 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
 
     public ArrayList<TwitterStatus> tweets;
 
-    public static final int GET_DATA_SUCCESS = 1;
-    public static final int NETWORK_ERROR = 2;
-    public static final int SERVER_ERROR = 3;
     public static boolean isConnected = true;
 
     public Handler handler;
@@ -46,7 +44,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
 
     public TweetCardAdapter(ArrayList<TwitterStatus> tweets,Context context){
         this.tweets = tweets;
-        handler = new Handler();
+        this.handler = new Handler();
         this.context = context;
         this.tweetFormat = Timeline.getCurrentGroup().tweetFormat;
     }
@@ -67,17 +65,16 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
         return new TweetCardViewHolder(view);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onBindViewHolder(@NonNull final TweetCardAdapter.TweetCardViewHolder holder, final int position) {
         //卡片
-        final CardView card = holder.itemView.findViewById(R.id.tweet_card);
-        card.setOnClickListener(v -> {
+        holder.tweetCard.setOnClickListener(v -> {
             //参数传递
             AppCompatActivity activity = (AppCompatActivity) context;
             Intent intent = new Intent(v.getContext(), TweetDetail.class);
             Bundle bundle = new Bundle();
             bundle.putParcelable("twitterStatus",tweets.get(position));
-            bundle.putString("tweetFormat",tweetFormat);
             intent.putExtras(bundle);
             // TODO 考虑更换动画
             ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(activity,holder.tweetCard.card,"activityOption");
@@ -107,17 +104,11 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
 
         //正文
         holder.tweetCard.setTweetText(tweets.get(position).getText());
-        if(holder.tweetCard.getTweetStatusTextView().getUrls().length != 0) {
-            holder.tweetCard.getTweetStatusTextView().setOnClickListener(view -> {
-                holder.tweetCard.performClick();
-            });
+        if(holder.tweetCard.getTweetStatusTextView().getUrls().length!=0) {
+            holder.tweetCard.getTweetStatusTextView().setOnClickListener(view -> holder.tweetCard.performClick());
+        } else {
+            holder.tweetCard.setOnTouchListener((v, event) -> false);
         }
-        holder.tweetCard.getTweetStatusTextView().setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                return false;
-            }
-        });
 
         //推文类型
         switch(tweets.get(position).getTweetType()){

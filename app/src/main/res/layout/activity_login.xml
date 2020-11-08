@@ -101,9 +101,9 @@
         android:drawablePadding="8dp"
         android:gravity="center_vertical"
         android:padding="8dp"
-        android:text="失败信息（注册尚未实装）记得删掉这行"
+        android:text="失败信息"
         android:textColor="@android:color/white"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/login_password_text_layout"
         app:drawableLeftCompat="@drawable/ic_baseline_error_outline_24"
         tools:layout_editor_absoluteX="16dp" />

@@ -23,8 +23,8 @@ import java.util.HashMap;
 public class TweetDetailCard extends TweetCard {
     public Button copyToTextField;
     public Button historyButton;
-    public ImageButton copyTextButton;
-    public ImageButton saveMediaButton;
+    public Button copyTextButton;
+    public Button saveMediaButton;
     public Button uploadButton;
     public TextInputLayout translationTextInputLayout;
     public TextInputEditText translationTextInputEditText;
@@ -62,6 +62,7 @@ public class TweetDetailCard extends TweetCard {
         } else {
             thisView = LayoutInflater.from(context).inflate(R.layout.tweet_detail_card,this,true);
         }
+        card = thisView.findViewById(R.id.tweet_detail_card);
         avatarImg = thisView.findViewById(R.id.avatar_img);
         nameTextView = thisView.findViewById(R.id.name_text);
         tweetTypeTextView = thisView.findViewById(R.id.tweet_type_text);
@@ -88,7 +89,7 @@ public class TweetDetailCard extends TweetCard {
     public void initHistoryTranslationView(Context context, ArrayList<HashMap<String,String>> translations) {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context);
         historyTranslationsView.setLayoutManager(layoutManager);
-        historyAdapter = new TranslationCardAdapter(translations, context);
+        historyAdapter = new TranslationCardAdapter(context, translations);
         historyTranslationsView.setAdapter(historyAdapter);
         ((SimpleItemAnimator) historyTranslationsView.getItemAnimator()).setSupportsChangeAnimations(false);
     }

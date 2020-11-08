@@ -34,11 +34,9 @@ import okhttp3.Response;
 public class TweetDetail extends AppCompatActivity {
     private MaterialToolbar mdToolbar;
     public RefreshLayout refreshLayout;
-    private RecyclerView.LayoutManager layoutManager;
     private RecyclerView tweetDetailRecyclerView;
     private TweetDetailCardAdapter tAdapter;
 
-    private String tweetFormat;
     public ArrayList<TwitterStatus> dataSet;
 
     private Handler handler;
@@ -53,7 +51,6 @@ public class TweetDetail extends AppCompatActivity {
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
         TwitterStatus status = bundle.getParcelable("twitterStatus");
-        tweetFormat = bundle.getString("tweetFormat");
 
         dataSet.add(status);
 
@@ -88,13 +85,16 @@ public class TweetDetail extends AppCompatActivity {
         refreshLayout.setEnableLoadMore(false);  //关闭上拉加载功能
         refreshLayout.setEnableScrollContentWhenRefreshed(false);  //在刷新完成时不滚动列表，避免与initRecyclerView的滚动操作冲突
         refreshLayout.setHeaderTriggerRate(0.7f);  //触发刷新距离 与 HeaderHeight 的比率
-        refreshLayout.setOnRefreshListener(refreshlayout -> dataSet.get(dataSet.size()-1).queryTranslations(handler ,tAdapter, refreshlayout));
+        refreshLayout.setOnRefreshListener(refreshlayout -> {
+            tAdapter.notifyDataSetChanged();
+            refreshlayout.finishRefresh(true);
+        });
     }
 
     private void initRecyclerView(){
-        layoutManager = new LinearLayoutManager(this);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         tweetDetailRecyclerView.setLayoutManager(layoutManager);
-        tAdapter = new TweetDetailCardAdapter(dataSet,this, tweetFormat);
+        tAdapter = new TweetDetailCardAdapter(dataSet,this);
         tweetDetailRecyclerView.setAdapter(tAdapter);
         tweetDetailRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         ((SimpleItemAnimator) tweetDetailRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);

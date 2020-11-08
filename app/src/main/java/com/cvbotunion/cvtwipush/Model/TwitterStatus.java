@@ -58,7 +58,7 @@ public class TwitterStatus implements Parcelable {
     public ArrayList<String> hashtags;
     public ArrayList<TwitterUser> user_mentions;
     public ArrayList<TwitterMedia> media;
-    public ArrayList<HashMap<String,String>> translations;  // keys: "userName","groupName","content"
+    public ArrayList<HashMap<String,String>> translations;  // map keys: "userName","groupName","content"
 
     public TwitterStatus(){
         hashtags = new ArrayList<>();
@@ -170,21 +170,16 @@ public class TwitterStatus implements Parcelable {
     }
 
     public static String textModify(String text, JSONArray urls) throws JSONException {
-        MatchResult lastTcoResult = tcoRegex.find(text,0);
-        if(lastTcoResult==null) return text;
-        String lastTco = lastTcoResult.getValue();
-        for(int k=0;k<urls.length();k++) {
-            if(lastTco.contains(urls.getJSONObject(k).getString("url")))
-                return text.replace("&amp;", "&")
-                        .replace("&quot;", "\"")
-                        .replace("&lt;", "<")
-                        .replace("&gt;", ">");
-        }
-        return tcoRegex.replace(text, "")
+        String htmlDecodedText = text
                 .replace("&amp;", "&")
                 .replace("&quot;", "\"")
                 .replace("&lt;", "<")
                 .replace("&gt;", ">");
+        for(int k=0;k<urls.length();k++) {
+            htmlDecodedText = htmlDecodedText.replace(
+                    urls.getJSONObject(k).getString("url"), urls.getJSONObject(k).getString("expanded_url"));
+        }
+        return tcoRegex.replace(htmlDecodedText,"");
     }
 
     public static String toUTC8(String created_at) throws ParseException {

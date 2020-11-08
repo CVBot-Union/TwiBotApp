@@ -22,9 +22,8 @@ public class TranslationCardAdapter extends RecyclerView.Adapter<TranslationCard
     public ArrayList<HashMap<String,String>> translations;
     public Context context;
 
-    public TranslationCardAdapter(ArrayList<HashMap<String,String>> translations, Context context) {
-        // TODO 由于不明原因传入的translations总是为null，需要修改
-        this.translations = translations==null?new ArrayList<>():translations;
+    public TranslationCardAdapter(Context context, ArrayList<HashMap<String,String>> translations) {
+        this.translations = translations;
         this.context = context;
     }
 
@@ -46,9 +45,8 @@ public class TranslationCardAdapter extends RecyclerView.Adapter<TranslationCard
 
     @Override
     public void onBindViewHolder(@NonNull TranslationCardAdapter.TranslationCardViewHolder holder, final int position) {
-        final CardView card = holder.itemView.findViewById(R.id.history_translation_card);
-        card.setOnClickListener(view -> Snackbar.make(view, "长按复制翻译", 1000).show());
-        card.setOnLongClickListener(view -> {
+        holder.translationCard.card.setOnClickListener(view -> Snackbar.make(view, "长按复制翻译", Snackbar.LENGTH_SHORT).show());
+        holder.translationCard.card.setOnLongClickListener(view -> {
             ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
             ClipData mClipData = ClipData.newPlainText("translation", translations.get(position).get("content"));
             clipboardManager.setPrimaryClip(mClipData);

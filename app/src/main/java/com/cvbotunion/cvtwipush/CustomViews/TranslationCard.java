@@ -9,12 +9,14 @@ import androidx.cardview.widget.CardView;
 import com.cvbotunion.cvtwipush.R;
 
 public class TranslationCard extends CardView {
+    public CardView card;
     public TextView userNameView;
     public TextView groupNameView;
     public TextView contentView;
 
     public TranslationCard(@NonNull final Context context) {
         super(context);
+        card = findViewById(R.id.history_translation_card);
         userNameView = findViewById(R.id.history_translation_user_name);
         groupNameView = findViewById(R.id.history_translation_group_name);
         contentView = findViewById(R.id.history_translation_content);
