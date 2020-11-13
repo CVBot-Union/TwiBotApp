@@ -70,7 +70,7 @@ public class LoginRunnable implements Runnable {
                         JSONObject groupJson = resJson.getJSONObject("response");
                         user.jobs.get(i).group.name = groupJson.getString("name");
                         user.jobs.get(i).group.avatarURL = groupJson.getString("avatarURL");
-                        // TODO
+                        // TODO tweet format格式转化（自然语言->Java ?）
                         user.jobs.get(i).group.tweetFormat = RTGroup.DEFAULT_FORMAT;
                         // user.jobs.get(i).group.tweetFormat = groupJson.getString("tweetFormat");
                         JSONArray followingJson = groupJson.getJSONArray("following");
@@ -107,6 +107,7 @@ public class LoginRunnable implements Runnable {
             Log.e("LoginRunnable", e.toString());
             handler.post(() -> {
                 activityRef.get().progressBar.setVisibility(View.GONE);
+                activityRef.get().messageView.setVisibility(View.VISIBLE);
                 if (e.getMessage().contains("403")) {
                     activityRef.get().messageView.setText("用户名或密码错误");
                 } else {

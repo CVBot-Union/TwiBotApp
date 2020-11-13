@@ -70,10 +70,11 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setEnabled(false);
         loginButton.setBackgroundColor(getColor(R.color.colorGray));
         loginButton.setOnClickListener(v -> {
-            messageView.setText("");
+            messageView.setVisibility(View.GONE);
             final String username = usernameText.getText().toString();
             final String password = passwordText.getText().toString();
             if(username.length()==0 || username.contains(" ")) {
+                messageView.setVisibility(View.VISIBLE);
                 messageView.setText("用户名为空或包含空格");
             } else {
                 progressBar.setVisibility(View.VISIBLE);

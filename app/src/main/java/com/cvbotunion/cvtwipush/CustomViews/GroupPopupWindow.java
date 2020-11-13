@@ -41,7 +41,7 @@ public class GroupPopupWindow extends PopupWindow {
             if(user.avatar != null){
                 avatarView.setImageBitmap(user.avatar);
             } else {
-                new ImageLoader().setImageView(avatarView).load(user);
+                ImageLoader.setImageView(avatarView).load(user);
             }
         }
         groupListView.setLayoutManager(new LinearLayoutManager(context));

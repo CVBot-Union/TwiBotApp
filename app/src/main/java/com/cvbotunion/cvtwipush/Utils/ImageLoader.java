@@ -37,27 +37,27 @@ public class ImageLoader {
     private Integer position;
     private WeakReference<ImageView> imageViewRef;
 
-    public ImageLoader() {
+    private ImageLoader() {
         this.handler = new Handler();
     }
 
-    public ImageLoader setAdapter(RecyclerView.Adapter<?> tAdapter, Integer position) {
-        this.tAdapter = tAdapter;
-        this.position = position;
-        return this;
+    public static ImageLoader setAdapter(RecyclerView.Adapter<?> tAdapter, Integer position) {
+        ImageLoader instance = new ImageLoader();
+        instance.tAdapter = tAdapter;
+        instance.position = position;
+        return instance;
     }
 
-    public ImageLoader setAdapter(RecyclerView.Adapter<?> tAdapter) {
-        this.tAdapter = tAdapter;
-        return this;
+    public static ImageLoader setAdapter(RecyclerView.Adapter<?> tAdapter) {
+        ImageLoader instance = new ImageLoader();
+        instance.tAdapter = tAdapter;
+        return instance;
     }
 
-    /**
-     * setAdapter()的优先级高于setImageView()，若同时设置两者，将使用adapter刷新UI
-     */
-    public ImageLoader setImageView(ImageView imageView) {
-        this.imageViewRef = new WeakReference<>(imageView);
-        return this;
+    public static ImageLoader setImageView(ImageView imageView) {
+        ImageLoader instance = new ImageLoader();
+        instance.imageViewRef = new WeakReference<>(imageView);
+        return instance;
     }
 
     public void load(final TwitterMedia media, final boolean isPreview) {

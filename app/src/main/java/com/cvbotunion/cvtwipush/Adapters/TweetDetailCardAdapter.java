@@ -16,7 +16,6 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cvbotunion.cvtwipush.Activities.ImageViewer;
@@ -41,20 +40,17 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
 
     public ArrayList<TwitterStatus> tweets;
 
-    public static final int GET_DATA_SUCCESS = 1;
-    public static final int NETWORK_ERROR = 2;
-    public static final int SERVER_ERROR = 3;
     public static boolean isConnected = true;
 
     public Handler handler;
     public Context context;
-    private String tweetFormat;
+    private final String tweetFormat;
 
-    public TweetDetailCardAdapter(ArrayList<TwitterStatus> tweets,Context context,String tweetFormat){
+    public TweetDetailCardAdapter(ArrayList<TwitterStatus> tweets,Context context){
         this.tweets = tweets;
-        handler = new Handler();
+        this.handler = new Handler();
         this.context = context;
-        this.tweetFormat = tweetFormat;
+        this.tweetFormat = Timeline.getCurrentGroup().tweetFormat;
     }
 
     public static class TweetDetailCardViewHolder extends RecyclerView.ViewHolder{
@@ -75,8 +71,6 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
 
     @Override
     public void onBindViewHolder(@NonNull final TweetDetailCardAdapter.TweetDetailCardViewHolder holder, final int position) {
-        final CardView card = holder.itemView.findViewById(R.id.tweet_detail_card);
-
         holder.tweetDetailCard.setName(tweets.get(position).getUser().name_in_group);
 
         holder.tweetDetailCard.setTweetText(tweets.get(position).getText());
@@ -108,7 +102,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
         if(tweets.get(position).user.cached_profile_image != null){
             holder.tweetDetailCard.setAvatarImg(tweets.get(position).user.cached_profile_image);
         } else if(isConnected && !tweets.get(position).user.avatarUnderProcessing) {
-            new ImageLoader().setAdapter(this, position).load(tweets.get(position).user);
+            ImageLoader.setAdapter(this, position).load(tweets.get(position).user);
         }
 
         int i=1;
@@ -132,7 +126,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                                 });
                                 holder.tweetDetailCard.setTweetImage(tweets.get(position).media.size(), i, media.cached_image_preview);
                             } else if(isConnected && !media.underProcessing) {
-                                new ImageLoader().setAdapter(this, position).load(media,true);
+                                ImageLoader.setAdapter(this, position).load(media,true);
                             }
                             break;
                         case TwitterMedia.VIDEO:
@@ -148,7 +142,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                                 holder.tweetDetailCard.setVideoBackground(media.cached_image_preview);
                             } else if(isConnected && !media.underProcessing) {
                                 // isPreview为true时对应加载封面
-                                new ImageLoader().setAdapter(this, position).load(media,true);
+                                ImageLoader.setAdapter(this, position).load(media,true);
                             }
                             break;
                     }
@@ -156,7 +150,20 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                 }
         }
 
-        card.setOnClickListener(v -> {
+        if(tweets.get(position).media==null || tweets.get(position).media.isEmpty()) holder.tweetDetailCard.saveMediaButton.setVisibility(View.GONE);
+        else holder.tweetDetailCard.saveMediaButton.setOnClickListener(v -> {
+            //保存媒体
+            String result = "成功";
+            for (TwitterMedia singleMedia : tweets.get(position).media) {
+                if (!singleMedia.saveToFile(v.getContext())) {
+                    result = "失败";
+                    break;
+                }
+            }
+            Snackbar.make(v, "保存媒体" + result, 1000).show();
+        });
+
+        holder.tweetDetailCard.setOnClickListener(v -> {
             InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
             try {
                 imm.hideSoftInputFromWindow(holder.itemView.getWindowToken(), 0);
@@ -172,32 +179,20 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
         if(position == tweets.size()-1){
             final TwitterStatus lastTweet = tweets.get(position);
             holder.tweetDetailCard.setTranslationMode(true);
-            if(!lastTweet.getText().equals("")) holder.tweetDetailCard.copyToTextField.setVisibility(View.VISIBLE);
+            if(lastTweet.getText().equals("")) holder.tweetDetailCard.copyToTextField.setVisibility(View.GONE);
 
             holder.tweetDetailCard.historyButton.setText(lastTweet.translations!=null ? String.valueOf(lastTweet.translations.size()) : "0");
-            // 阻止更新界面时反复查询
-            if(!lastTweet.hadQueried || holder.tweetDetailCard.getHistoryAdapter()==null) {
-                holder.tweetDetailCard.initHistoryTranslationView(context, lastTweet.translations);
-                lastTweet.queryTranslations(handler, holder.tweetDetailCard);
-            } else {
-                holder.tweetDetailCard.getHistoryAdapter().notifyDataSetChanged();
-            }
-            holder.tweetDetailCard.historyButton.setOnClickListener(view -> {
-                // 显示历史翻译区
-                holder.tweetDetailCard.historyTranslationsView.setVisibility(View.VISIBLE);
-            });
 
-            if(lastTweet.media==null || lastTweet.media.isEmpty()) holder.tweetDetailCard.saveMediaButton.setVisibility(View.GONE);
-            else holder.tweetDetailCard.saveMediaButton.setOnClickListener(v -> {
-                //保存媒体
-                String result = "成功";
-                for (TwitterMedia singleMedia : lastTweet.media) {
-                    if (!singleMedia.saveToFile(v.getContext())) {
-                        result = "失败";
-                        break;
-                    }
+            holder.tweetDetailCard.initHistoryTranslationView(context, lastTweet.translations);
+            if(!lastTweet.hadQueried) lastTweet.queryTranslations(handler, holder.tweetDetailCard);
+            holder.tweetDetailCard.historyButton.setOnClickListener(view -> {
+                // 显示或隐藏历史翻译区
+                if(holder.tweetDetailCard.historyTranslationsView.getVisibility()==View.VISIBLE) {
+                    holder.tweetDetailCard.historyTranslationsView.setVisibility(View.GONE);
+                } else {
+                    lastTweet.queryTranslations(handler, holder.tweetDetailCard);
+                    holder.tweetDetailCard.historyTranslationsView.setVisibility(View.VISIBLE);
                 }
-                Snackbar.make(v, "保存媒体" + result, 1000).show();
             });
 
             holder.tweetDetailCard.copyTextButton.setOnClickListener(v -> {
@@ -207,6 +202,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                 clipboardManager.setPrimaryClip(mClipData);
                 Snackbar.make(v,"已复制原文及翻译",1000).show();
             });
+
             holder.tweetDetailCard.uploadButton.setOnClickListener(view -> {
                 // 上传翻译
                 if(isConnected) new Thread(() -> {
@@ -240,6 +236,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
             });
         } else { // 刷新UI需要隐藏之前显示的翻译区
             holder.tweetDetailCard.setTranslationMode(false);
+            holder.tweetDetailCard.copyToTextField.setVisibility(View.GONE);
         }
     }
 
