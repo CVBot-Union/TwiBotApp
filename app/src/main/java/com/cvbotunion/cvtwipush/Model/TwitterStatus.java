@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
-import kotlin.text.MatchResult;
 import kotlin.text.Regex;
 import okhttp3.Response;
 
@@ -253,7 +252,7 @@ public class TwitterStatus implements Parcelable {
         }
         new Thread(() -> {
             try {
-                Response response = Timeline.connection.webService.get(WebService.SERVER_API+"tweet/"+finalId+"/translations");
+                Response response = Timeline.connection.webService.get(WebService.SERVER_API+"/tweet/"+finalId+"/translations");
                 if(response.code()==200) {
                     JSONObject resJson = new JSONObject(response.body().string());
                     response.close();

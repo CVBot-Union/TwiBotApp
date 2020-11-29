@@ -25,7 +25,7 @@ public class RefreshTask extends AsyncTask<Void, Void, String> {
     public final static int REFRESH = 0;
     public final static int LOADMORE = 1;
 
-    private String url = WebService.SERVER_API+"tweet/range?";
+    private String url = WebService.SERVER_API+"/tweet/range?";
 
     private final WeakReference<RefreshLayout> refreshLayoutRef;
     private final TweetCardAdapter tAdapter;
@@ -56,7 +56,14 @@ public class RefreshTask extends AsyncTask<Void, Void, String> {
                 if(beforeID.equals("0")) {
                     url += ("page=1&limit="+Timeline.LIMIT+"&group="+ Timeline.getCurrentGroup().id+"&beforeID=0&sortKey=DESC");
                 } else {
-                    url += ("page=1&limit="+Timeline.LIMIT+"&group="+ Timeline.getCurrentGroup().id+"&beforeID="+beforeID+"&sortKey=ASC");
+                    int leftTweetsCount = countBehind(beforeID);
+                    if(leftTweetsCount>2*Timeline.LIMIT) {
+                        dataSet.clear();
+                        usedDataSet.clear();
+                        url += ("page=1&limit=" + 2*Timeline.LIMIT + "&group=" + Timeline.getCurrentGroup().id + "&beforeID=" + beforeID + "&sortKey=ASC");
+                    } else {
+                        url += ("page=1&limit=" + leftTweetsCount + "&group=" + Timeline.getCurrentGroup().id + "&beforeID=" + beforeID + "&sortKey=ASC");
+                    }
                 }
                 Response response = Timeline.connection.webService.get(url);
                 if(response.code()==200) {
@@ -127,6 +134,21 @@ public class RefreshTask extends AsyncTask<Void, Void, String> {
             return "刷新/加载失败";
         }
         return "success";
+    }
+
+    private int countBehind(String tweetID) throws Exception {
+        String cntUrl = WebService.SERVER_API+"/timeline-behind-count?group="+Timeline.getCurrentGroup().id+"&afterID="+tweetID;
+        Response response = Timeline.connection.webService.get(cntUrl);
+        if(response.code()==200) {
+            JSONObject resJson = new JSONObject(response.body().string());
+            response.close();
+            return resJson.getInt("response");
+        } else {
+            int code = response.code();
+            String msg = response.message();
+            response.close();
+            throw new Exception(code+" "+msg);
+        }
     }
 
     @Override

@@ -46,7 +46,7 @@ public class LoginRunnable implements Runnable {
             // password = RSACrypto.getInstance().encrypt(password, publicKey);
             password = Timeline.connection.webService.encryptPassword(password);
             String auth = Timeline.connection.webService.login(username, password);
-            Response response = Timeline.connection.webService.get(WebService.SERVER_API + "v2/user/");
+            Response response = Timeline.connection.webService.get(WebService.SERVER_API + "/v2/user/");
             if (response.code() == 200) {
                 JSONObject resJson = new JSONObject(response.body().string());
                 response.close();
@@ -62,7 +62,7 @@ public class LoginRunnable implements Runnable {
                 throw new Exception("fail to connect while getting current user");
             }
             for (int i=0;i<user.jobs.size();i++) {
-                Response groupResponse = Timeline.connection.webService.get(WebService.SERVER_API + "v2/rtgroup/" + user.jobs.get(i).group.id);
+                Response groupResponse = Timeline.connection.webService.get(WebService.SERVER_API + "/v2/rtgroup/" + user.jobs.get(i).group.id);
                 if (groupResponse.code() == 200) {
                     JSONObject resJson = new JSONObject(groupResponse.body().string());
                     groupResponse.close();
@@ -81,7 +81,7 @@ public class LoginRunnable implements Runnable {
                                     item.getString("nickname"),
                                     null,
                                     item.getString("nickname"),
-                                    WebService.SERVER_API + "lookup/avatar/id/" + item.getString("uid")+".png");
+                                    WebService.SERVER_API + "/lookup/avatar/id/" + item.getString("uid")+".png");
                             user.jobs.get(i).group.following.add(singleTU);
                         }
                         JSONArray members = groupJson.getJSONArray("members");

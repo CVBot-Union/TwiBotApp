@@ -15,7 +15,7 @@ import javax.crypto.NoSuchPaddingException;
 
 public final class RSACrypto {
     private static RSACrypto instance = null;
-    private Cipher cipher;
+    private final Cipher cipher;
     private RSAPublicKey publicKey;
 
     private RSACrypto() throws NoSuchPaddingException, NoSuchAlgorithmException {

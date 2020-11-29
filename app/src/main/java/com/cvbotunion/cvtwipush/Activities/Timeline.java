@@ -61,7 +61,7 @@ import java.util.Map;
 
 public class Timeline extends AppCompatActivity {
     //每次从数据库和服务器获取的最大推文数目
-    public static final int LIMIT = 20;
+    public static final int LIMIT = 50;
     public static MyServiceConnection connection = new MyServiceConnection();
 
     private RecyclerView tweetListRecyclerView;
@@ -233,7 +233,7 @@ public class Timeline extends AppCompatActivity {
 
         if(currentGroup==null) {
             Toast.makeText(getApplicationContext(), "获取转推组信息失败", Toast.LENGTH_LONG).show();
-            finish();
+            onBackPressed();
             return;
         }
 
@@ -251,7 +251,7 @@ public class Timeline extends AppCompatActivity {
                 if(tu.id.equals(tweet.user.id)) tweet.user.name_in_group = tu.name_in_group;
             });
             dataSet.add(tweet);
-            if(dataSet.size()>=LIMIT) { break; }
+            if(dataSet.size()>=LIMIT) break;
         }
         usedDataSet.addAll(dataSet);
     }
@@ -263,7 +263,7 @@ public class Timeline extends AppCompatActivity {
                 try {
                     super.onLayoutChildren(recycler, state);
                 } catch (IndexOutOfBoundsException e) {
-                    e.printStackTrace();
+                    Log.e("Timeline.initRecyclerView", e.toString());
                 }
             }
         };

@@ -23,9 +23,9 @@ import okhttp3.Response;
 
 public class WebService extends Service {
     // 备用 https://cn.api.cvbot.powerlayout.com/
-    public static final String SERVER_API = "https://api.cvbot.powerlayout.com/";
-    public static final String SERVER_IMAGE = "https://cdn.cvbot.powerlayout.com/images/";
-    public static final String SERVER_VIDEO = "https://cdn.cvbot.powerlayout.com/videos/";
+    public static final String SERVER_API = "https://api.cvbot.powerlayout.com";
+    public static final String SERVER_IMAGE = "https://cdn.cvbot.powerlayout.com/images";
+    public static final String SERVER_VIDEO = "https://cdn.cvbot.powerlayout.com/videos";
 
     public static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
     public static final MediaType PLAIN = MediaType.get("text/plain; charset=utf-8");
@@ -65,9 +65,9 @@ public class WebService extends Service {
     }
 
     public String queryPublicKey() throws Exception {
-        Log.i("web connection", SERVER_API+"auth/public-key");
+        Log.i("web connection", SERVER_API+"/auth/public-key");
         Request request = new Request.Builder()
-                .url(SERVER_API+"auth/public-key")
+                .url(SERVER_API+"/auth/public-key")
                 .get()
                 .build();
         Response response = mClient.newCall(request).execute();
@@ -86,10 +86,10 @@ public class WebService extends Service {
     }
 
     public String encryptPassword(String password) throws Exception {
-        Log.i("web connection", SERVER_API+"auth/encrypt");
+        Log.i("web connection", SERVER_API+"/auth/encrypt");
         RequestBody body = RequestBody.create("password="+password, FORM_URLENCODED);
         Request request = new Request.Builder()
-                .url(SERVER_API+"auth/encrypt")
+                .url(SERVER_API+"/auth/encrypt")
                 .post(body)
                 .build();
         Response response = mClient.newCall(request).execute();
@@ -105,13 +105,13 @@ public class WebService extends Service {
     }
 
     public String login(String username, String password) throws Exception {
-        Log.i("web connection", SERVER_API+"auth/login");
+        Log.i("web connection", SERVER_API+"/auth/login");
         JSONObject data = new JSONObject();
         data.put("username", username);
         data.put("password", password);
         RequestBody body = RequestBody.create(data.toString(), JSON);
         Request request = new Request.Builder()
-                .url(SERVER_API+"auth/login")
+                .url(SERVER_API+"/auth/login")
                 .header("x-tian-wang-gai-di-hu", "bao-ta-zhen-he-yao")
                 .method("POST", body)
                 .build();
