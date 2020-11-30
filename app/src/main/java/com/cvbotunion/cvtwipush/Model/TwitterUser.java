@@ -53,7 +53,7 @@ public class TwitterUser implements Parcelable, Serializable {
         this.followers_count = twitterUser.getInt("followers_count");
         this.friends_count = twitterUser.getInt("friends_count");
         this.statuses_count = twitterUser.getInt("statuses_count");
-        this.profile_image_url = WebService.SERVER_API+"lookup/avatar/id/"+id+".png";
+        this.profile_image_url = WebService.SERVER_API+"/lookup/avatar/id/"+id+".png";
     }
 
     protected TwitterUser(Parcel in) {

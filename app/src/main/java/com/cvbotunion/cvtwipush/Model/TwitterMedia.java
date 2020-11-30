@@ -63,13 +63,13 @@ public class TwitterMedia implements Parcelable {
         switch(media.getString("type")) {
             case "photo":
                 this.type = IMAGE;
-                this.url = WebService.SERVER_IMAGE+id+".png";
+                this.url = WebService.SERVER_IMAGE+"/"+id+".png";
                 this.previewImageURL = url+"?"+urlPreviewParam;
                 break;
             case "video":
                 this.type = VIDEO;
-                this.url = WebService.SERVER_VIDEO+id+".mp4";
-                this.previewImageURL = WebService.SERVER_IMAGE+id+".png";
+                this.url = WebService.SERVER_VIDEO+"/"+id+".mp4";
+                this.previewImageURL = WebService.SERVER_IMAGE+"/"+id+".png";
                 break;
             default:
                 break;

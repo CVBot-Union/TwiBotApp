@@ -105,7 +105,7 @@ public class TweetDetail extends AppCompatActivity {
         new Thread(() -> {
             boolean success = false;
             try {
-                Response response = Timeline.connection.webService.get(WebService.SERVER_API+"tweet/"+statusId+"?groupID="+Timeline.getCurrentGroup().id);
+                Response response = Timeline.connection.webService.get(WebService.SERVER_API+"/tweet/"+statusId+"?groupID="+Timeline.getCurrentGroup().id);
                 if(response.code()==200) {
                     JSONObject resJson = new JSONObject(response.body().string());
                     response.close();

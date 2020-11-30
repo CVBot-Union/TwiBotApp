@@ -212,7 +212,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                                 +URLEncoder.encode(holder.tweetDetailCard.getTranslatedText(),"UTF-8")
                                 +"&sessionGroupID="+ Timeline.getCurrentGroup().id;
                         Response response= Timeline.connection.webService.request(
-                                "PUT", WebService.SERVER_API+"tweet/"+lastTweet.id+"/translation", data, WebService.FORM_URLENCODED);
+                                "PUT", WebService.SERVER_API+"/tweet/"+lastTweet.id+"/translation", data, WebService.FORM_URLENCODED);
                         if(response.code()==200) {
                             JSONObject resJson = new JSONObject(response.body().string());
                             response.close();
