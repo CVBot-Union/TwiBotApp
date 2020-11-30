@@ -25,10 +25,10 @@
             android:background="?android:attr/colorBackground"
             android:elevation="5dp"
             android:fitsSystemWindows="true"
-            app:layout_scrollFlags="scroll|enterAlways|snap"
             android:theme="@style/Theme.MaterialComponents.Light.NoActionBar.Bridge"
+            app:layout_scrollFlags="scroll|enterAlways|snap"
             app:navigationIcon="?attr/homeAsUpIndicator"
-            app:title="详情"
+            app:title="@string/detail"
             app:titleTextColor="#000000" />
 
     </com.google.android.material.appbar.AppBarLayout>

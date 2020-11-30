@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import okhttp3.Response;
 // TODO 考虑修改为Fragment
@@ -58,21 +59,35 @@ public class TweetDetail extends AppCompatActivity {
         initRecyclerView();
 
         if(status.getTweetType() == TwitterStatus.REPLY) {
-            DBTwitterStatus dbReplyToStatus = LitePal.where("tsid = ?", status.in_reply_to_status_id).findFirst(DBTwitterStatus.class);
-            if(dbReplyToStatus != null) {
-                dataSet.add(0, dbReplyToStatus.toTwitterStatus());
-                tAdapter.notifyDataSetChanged();
-            } else {
-                getStatusNotInDB(status.in_reply_to_status_id);
+            TwitterStatus inReplyToStatus = status;
+            Collections.reverse(dataSet);
+            while(inReplyToStatus.in_reply_to_status_id != null) {
+                DBTwitterStatus dbReplyToStatus = LitePal.where("tsid = ?", inReplyToStatus.in_reply_to_status_id).findFirst(DBTwitterStatus.class);
+                if (dbReplyToStatus != null) {
+                    dataSet.add(dbReplyToStatus.toTwitterStatus());
+                    //tAdapter.notifyDataSetChanged();
+                } else {
+                    getStatusNotInDB(status.in_reply_to_status_id);
+                }
+                inReplyToStatus = dataSet.get(dataSet.size()-1);
             }
+            Collections.reverse(dataSet);
+            tAdapter.notifyDataSetChanged();
         } else if(status.getTweetType() == TwitterStatus.QUOTE) {
-            DBTwitterStatus dbQuotedStatus = LitePal.where("tsid = ?", status.quoted_status_id).findFirst(DBTwitterStatus.class);
-            if(dbQuotedStatus != null) {
-                dataSet.add(0, dbQuotedStatus.toTwitterStatus());
-                tAdapter.notifyDataSetChanged();
-            } else {
-                getStatusNotInDB(status.quoted_status_id);
+            TwitterStatus quotedStatus = status;
+            Collections.reverse(dataSet);
+            while(quotedStatus.quoted_status_id != null) {
+                DBTwitterStatus dbQuotedStatus = LitePal.where("tsid = ?", quotedStatus.quoted_status_id).findFirst(DBTwitterStatus.class);
+                if (dbQuotedStatus != null) {
+                    dataSet.add(dbQuotedStatus.toTwitterStatus());
+                    //tAdapter.notifyDataSetChanged();
+                } else {
+                    getStatusNotInDB(status.quoted_status_id);
+                }
+                quotedStatus = dataSet.get(dataSet.size()-1);
             }
+            Collections.reverse(dataSet);
+            tAdapter.notifyDataSetChanged();
         }
         tweetDetailRecyclerView.scrollToPosition(dataSet.size()-1);
     }
@@ -112,7 +127,7 @@ public class TweetDetail extends AppCompatActivity {
                     if(!resJson.getBoolean("success")) {
                         Log.e("TweetDetail.getStatusNotInDB", resJson.toString());
                     }
-                    dataSet.add(0, new TwitterStatus(resJson.getJSONObject("response"),true));
+                    dataSet.add(new TwitterStatus(resJson.getJSONObject("response"),true));
                     success = true;
                 } else {
                     Log.e("TweetDetail.getStatusNotInDB", response.message());
@@ -125,7 +140,8 @@ public class TweetDetail extends AppCompatActivity {
                 handler.post(() -> {
                     refreshLayout.finishRefresh();
                     if(finalSuccess) {
-                        tAdapter.notifyDataSetChanged();
+                        return;
+                        //tAdapter.notifyDataSetChanged();
                     } else {
                         Snackbar.make(tweetDetailRecyclerView, "获取父推文失败", 1000).show();
                     }

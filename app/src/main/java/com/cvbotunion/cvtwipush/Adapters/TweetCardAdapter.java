@@ -23,12 +23,15 @@ import com.cvbotunion.cvtwipush.Activities.ImageViewer;
 import com.cvbotunion.cvtwipush.Activities.Timeline;
 import com.cvbotunion.cvtwipush.Activities.TweetDetail;
 import com.cvbotunion.cvtwipush.Activities.VideoViewer;
+import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.R;
 import com.cvbotunion.cvtwipush.CustomViews.TweetCard;
 import com.cvbotunion.cvtwipush.Utils.ImageLoader;
 import com.google.android.material.snackbar.Snackbar;
+
+import org.litepal.LitePal;
 
 import java.util.ArrayList;
 
@@ -86,17 +89,17 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
             ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
             ClipData mClipData = ClipData.newPlainText("tweet", tweet.getFullText(tweetFormat));
             clipboardManager.setPrimaryClip(mClipData);
-            String result = "成功";
+            String result = context.getString(R.string.success);
             //保存媒体
             if (tweet.media != null && !tweet.media.isEmpty()) {
                 for (TwitterMedia singleMedia : tweet.media) {
                     if (!singleMedia.saveToFile(v.getContext())) {
-                        result = "失败";
+                        result = context.getString(R.string.failure);
                         break;
                     }
                 }
             }
-            Snackbar.make(v, "保存" + result, Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(v, context.getString(R.string.save) + result, Snackbar.LENGTH_SHORT).show();
         });
 
         //姓名
@@ -104,6 +107,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
 
         //正文
         holder.tweetCard.setTweetText(tweets.get(position).getText());
+
         if(holder.tweetCard.getTweetStatusTextView().getUrls().length!=0) {
             holder.tweetCard.getTweetStatusTextView().setOnClickListener(view -> holder.tweetCard.performClick());
         } else {
@@ -113,10 +117,13 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
         //推文类型
         switch(tweets.get(position).getTweetType()){
             case TwitterStatus.REPLY:
-                holder.tweetCard.setType("回复");
+                holder.tweetCard.setType(context.getString(R.string.reply));
                 break;
             case TwitterStatus.QUOTE:
-                holder.tweetCard.setType("转推");
+                holder.tweetCard.setType(context.getString(R.string.quoted));
+                if(tweets.get(position).getText()==null||tweets.get(position).getText()==""){
+                    holder.tweetCard.setTweetText(context.getString(R.string.retweet_only));
+                }
                 break;
             default:
                 holder.tweetCard.setType("");

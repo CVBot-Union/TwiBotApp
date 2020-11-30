@@ -80,7 +80,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                 ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData mClipData = ClipData.newPlainText("tweet", tweets.get(position).getText());
                 clipboardManager.setPrimaryClip(mClipData);
-                Snackbar.make(view, "已复制原文", 1000).show();
+                Snackbar.make(view, context.getString(R.string.original_tweet_copied), 1000).show();
                 holder.tweetDetailCard.getTweetStatusTextView().setBackgroundColor(Color.TRANSPARENT);
             }
             return true;
@@ -88,10 +88,10 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
 
         switch(tweets.get(position).getTweetType()){
             case TwitterStatus.REPLY:
-                holder.tweetDetailCard.setType("回复");
+                holder.tweetDetailCard.setType(context.getString(R.string.reply));
                 break;
             case TwitterStatus.QUOTE:
-                holder.tweetDetailCard.setType("转推");
+                holder.tweetDetailCard.setType(context.getString(R.string.quoted));
                 break;
             default:
                 break;
@@ -153,14 +153,14 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
         if(tweets.get(position).media==null || tweets.get(position).media.isEmpty()) holder.tweetDetailCard.saveMediaButton.setVisibility(View.GONE);
         else holder.tweetDetailCard.saveMediaButton.setOnClickListener(v -> {
             //保存媒体
-            String result = "成功";
+            String result = context.getString(R.string.success);
             for (TwitterMedia singleMedia : tweets.get(position).media) {
                 if (!singleMedia.saveToFile(v.getContext())) {
-                    result = "失败";
+                    result = context.getString(R.string.failure);
                     break;
                 }
             }
-            Snackbar.make(v, "保存媒体" + result, 1000).show();
+            Snackbar.make(v, context.getString(R.string.media_save) + result, 1000).show();
         });
 
         holder.tweetDetailCard.setOnClickListener(v -> {
@@ -200,13 +200,13 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                 ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData mClipData = ClipData.newPlainText("tweetAndTranslation", lastTweet.getFullText(tweetFormat, holder.tweetDetailCard.getTranslatedText()));
                 clipboardManager.setPrimaryClip(mClipData);
-                Snackbar.make(v,"已复制原文及翻译",1000).show();
+                Snackbar.make(v,context.getString(R.string.original_tweet_and_translationCopied),1000).show();
             });
 
             holder.tweetDetailCard.uploadButton.setOnClickListener(view -> {
                 // 上传翻译
                 if(isConnected) new Thread(() -> {
-                    String result = "失败";
+                    String result = context.getString(R.string.failure);
                     try {
                         String data = "translationContent="
                                 +URLEncoder.encode(holder.tweetDetailCard.getTranslatedText(),"UTF-8")
@@ -217,7 +217,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                             JSONObject resJson = new JSONObject(response.body().string());
                             response.close();
                             if(resJson.getBoolean("success")) {
-                                result = "成功";
+                                result = context.getString(R.string.success);
                             } else {
                                 Log.e("uploadTranslation", resJson.toString());
                             }
@@ -229,10 +229,10 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                         e.printStackTrace();
                     } finally {
                         final String finalResult = result;
-                        handler.post(() -> Snackbar.make(view, "上传翻译"+ finalResult, 1000).show());
+                        handler.post(() -> Snackbar.make(view, context.getString(R.string.upload_translation)+ finalResult, 1000).show());
                     }
                 }).start();
-                else Snackbar.make(view, "请检查网络连接", 1000).show();
+                else Snackbar.make(view, context.getString(R.string.please_check_the_Internet), 1000).show();
             });
         } else { // 刷新UI需要隐藏之前显示的翻译区
             holder.tweetDetailCard.setTranslationMode(false);

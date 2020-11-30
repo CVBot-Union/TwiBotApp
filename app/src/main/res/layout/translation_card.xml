@@ -36,14 +36,14 @@
                     android:layout_weight="1"
                     android:text="用户名"
                     android:textSize="20sp"/>
+
                 <TextView
                     android:id="@+id/history_translation_group_name"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="组名"
-                    android:textSize="20sp"
-                    android:gravity="end"/>
+                    android:gravity="end"
+                    android:text="组名" />
 
             </LinearLayout>
 
@@ -53,8 +53,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="翻译文本"
-                android:textSize="20sp"
-                android:textColor="@color/colorBlack"/>
+                android:textColor="@color/colorGray"
+                android:textSize="16sp" />
 
         </LinearLayout>
 

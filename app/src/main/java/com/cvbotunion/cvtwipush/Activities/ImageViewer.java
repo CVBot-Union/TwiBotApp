@@ -59,10 +59,10 @@ public class ImageViewer extends AppCompatActivity {
 
     public void saveImage(){
         TwitterMedia currentMedia = mediaList.get(viewPager2.getCurrentItem());
-        String result = "成功";
+        String result = getString(R.string.success);
         if(!currentMedia.saveToFile(this))
-            result = "失败";
-        Toast.makeText(this, "保存"+result, Toast.LENGTH_SHORT).show();
+            result = getString(R.string.failure);
+        Toast.makeText(this, getString(R.string.save)+result, Toast.LENGTH_SHORT).show();
     }
 
     public void shareImage() {
@@ -74,7 +74,7 @@ public class ImageViewer extends AppCompatActivity {
             shareIntent.setAction(Intent.ACTION_SEND);
             shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
             shareIntent.setType("image/*");
-            startActivity(Intent.createChooser(shareIntent, "分享图片"));
+            startActivity(Intent.createChooser(shareIntent, getString(R.string.share_image)));
         }
     }
 

@@ -232,7 +232,7 @@ public class Timeline extends AppCompatActivity {
         }
 
         if(currentGroup==null) {
-            Toast.makeText(getApplicationContext(), "获取转推组信息失败", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), getString(R.string.get_group_info_failed), Toast.LENGTH_LONG).show();
             onBackPressed();
             return;
         }
@@ -306,7 +306,7 @@ public class Timeline extends AppCompatActivity {
                     super.onLost(network);
                     TweetCardAdapter.isConnected = false;
                     TweetDetailCardAdapter.isConnected = false;
-                    Snackbar.make(tweetListRecyclerView, "网络连接丢失", 3000).show();
+                    Snackbar.make(tweetListRecyclerView, getString(R.string.please_check_the_Internet), 3000).show();
                 }
 
                 @Override

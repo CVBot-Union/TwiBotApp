@@ -105,7 +105,7 @@ public class VideoViewer extends AppCompatActivity {
     }
 
     public void saveVideo() {
-        String result = "成功";
+        String result = getString(R.string.success);
         if(cacheServer != null && cacheServer.isCached(url)) {
             Path source = cacheServer.getCacheFile(url).toPath();
             Path target = videoFile.toPath();
@@ -115,12 +115,12 @@ public class VideoViewer extends AppCompatActivity {
                 this.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + videoFile.getAbsolutePath())));
             } catch (IOException e) {
                 e.printStackTrace();
-                result = "失败";
+                result = getString(R.string.failure);
             }
         }
         else if(!video.saveToFile(this))
-            result = "失败";
-        Toast.makeText(this, "保存"+result, Toast.LENGTH_SHORT).show();
+            result = getString(R.string.failure);
+        Toast.makeText(this, getString(R.string.save)+result, Toast.LENGTH_SHORT).show();
     }
 
     public void shareVideo() {
@@ -128,6 +128,6 @@ public class VideoViewer extends AppCompatActivity {
         shareIntent.setAction(Intent.ACTION_SEND);
         shareIntent.putExtra(Intent.EXTRA_TEXT, url);
         shareIntent.setType("text/plain");
-        startActivity(Intent.createChooser(shareIntent, "分享视频"));
+        startActivity(Intent.createChooser(shareIntent, getString(R.string.share_video)));
     }
 }

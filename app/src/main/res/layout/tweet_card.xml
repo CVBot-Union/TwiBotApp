@@ -94,10 +94,8 @@
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="16dp"
-                android:autoLink="web"
                 android:clickable="false"
                 android:focusable="false"
-                android:linksClickable="true"
                 android:text="这是一条Tweet"
                 android:textColor="@color/colorBlack" />
 
@@ -223,7 +221,7 @@
                     style="@style/Widget.AppCompat.Button.Borderless.Colored"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="快速保存"
+                    android:text="@string/quick_save"
                     android:textColor="@color/colorPrimary" />
             </LinearLayout>
         </LinearLayout>
