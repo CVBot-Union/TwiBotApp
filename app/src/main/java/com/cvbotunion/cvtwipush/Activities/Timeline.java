@@ -120,31 +120,41 @@ public class Timeline extends AppCompatActivity {
         WebService.setAuth(currentUser.getAuth());
         currentUser.update();
         initData();
-        initRecyclerView();
+        if(currentGroup != null) {
+            initRecyclerView();
+            title.setText(currentGroup.name);
+        }
         initConnectivityReceiver();
-        title.setText(currentGroup.name);
         mdToolbar.setOnMenuItemClickListener(item -> {
             int menuID = item.getItemId();
             if (menuID == R.id.group_menu_item) {
                 View view = getLayoutInflater().inflate(R.layout.group_switch_menu, (ViewGroup) getWindow().getDecorView(), false);
+                String gid;
+                if (currentGroup != null) {
+                    gid=currentGroup.id;
+                } else {
+                    gid=null;
+                }
                 GroupPopupWindow popupWindow = new GroupPopupWindow(
                         view, ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT,
                         true,
-                        currentUser, currentGroup.id);
+                        currentUser, gid);
                 popupWindow.showAsDropDown(findViewById(R.id.group_menu_item), 0, 0, Gravity.END);
                 popupWindow.dimBehind();
             }
             return true;
         });
 
-        for (int i = 0; i < currentGroup.following.size(); i++) {
-            Chip chip = (Chip) getLayoutInflater().inflate(R.layout.chip_view, chipGroup, false);
-            chip.setText(currentGroup.following.get(i).name_in_group);
-            int viewId = ViewCompat.generateViewId();
-            chip.setId(viewId);
-            chipIdToUid.put(viewId, currentGroup.following.get(i).id);
-            chipGroup.addView(chip);
+        if(currentGroup != null) {
+            for (int i = 0; i < currentGroup.following.size(); i++) {
+                Chip chip = (Chip) getLayoutInflater().inflate(R.layout.chip_view, chipGroup, false);
+                chip.setText(currentGroup.following.get(i).name_in_group);
+                int viewId = ViewCompat.generateViewId();
+                chip.setId(viewId);
+                chipIdToUid.put(viewId, currentGroup.following.get(i).id);
+                chipGroup.addView(chip);
+            }
         }
 
         chipGroup.setOnCheckedChangeListener((group, checkedId) -> {
@@ -208,7 +218,9 @@ public class Timeline extends AppCompatActivity {
 
         Intent intent = getIntent();
         if(intent.getExtras()==null && intent.getData()==null) {
-            currentGroup = currentUser.jobs.get(0).group;
+            if(currentUser.jobs.size() != 0) {
+                currentGroup = currentUser.jobs.get(0).group;
+            }
         } else {
             String groupId = null;
             Bundle bundle;
@@ -233,7 +245,7 @@ public class Timeline extends AppCompatActivity {
 
         if(currentGroup==null) {
             Toast.makeText(getApplicationContext(), getString(R.string.get_group_info_failed), Toast.LENGTH_LONG).show();
-            onBackPressed();
+            //onBackPressed();
             return;
         }
 

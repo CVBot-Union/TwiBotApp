@@ -45,8 +45,10 @@ public class GroupPopupWindow extends PopupWindow {
             }
         }
         groupListView.setLayoutManager(new LinearLayoutManager(context));
-        grAdapter = new GroupRecyclerAdapter(context,this,user.jobs,currentGroup);
-        groupListView.setAdapter(grAdapter);
+        if (currentGroup != null) {
+            grAdapter = new GroupRecyclerAdapter(context, this, user.jobs, currentGroup);
+            groupListView.setAdapter(grAdapter);
+        }
     }
 
     public GroupPopupWindow(Context context, User user,String currentGroup) {
