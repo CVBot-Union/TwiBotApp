@@ -121,7 +121,7 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
                 break;
             case TwitterStatus.QUOTE:
                 holder.tweetCard.setType(context.getString(R.string.quoted));
-                if(tweets.get(position).getText()==null||tweets.get(position).getText()==""){
+                if(tweets.get(position).getText()==null||tweets.get(position).getText().equals("")){
                     holder.tweetCard.setTweetText(context.getString(R.string.retweet_only));
                 }
                 break;

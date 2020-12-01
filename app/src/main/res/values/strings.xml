@@ -28,7 +28,7 @@
     <string name="copy_whole">复制全文</string>
     <string name="input_translation">输入翻译</string>
     <string name="copy_to_translation_layout">复制到翻译区</string>
-    <string name="retweet_only">纯转推</string>
+    <string name="retweet_only">没有评论的转推</string>
     <string name="get_group_info_failed">获取组信息失败</string>
     <string name="login_failure">用户名为空或包含空格</string>
     <string name="share_image">分享图片</string>
