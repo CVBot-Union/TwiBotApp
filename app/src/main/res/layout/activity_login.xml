@@ -45,7 +45,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/login_appBarLayout"
-        app:srcCompat="@mipmap/icon_transparent_bg" />
+        app:srcCompat="@mipmap/icon_white_bg" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/login_username_text_layout"

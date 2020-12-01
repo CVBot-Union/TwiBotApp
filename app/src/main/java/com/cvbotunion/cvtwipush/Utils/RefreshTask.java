@@ -137,7 +137,7 @@ public class RefreshTask extends AsyncTask<Void, Void, String> {
     }
 
     private int countBehind(String tweetID) throws Exception {
-        String cntUrl = WebService.SERVER_API+"/timeline-behind-count?group="+Timeline.getCurrentGroup().id+"&afterID="+tweetID;
+        String cntUrl = WebService.SERVER_API+"/tweet/timeline-behind-count?group="+Timeline.getCurrentGroup().id+"&afterID="+tweetID;
         Response response = Timeline.connection.webService.get(cntUrl);
         if(response.code()==200) {
             JSONObject resJson = new JSONObject(response.body().string());
