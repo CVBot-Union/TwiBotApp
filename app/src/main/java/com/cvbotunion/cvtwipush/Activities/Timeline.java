@@ -25,7 +25,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.cvbotunion.cvtwipush.Adapters.TweetDetailCardAdapter;
 import com.cvbotunion.cvtwipush.CustomViews.GroupPopupWindow;
@@ -172,7 +171,7 @@ public class Timeline extends AppCompatActivity {
         refreshLayout.setOnLoadMoreListener(refreshlayout -> netRefresh(chipGroup.getCheckedChipId(), refreshlayout, RefreshTask.LOADMORE));
 
         mdToolbar.setOnClickListener(view -> {
-            tweetListRecyclerView.smoothScrollToPosition(0);
+            tweetListRecyclerView.scrollToPosition(0);
             refreshLayout.autoRefresh();
         });
     }
@@ -188,9 +187,9 @@ public class Timeline extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        // TODO 如果不点返回键而是直接点击任务键，侧滑杀死进程来关闭应用，应用将没有机会调用onDestroy
-        //  但其他activity抢占前台（即Timeline不在栈顶的情况）也会调用onStop
-        //  请谨慎取舍在此处的操作
+        // 如果不点返回键而是直接点击任务键，侧滑杀死进程来关闭应用，应用将没有机会调用onDestroy
+        // 但其他activity抢占前台（即Timeline不在栈顶的情况）也会调用onStop
+        // 请谨慎取舍在此处的操作
 
         // 保存已登录的user
         if(currentUser!=null) currentUser.writeToDisk();
@@ -205,6 +204,7 @@ public class Timeline extends AppCompatActivity {
         if(connectivityManager != null) {
             connectivityManager.unregisterNetworkCallback(networkCallback);
         }
+        // TODO 加一个按钮让用户自己删
         if(Math.random()>0.9) {  //十分之一的概率
             StorageUtils.deleteFiles(VideoViewer.videoCacheDir);
             StorageUtils.deleteFiles(TwitterMedia.mediaFilesDir);  //删除子文件
@@ -217,36 +217,30 @@ public class Timeline extends AppCompatActivity {
         chipIdToUid = new HashMap<>();
 
         Intent intent = getIntent();
-        if(intent.getExtras()==null && intent.getData()==null) {
-            if(currentUser.jobs.size() != 0) {
-                currentGroup = currentUser.jobs.get(0).group;
-            }
-        } else {
-            String groupId = null;
-            Bundle bundle;
-            Uri uri;
-            if ((bundle = intent.getExtras()) != null) {
-                groupId = bundle.getString("groupId");
-            } else if((uri = intent.getData()) != null) {
-                groupId = uri.getQueryParameter("groupId");
-                // userScreenName = uri.getQueryParameter("user");
-                // TODO use statusId instead
-                String statusId = uri.getQueryParameter("statusId");
-            }
-            if(groupId!=null) {
-                for (Job j : currentUser.jobs) {
-                    if (j.group.id.equals(groupId)) {
-                        currentGroup = j.group;
-                        break;
-                    }
+        String groupId = null;
+        Bundle bundle;
+        Uri uri;
+        if ((bundle = intent.getExtras()) != null) {
+            groupId = bundle.getString("groupId");
+        } else if((uri = intent.getData()) != null) {
+            groupId = uri.getQueryParameter("groupId");
+            // userScreenName = uri.getQueryParameter("user");
+            // TODO use statusId instead
+            String statusId = uri.getQueryParameter("statusId");
+        }
+        if(groupId!=null) {
+            for (Job j : currentUser.jobs) {
+                if (j.group.id.equals(groupId)) {
+                    currentGroup = j.group;
+                    break;
                 }
             }
         }
 
         if(currentGroup==null) {
-            Toast.makeText(getApplicationContext(), getString(R.string.get_group_info_failed), Toast.LENGTH_LONG).show();
-            //onBackPressed();
-            return;
+            if(currentUser.jobs.size() != 0) {
+                currentGroup = currentUser.jobs.get(0).group;
+            }
         }
 
         List<DBTwitterStatus> dbStatusList = new ArrayList<>();

@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -94,6 +93,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                 holder.tweetDetailCard.setType(context.getString(R.string.quoted));
                 break;
             default:
+                holder.tweetDetailCard.setType("");
                 break;
         }
 
@@ -148,6 +148,10 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                     }
                     i += 1;
                 }
+        }
+        else {
+            //无媒体的情况
+            holder.tweetDetailCard.hideAllMediaView();
         }
 
         if(tweets.get(position).media==null || tweets.get(position).media.isEmpty()) holder.tweetDetailCard.saveMediaButton.setVisibility(View.GONE);

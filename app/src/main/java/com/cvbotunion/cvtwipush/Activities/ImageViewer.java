@@ -12,17 +12,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cvbotunion.cvtwipush.Adapters.ImagePagerAdapter;
-import com.cvbotunion.cvtwipush.DBModel.DBTwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.R;
 import com.google.android.material.appbar.MaterialToolbar;
 
-import org.litepal.LitePal;
-
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 // TODO 考虑修改为Fragment
 public class ImageViewer extends AppCompatActivity {
     private MaterialToolbar toolbar;

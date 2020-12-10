@@ -8,14 +8,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,15 +20,12 @@ import com.cvbotunion.cvtwipush.Activities.ImageViewer;
 import com.cvbotunion.cvtwipush.Activities.Timeline;
 import com.cvbotunion.cvtwipush.Activities.TweetDetail;
 import com.cvbotunion.cvtwipush.Activities.VideoViewer;
-import com.cvbotunion.cvtwipush.DBModel.DBTwitterStatus;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterStatus;
 import com.cvbotunion.cvtwipush.R;
 import com.cvbotunion.cvtwipush.CustomViews.TweetCard;
 import com.cvbotunion.cvtwipush.Utils.ImageLoader;
 import com.google.android.material.snackbar.Snackbar;
-
-import org.litepal.LitePal;
 
 import java.util.ArrayList;
 

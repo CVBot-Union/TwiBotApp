@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 
@@ -21,14 +20,14 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.snackbar.Snackbar;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
 
+import org.jetbrains.annotations.Nullable;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.LitePal;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.nio.charset.StandardCharsets;
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collections;
 
 import okhttp3.Response;
 // TODO 考虑修改为Fragment
@@ -52,43 +51,12 @@ public class TweetDetail extends AppCompatActivity {
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
         TwitterStatus status = bundle.getParcelable("twitterStatus");
-
         dataSet.add(status);
 
         initView();
         initRecyclerView();
 
-        if(status.getTweetType() == TwitterStatus.REPLY) {
-            TwitterStatus inReplyToStatus = status;
-            Collections.reverse(dataSet);
-            while(inReplyToStatus.in_reply_to_status_id != null) {
-                DBTwitterStatus dbReplyToStatus = LitePal.where("tsid = ?", inReplyToStatus.in_reply_to_status_id).findFirst(DBTwitterStatus.class);
-                if (dbReplyToStatus != null) {
-                    dataSet.add(dbReplyToStatus.toTwitterStatus());
-                    //tAdapter.notifyDataSetChanged();
-                } else {
-                    getStatusNotInDB(status.in_reply_to_status_id);
-                }
-                inReplyToStatus = dataSet.get(dataSet.size()-1);
-            }
-            Collections.reverse(dataSet);
-            tAdapter.notifyDataSetChanged();
-        } else if(status.getTweetType() == TwitterStatus.QUOTE) {
-            TwitterStatus quotedStatus = status;
-            Collections.reverse(dataSet);
-            while(quotedStatus.quoted_status_id != null) {
-                DBTwitterStatus dbQuotedStatus = LitePal.where("tsid = ?", quotedStatus.quoted_status_id).findFirst(DBTwitterStatus.class);
-                if (dbQuotedStatus != null) {
-                    dataSet.add(dbQuotedStatus.toTwitterStatus());
-                    //tAdapter.notifyDataSetChanged();
-                } else {
-                    getStatusNotInDB(status.quoted_status_id);
-                }
-                quotedStatus = dataSet.get(dataSet.size()-1);
-            }
-            Collections.reverse(dataSet);
-            tAdapter.notifyDataSetChanged();
-        }
+        getParentTweets(status);
         tweetDetailRecyclerView.scrollToPosition(dataSet.size()-1);
     }
 
@@ -115,38 +83,59 @@ public class TweetDetail extends AppCompatActivity {
         ((SimpleItemAnimator) tweetDetailRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
     }
 
-    public void getStatusNotInDB(final String statusId) {
+    private void getParentTweets(final TwitterStatus mainStatus) {
         refreshLayout.autoRefreshAnimationOnly();
         new Thread(() -> {
             boolean success = false;
+            TwitterStatus childStatus = mainStatus;
+            String parentID;
             try {
-                Response response = Timeline.connection.webService.get(WebService.SERVER_API+"/tweet/"+statusId+"?groupID="+Timeline.getCurrentGroup().id);
-                if(response.code()==200) {
-                    JSONObject resJson = new JSONObject(response.body().string());
-                    response.close();
-                    if(!resJson.getBoolean("success")) {
-                        Log.e("TweetDetail.getStatusNotInDB", resJson.toString());
+                while(childStatus!=null) {
+                    parentID = childStatus.quoted_status_id!=null?childStatus.quoted_status_id:childStatus.in_reply_to_status_id;
+                    if(parentID!=null) {
+                        DBTwitterStatus dbParentStatus = LitePal.where("tsid = ?", parentID).findFirst(DBTwitterStatus.class);
+                        if(dbParentStatus!=null) {
+                            childStatus = dbParentStatus.toTwitterStatus();
+                            dataSet.add(0, childStatus);
+                        } else {
+                            childStatus = getStatusByID(parentID);
+                            if (childStatus != null) dataSet.add(0, childStatus);
+                        }
+                    } else {
+                        success = true;
+                        break;
                     }
-                    dataSet.add(new TwitterStatus(resJson.getJSONObject("response"),true));
-                    success = true;
-                } else {
-                    Log.e("TweetDetail.getStatusNotInDB", response.message());
-                    response.close();
                 }
             } catch(Exception e) {
-                Log.e("TweetDetail.getStatusNotInDB", e.toString());
+                Log.e("TweetDetail.getParentTweets", e.toString());
             } finally {
                 boolean finalSuccess = success;
                 handler.post(() -> {
                     refreshLayout.finishRefresh();
-                    if(finalSuccess) {
-                        return;
-                        //tAdapter.notifyDataSetChanged();
-                    } else {
+                    tAdapter.notifyDataSetChanged();
+                    if(!finalSuccess) {
                         Snackbar.make(tweetDetailRecyclerView, "获取父推文失败", 1000).show();
                     }
                 });
             }
         }).start();
+    }
+
+    @Nullable
+    private TwitterStatus getStatusByID(final String statusID) throws IOException, JSONException, ParseException {
+        Response response = Timeline.connection.webService.get(WebService.SERVER_API+"/tweet/"+statusID+"?groupID="+Timeline.getCurrentGroup().id);
+        if(response.code()==200) {
+            JSONObject resJson = new JSONObject(response.body().string());
+            response.close();
+            if(!resJson.getBoolean("success")) {
+                Log.e("TweetDetail.getStatusByID", resJson.toString());
+            } else {
+                return new TwitterStatus(resJson.getJSONObject("response"), true);
+            }
+        } else {
+            Log.e("TweetDetail.getStatusByID", response.message());
+            response.close();
+        }
+        return null;
     }
 }

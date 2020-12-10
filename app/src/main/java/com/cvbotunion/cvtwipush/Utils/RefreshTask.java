@@ -57,13 +57,13 @@ public class RefreshTask extends AsyncTask<Void, Void, String> {
                     url += ("page=1&limit="+Timeline.LIMIT+"&group="+ Timeline.getCurrentGroup().id+"&beforeID=0&sortKey=DESC");
                 } else {
                     int leftTweetsCount = countBehind(beforeID);
-                    if(leftTweetsCount>2*Timeline.LIMIT) {
+                    if(leftTweetsCount>Timeline.LIMIT) {
                         dataSet.clear();
                         usedDataSet.clear();
-                        url += ("page=1&limit=" + 2*Timeline.LIMIT + "&group=" + Timeline.getCurrentGroup().id + "&beforeID=" + beforeID + "&sortKey=ASC");
-                    } else {
-                        url += ("page=1&limit=" + leftTweetsCount + "&group=" + Timeline.getCurrentGroup().id + "&beforeID=" + beforeID + "&sortKey=ASC");
-                    }
+                        url += ("page=1&limit=" + Timeline.LIMIT + "&group=" + Timeline.getCurrentGroup().id + "&beforeID=" + beforeID + "&sortKey=DESC");
+                    } else if(leftTweetsCount>0) {
+                        url += ("page=1&limit=" + leftTweetsCount + "&group=" + Timeline.getCurrentGroup().id + "&beforeID=" + beforeID + "&sortKey=DESC");
+                    } else return "success";
                 }
                 Response response = Timeline.connection.webService.get(url);
                 if(response.code()==200) {
@@ -71,23 +71,15 @@ public class RefreshTask extends AsyncTask<Void, Void, String> {
                     response.close();
                     if(resJson.getBoolean("success")) {
                         JSONArray tweets = resJson.getJSONArray("response");
-                        for(int i=0;i<tweets.length();i++) {
+                        for(int i=tweets.length()-1;i>=0;i--) {
                             TwitterStatus tweet = new TwitterStatus(tweets.getJSONObject(i), true);
                             Timeline.getCurrentGroup().following.forEach(tu -> {
                                 if(tu.id.equals(tweet.user.id)) tweet.user.name_in_group = tu.name_in_group;
                             });
                             if (checkedUid == null || tweet.user.id.equals(checkedUid)) {
-                                if (beforeID.equals("0")) {
-                                    usedDataSet.add(tweet);
-                                } else {
-                                    usedDataSet.add(0, tweet);
-                                }
+                                usedDataSet.add(0, tweet);
                             }
-                            if (beforeID.equals("0")) {
-                                dataSet.add(tweet);
-                            } else {
-                                dataSet.add(0, tweet);
-                            }
+                            dataSet.add(0, tweet);
                         }
                     } else {
                         Log.e(TwiPush.TAG+":RefreshTask-REFRESH", resJson.toString());
@@ -131,6 +123,7 @@ public class RefreshTask extends AsyncTask<Void, Void, String> {
             }
         } catch (Exception e) {
             Log.e(TwiPush.TAG+":RefreshTask", e.toString());
+            //e.printStackTrace();
             return "刷新/加载失败";
         }
         return "success";

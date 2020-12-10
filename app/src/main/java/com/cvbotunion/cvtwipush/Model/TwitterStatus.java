@@ -275,14 +275,14 @@ public class TwitterStatus implements Parcelable {
                             }
                         }
                     } else {
-                        Log.e("queryTranslations", resJson.toString());
+                        Log.e("TwitterStatus.queryTranslations", resJson.toString());
                     }
                 } else {
-                    Log.e("queryTranslations", response.message());
+                    Log.e("TwitterStatus.queryTranslations", response.code()+" "+response.message());
                     response.close();
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e("TwitterStatus.queryTranslations", e.toString());
             } finally {
                 if(handler!=null&&refreshLayout!=null&&refreshLayout.isRefreshing()) {
                     handler.post(() -> refreshLayout.finishRefresh(false));

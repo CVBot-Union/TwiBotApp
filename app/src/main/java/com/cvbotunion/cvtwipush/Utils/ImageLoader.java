@@ -1,12 +1,18 @@
 package com.cvbotunion.cvtwipush.Utils;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.ImageView;
 
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cvbotunion.cvtwipush.Activities.Timeline;
@@ -14,6 +20,8 @@ import com.cvbotunion.cvtwipush.Model.RTGroup;
 import com.cvbotunion.cvtwipush.Model.TwitterMedia;
 import com.cvbotunion.cvtwipush.Model.TwitterUser;
 import com.cvbotunion.cvtwipush.Model.User;
+import com.cvbotunion.cvtwipush.R;
+import com.cvbotunion.cvtwipush.TwiPush;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -147,14 +155,14 @@ public class ImageLoader {
                 }).start();
                 return BitmapFactory.decodeByteArray(data,0,data.length);
             } else {
-                Log.w("ImageLoader.download", response.message());
+                Log.w("ImageLoader.download", response.code()+" "+response.message());
                 response.close();
-                return null;
             }
         } catch(Exception e) {
             Log.w("ImageLoader.download", e.toString());
-            return null;
         }
+        // TODO 此方法似乎存在未知原因的bug，无法正常使用
+        return getVectorBitmap(TwiPush.getContext(), R.drawable.ic_baseline_broken_image_24);
     }
 
     private Bitmap readFromFile(File file) {
@@ -179,9 +187,23 @@ public class ImageLoader {
                 }
             });
         } else if(this.imageViewRef!=null && bitmap!=null){
-            handler.post(() -> {
-                imageViewRef.get().setImageBitmap(bitmap);
-            });
+            handler.post(() -> imageViewRef.get().setImageBitmap(bitmap));
         }
+    }
+
+    /**
+     *
+     * 在Android 5.0以上，BitmapFactory.decodeResource方法无法将Vector id直接转为Bitmap对象
+     * 故须通过Drawable对象进行中间转换
+     */
+    public static Bitmap getVectorBitmap(Context context, int vectorDrawableId) {
+        Bitmap bitmap;
+        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorDrawableId);
+        bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(),
+                vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        vectorDrawable.draw(canvas);
+        return bitmap;
     }
 }

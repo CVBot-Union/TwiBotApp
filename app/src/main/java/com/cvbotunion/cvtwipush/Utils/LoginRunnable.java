@@ -6,7 +6,6 @@ import android.view.View;
 
 import com.cvbotunion.cvtwipush.Activities.LoginActivity;
 import com.cvbotunion.cvtwipush.Activities.Timeline;
-import com.cvbotunion.cvtwipush.Model.Job;
 import com.cvbotunion.cvtwipush.Model.RTGroup;
 import com.cvbotunion.cvtwipush.Model.TwitterUser;
 import com.cvbotunion.cvtwipush.Model.User;
