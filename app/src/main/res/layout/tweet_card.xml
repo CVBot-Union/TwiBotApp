@@ -53,7 +53,7 @@
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="bottom"
+                        android:gravity="bottom|left"
                         android:orientation="horizontal">
 
                         <TextView
@@ -73,7 +73,7 @@
                             android:fontFamily="sans-serif"
                             android:text="类型"
                             android:textSize="14sp"
-                            android:visibility="gone"/>
+                            android:visibility="gone" />
                     </LinearLayout>
 
                     <TextView
@@ -221,6 +221,7 @@
                     style="@style/Widget.AppCompat.Button.Borderless.Colored"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:hapticFeedbackEnabled="true"
                     android:text="@string/quick_save"
                     android:textColor="@color/colorPrimary" />
             </LinearLayout>

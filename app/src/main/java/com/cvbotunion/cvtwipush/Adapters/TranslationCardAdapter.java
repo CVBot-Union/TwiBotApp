@@ -31,7 +31,7 @@ public class TranslationCardAdapter extends RecyclerView.Adapter<TranslationCard
 
         public TranslationCardViewHolder(@NonNull View itemView) {
             super(itemView);
-            this.translationCard = new TranslationCard(itemView.getContext());
+            this.translationCard = new TranslationCard(itemView.getContext(),itemView);
         }
     }
 
@@ -52,7 +52,6 @@ public class TranslationCardAdapter extends RecyclerView.Adapter<TranslationCard
             Snackbar.make(view, "已复制翻译", 1000).show();
             return true;  // 不再调用其他回调函数
         });
-
         holder.translationCard.setUserName(translations.get(position).get("userName"));
         holder.translationCard.setGroupName(translations.get(position).get("groupName"));
         holder.translationCard.setContent(translations.get(position).get("content"));

@@ -222,6 +222,8 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
                             response.close();
                             if(resJson.getBoolean("success")) {
                                 result = context.getString(R.string.success);
+                                lastTweet.queryTranslations(handler, holder.tweetDetailCard);
+                                handler.post(() -> holder.tweetDetailCard.historyButton.setText(lastTweet.translations!=null ? String.valueOf(lastTweet.translations.size()) : "0"));
                             } else {
                                 Log.e("uploadTranslation", resJson.toString());
                             }

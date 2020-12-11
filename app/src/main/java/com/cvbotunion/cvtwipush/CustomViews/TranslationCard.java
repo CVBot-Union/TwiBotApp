@@ -1,6 +1,7 @@
 package com.cvbotunion.cvtwipush.CustomViews;
 
 import android.content.Context;
+import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,12 +15,12 @@ public class TranslationCard extends CardView {
     public TextView groupNameView;
     public TextView contentView;
 
-    public TranslationCard(@NonNull final Context context) {
+    public TranslationCard(@NonNull final Context context, View parentView) {
         super(context);
-        card = findViewById(R.id.history_translation_card);
-        userNameView = findViewById(R.id.history_translation_user_name);
-        groupNameView = findViewById(R.id.history_translation_group_name);
-        contentView = findViewById(R.id.history_translation_content);
+        card = parentView.findViewById(R.id.history_translation_card);
+        userNameView = parentView.findViewById(R.id.history_translation_user_name);
+        groupNameView = parentView.findViewById(R.id.history_translation_group_name);
+        contentView = parentView.findViewById(R.id.history_translation_content);
     }
 
     public void setUserName(String userName) {
