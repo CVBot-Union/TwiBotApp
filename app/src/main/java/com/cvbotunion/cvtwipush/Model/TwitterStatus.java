@@ -32,7 +32,7 @@ import okhttp3.Response;
 /**
  * In order to avoid {@code NullPointerException}, all ArrayList objects should NOT be {@code null} even nothing inside.
  */
-public class TwitterStatus implements Parcelable {
+public class TwitterStatus implements Parcelable, Comparable<TwitterStatus> {
     //推文类型
     public final static int NORMAL=0;
     public final static int REPLY=1;
@@ -411,6 +411,15 @@ public class TwitterStatus implements Parcelable {
                 singleMedia.cached_image=null;
             }
         }
+    }
+
+    /**
+     * 注意：为自动实现倒序，返回结果与compareTo的默认规定相反
+     */
+    @Override
+    public int compareTo(TwitterStatus status) {
+        if(status==null) throw new NullPointerException();
+        return Long.compare(Long.parseLong(status.id),Long.parseLong(this.id));
     }
 }
 

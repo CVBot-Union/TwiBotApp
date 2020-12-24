@@ -15,7 +15,7 @@ import java.util.List;
  * Model class of the database, which corresponds to class TwitterStatus.
  */
 
-public class DBTwitterStatus extends LitePalSupport {
+public class DBTwitterStatus extends LitePalSupport implements Comparable<DBTwitterStatus> {
     @Column(unique = true, nullable = false)
     private long tsid;  //即为TwitterStatus.id，避免与数据库自动创建的primary key "id"重名
 
@@ -184,5 +184,14 @@ public class DBTwitterStatus extends LitePalSupport {
                 }
             }
         }
+    }
+
+    /**
+     * 注意：为自动实现倒序，返回结果与compareTo的默认规定相反
+     */
+    @Override
+    public int compareTo(DBTwitterStatus o) {
+        if(o==null) throw new NullPointerException();
+        return Long.compare(o.tsid,tsid);
     }
 }

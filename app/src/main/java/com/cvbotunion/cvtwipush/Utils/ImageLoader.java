@@ -161,7 +161,6 @@ public class ImageLoader {
         } catch(Exception e) {
             Log.w("ImageLoader.download", e.toString());
         }
-        // TODO 此方法似乎存在未知原因的bug，无法正常使用
         return getVectorBitmap(TwiPush.getContext(), R.drawable.ic_baseline_broken_image_24);
     }
 

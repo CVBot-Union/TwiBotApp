@@ -249,7 +249,7 @@ public class Timeline extends AppCompatActivity {
             if(!tmpList.isEmpty()) dbStatusList.addAll(tmpList);
         }
         // 按TwitterStatus Id降序排列
-        dbStatusList.sort((o1, o2) -> Long.compare(o2.getTsid(),o1.getTsid()));
+        dbStatusList.sort(null);
         Log.i("Timeline.initData","数据库中取得的量:"+dbStatusList.size());
         for(DBTwitterStatus dbStatus:dbStatusList) {
             TwitterStatus tweet =dbStatus.toTwitterStatus();

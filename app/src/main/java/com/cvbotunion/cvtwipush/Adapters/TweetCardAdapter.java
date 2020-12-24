@@ -132,8 +132,6 @@ public class TweetCardAdapter extends RecyclerView.Adapter<TweetCardAdapter.Twee
         if(tweets.get(position).user.cached_profile_image != null){
             holder.tweetCard.setAvatarImg(tweets.get(position).user.cached_profile_image);
         } else if(isConnected && !tweets.get(position).user.avatarUnderProcessing) {
-            holder.tweetCard.setAvatarImg(BitmapFactory.decodeResource(context.getResources(),
-                    R.drawable.ic_baseline_person_24));
             ImageLoader.setAdapter(this, position).load(tweets.get(position).user);
         }
 
