@@ -14,6 +14,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.Uri;
@@ -40,12 +42,15 @@ import com.cvbotunion.cvtwipush.Model.User;
 import com.cvbotunion.cvtwipush.R;
 import com.cvbotunion.cvtwipush.Service.MyServiceConnection;
 import com.cvbotunion.cvtwipush.Service.WebService;
+import com.cvbotunion.cvtwipush.Utils.CircleDrawable;
+import com.cvbotunion.cvtwipush.Utils.ImageLoader;
 import com.cvbotunion.cvtwipush.Utils.RSACrypto;
 import com.cvbotunion.cvtwipush.Utils.RefreshTask;
 import com.cvbotunion.cvtwipush.Adapters.TweetCardAdapter;
 import com.danikula.videocache.StorageUtils;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipDrawable;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.snackbar.Snackbar;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
@@ -145,10 +150,29 @@ public class Timeline extends AppCompatActivity {
             return true;
         });
 
+        initChips();
+
+        refreshLayout.setHeaderTriggerRate(0.7f);  //触发刷新距离 与 HeaderHeight 的比率
+        refreshLayout.setOnRefreshListener(refreshlayout -> netRefresh(chipGroup.getCheckedChipId(), refreshlayout, RefreshTask.REFRESH));
+        refreshLayout.setOnLoadMoreListener(refreshlayout -> netRefresh(chipGroup.getCheckedChipId(), refreshlayout, RefreshTask.LOADMORE));
+
+        mdToolbar.setOnClickListener(view -> {
+            tweetListRecyclerView.scrollToPosition(0);
+            refreshLayout.autoRefresh();
+        });
+    }
+
+    private void initChips(){
         if(currentGroup != null) {
             for (int i = 0; i < currentGroup.following.size(); i++) {
                 Chip chip = (Chip) getLayoutInflater().inflate(R.layout.chip_view, chipGroup, false);
                 chip.setText(currentGroup.following.get(i).name_in_group);
+                if(currentGroup.following.get(i).cached_profile_image == null) {
+                    ImageLoader.setChip(chip,chipGroup).load(currentGroup.following.get(i));
+                } else {
+                    chip.setChipIcon(new BitmapDrawable(getResources(),currentGroup.following.get(i).cached_profile_image));
+                    chip.setChipIconVisible(true);
+                }
                 int viewId = ViewCompat.generateViewId();
                 chip.setId(viewId);
                 chipIdToUid.put(viewId, currentGroup.following.get(i).id);
@@ -165,15 +189,21 @@ public class Timeline extends AppCompatActivity {
             }
             tAdapter.notifyDataSetChanged();
         });
+    }
 
-        refreshLayout.setHeaderTriggerRate(0.7f);  //触发刷新距离 与 HeaderHeight 的比率
-        refreshLayout.setOnRefreshListener(refreshlayout -> netRefresh(chipGroup.getCheckedChipId(), refreshlayout, RefreshTask.REFRESH));
-        refreshLayout.setOnLoadMoreListener(refreshlayout -> netRefresh(chipGroup.getCheckedChipId(), refreshlayout, RefreshTask.LOADMORE));
-
-        mdToolbar.setOnClickListener(view -> {
-            tweetListRecyclerView.scrollToPosition(0);
-            refreshLayout.autoRefresh();
-        });
+    private void refreshChips(){
+        if(currentGroup != null) {
+            for (int i = 0; i < currentGroup.following.size(); i++){
+                Chip chip = (Chip) chipGroup.getChildAt(i+1);
+                chip.setText(currentGroup.following.get(i).name_in_group);
+                if(currentGroup.following.get(i).cached_profile_image == null) {
+                    ImageLoader.setChip(chip,chipGroup).load(currentGroup.following.get(i));
+                } else {
+                    chip.setChipIcon(new CircleDrawable(getResources(),currentGroup.following.get(i).cached_profile_image));
+                    chip.setChipIconVisible(true);
+                }
+            }
+        }
     }
 
     @Override
@@ -204,7 +234,7 @@ public class Timeline extends AppCompatActivity {
         if(connectivityManager != null) {
             connectivityManager.unregisterNetworkCallback(networkCallback);
         }
-        // TODO 加一个按钮让用户自己删
+        // TODO:加一个按钮让用户自己删
         if(Math.random()>0.9) {  //十分之一的概率
             StorageUtils.deleteFiles(VideoViewer.videoCacheDir);
             StorageUtils.deleteFiles(TwitterMedia.mediaFilesDir);  //删除子文件
@@ -333,6 +363,7 @@ public class Timeline extends AppCompatActivity {
         String checkedUid = chipIdToUid.getOrDefault(checkedId, null);
         task.setData(usedDataSet, dataSet, checkedUid);
         task.execute();
+        refreshChips();
     }
 
     public static RTGroup getCurrentGroup() {

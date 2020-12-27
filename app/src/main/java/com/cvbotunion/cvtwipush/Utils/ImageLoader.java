@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 
 import androidx.core.content.ContextCompat;
@@ -22,6 +23,8 @@ import com.cvbotunion.cvtwipush.Model.TwitterUser;
 import com.cvbotunion.cvtwipush.Model.User;
 import com.cvbotunion.cvtwipush.R;
 import com.cvbotunion.cvtwipush.TwiPush;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,7 +47,8 @@ public class ImageLoader {
     private RecyclerView.Adapter<?> tAdapter;
     private Integer position;
     private WeakReference<ImageView> imageViewRef;
-
+    private Chip chip;
+    private ChipGroup chipGroup;
     private ImageLoader() {
         this.handler = new Handler();
     }
@@ -65,6 +69,13 @@ public class ImageLoader {
     public static ImageLoader setImageView(ImageView imageView) {
         ImageLoader instance = new ImageLoader();
         instance.imageViewRef = new WeakReference<>(imageView);
+        return instance;
+    }
+
+    public static ImageLoader setChip(Chip chip, ChipGroup chipGroup){
+        ImageLoader instance = new ImageLoader();
+        instance.chip = chip;
+        instance.chipGroup = chipGroup;
         return instance;
     }
 
@@ -98,13 +109,20 @@ public class ImageLoader {
         twitterUser.avatarUnderProcessing = true;
         if((twitterUser.cached_profile_image=avatarCachedPool.getOrDefault(twitterUser.id, null))
                 !=null) {
-            this.notifyUI(twitterUser.cached_profile_image);
+            if(tAdapter != null) {
+                this.notifyUI(twitterUser.cached_profile_image);
+            } else if(chip != null && chipGroup != null) {
+                this.setChipIcon(new CircleDrawable(chip.getContext().getResources(),twitterUser.cached_profile_image));
+            }
             twitterUser.avatarUnderProcessing = false;
         } else {
             new Thread(() -> {
                 twitterUser.cached_profile_image = download(twitterUser.profile_image_url, null);
                 avatarCachedPool.put(twitterUser.id, twitterUser.cached_profile_image);
                 this.notifyUI(twitterUser.cached_profile_image);
+                if(chip != null && chipGroup != null) {
+                    this.setChipIcon(new CircleDrawable(chip.getContext().getResources(),twitterUser.cached_profile_image));
+                }
                 twitterUser.avatarUnderProcessing = false;
             }).start();
         }
@@ -161,7 +179,8 @@ public class ImageLoader {
         } catch(Exception e) {
             Log.w("ImageLoader.download", e.toString());
         }
-        return getVectorBitmap(TwiPush.getContext(), R.drawable.ic_baseline_broken_image_24);
+        //return getVectorBitmap(TwiPush.getContext(), R.drawable.ic_baseline_broken_image_24);
+        return null;
     }
 
     private Bitmap readFromFile(File file) {
@@ -188,6 +207,13 @@ public class ImageLoader {
         } else if(this.imageViewRef!=null && bitmap!=null){
             handler.post(() -> imageViewRef.get().setImageBitmap(bitmap));
         }
+    }
+
+    private void setChipIcon(Drawable icon){
+        handler.post(()->{
+            chip.setChipIcon(icon);
+            chip.setChipIconVisible(true);
+        });
     }
 
     /**
