@@ -3,11 +3,19 @@ package com.cvbotunion.cvtwipush.Service;
 import android.app.Service;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.net.Network;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.cvbotunion.cvtwipush.Adapters.TweetCardAdapter;
+import com.cvbotunion.cvtwipush.Adapters.TweetDetailCardAdapter;
+import com.cvbotunion.cvtwipush.R;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONObject;
 
@@ -34,6 +42,9 @@ public class WebService extends Service {
 
     public Pattern keyPattern = Pattern.compile("-\\s+(.+?)\\s+-", Pattern.DOTALL);
 
+    private ConnectivityManager connectivityManager;
+    private ConnectivityManager.NetworkCallback networkCallback;
+
     private static String auth;
     private final IBinder mBinder = new WebBinder();
     private final OkHttpClient mClient = new OkHttpClient.Builder()
@@ -54,8 +65,36 @@ public class WebService extends Service {
     }
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+        connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        if(connectivityManager != null){
+            networkCallback = new ConnectivityManager.NetworkCallback(){
+                @Override
+                public void onLost(@NonNull Network network) {
+                    super.onLost(network);
+                    TweetCardAdapter.isConnected = false;
+                    TweetDetailCardAdapter.isConnected = false;
+                    Toast.makeText(getApplicationContext(),getApplicationContext().getString(R.string.please_check_the_Internet),Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onAvailable(@NonNull Network network) {
+                    super.onAvailable(network);
+                    TweetCardAdapter.isConnected = true;
+                    TweetDetailCardAdapter.isConnected = true;
+                }
+            };
+            connectivityManager.registerDefaultNetworkCallback(networkCallback);
+        }
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
+        if(connectivityManager != null){
+            connectivityManager.unregisterNetworkCallback(networkCallback);
+        }
     }
 
     public OkHttpClient getClient() {

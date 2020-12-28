@@ -39,7 +39,7 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
 
     public ArrayList<TwitterStatus> tweets;
 
-    public static boolean isConnected = true;
+    public static boolean isConnected = false;
 
     public Handler handler;
     public Context context;

@@ -195,13 +195,15 @@ public class Timeline extends AppCompatActivity {
         if(currentGroup != null) {
             for (int i = 0; i < currentGroup.following.size(); i++){
                 Chip chip = (Chip) chipGroup.getChildAt(i+1);
-                chip.setText(currentGroup.following.get(i).name_in_group);
-                if(currentGroup.following.get(i).cached_profile_image == null) {
-                    ImageLoader.setChip(chip,chipGroup).load(currentGroup.following.get(i));
-                } else {
-                    chip.setChipIcon(new CircleDrawable(getResources(),currentGroup.following.get(i).cached_profile_image));
-                    chip.setChipIconVisible(true);
-                }
+                int finalI = i;
+                runOnUiThread(()->{chip.setText(currentGroup.following.get(finalI).name_in_group);
+                    if(currentGroup.following.get(finalI).cached_profile_image == null) {
+                        ImageLoader.setChip(chip,chipGroup).load(currentGroup.following.get(finalI));
+                    } else {
+                        chip.setChipIcon(new CircleDrawable(getResources(),currentGroup.following.get(finalI).cached_profile_image));
+                        chip.setChipIconVisible(true);
+                    }
+                });
             }
         }
     }
@@ -337,19 +339,16 @@ public class Timeline extends AppCompatActivity {
         connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
         if(connectivityManager != null) {
             networkCallback = new ConnectivityManager.NetworkCallback() {
+
                 @Override
-                public void onLost(@NonNull Network network) {
-                    super.onLost(network);
-                    TweetCardAdapter.isConnected = false;
-                    TweetDetailCardAdapter.isConnected = false;
-                    Snackbar.make(tweetListRecyclerView, getString(R.string.please_check_the_Internet), 3000).show();
+                public void onUnavailable() {
+                    super.onUnavailable();
+                    //Snackbar.make(tweetListRecyclerView, getString(R.string.please_check_the_Internet), 3000).show();
                 }
 
                 @Override
                 public void onAvailable(@NonNull Network network) {
                     super.onAvailable(network);
-                    TweetCardAdapter.isConnected = true;
-                    TweetDetailCardAdapter.isConnected = true;
                     refreshLayout.autoRefresh();
                 }
             };
