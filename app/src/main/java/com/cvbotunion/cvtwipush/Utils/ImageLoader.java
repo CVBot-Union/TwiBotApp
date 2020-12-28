@@ -111,7 +111,7 @@ public class ImageLoader {
                 !=null) {
             if(tAdapter != null) {
                 this.notifyUI(twitterUser.cached_profile_image);
-            } else if(chip != null && chipGroup != null) {
+            } else if(chip != null && chipGroup != null && twitterUser.cached_profile_image != null) {
                 this.setChipIcon(new CircleDrawable(chip.getContext().getResources(),twitterUser.cached_profile_image));
             }
             twitterUser.avatarUnderProcessing = false;
@@ -120,7 +120,7 @@ public class ImageLoader {
                 twitterUser.cached_profile_image = download(twitterUser.profile_image_url, null);
                 avatarCachedPool.put(twitterUser.id, twitterUser.cached_profile_image);
                 this.notifyUI(twitterUser.cached_profile_image);
-                if(chip != null && chipGroup != null) {
+                if(chip != null && chipGroup != null && twitterUser.cached_profile_image != null) {
                     this.setChipIcon(new CircleDrawable(chip.getContext().getResources(),twitterUser.cached_profile_image));
                 }
                 twitterUser.avatarUnderProcessing = false;
