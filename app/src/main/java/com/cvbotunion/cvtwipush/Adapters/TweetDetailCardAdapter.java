@@ -209,36 +209,41 @@ public class TweetDetailCardAdapter extends RecyclerView.Adapter<TweetDetailCard
 
             holder.tweetDetailCard.uploadButton.setOnClickListener(view -> {
                 // 上传翻译
-                if(isConnected) new Thread(() -> {
-                    String result = context.getString(R.string.failure);
-                    try {
-                        String data = "translationContent="
-                                +URLEncoder.encode(holder.tweetDetailCard.getTranslatedText(),"UTF-8")
-                                +"&sessionGroupID="+ Timeline.getCurrentGroup().id;
-                        Response response= Timeline.connection.webService.request(
-                                "PUT", WebService.SERVER_API+"/tweet/"+lastTweet.id+"/translation", data, WebService.FORM_URLENCODED);
-                        if(response.code()==200) {
-                            JSONObject resJson = new JSONObject(response.body().string());
-                            response.close();
-                            if(resJson.getBoolean("success")) {
-                                result = context.getString(R.string.success);
-                                lastTweet.queryTranslations(handler, holder.tweetDetailCard);
-                                handler.post(() -> holder.tweetDetailCard.historyButton.setText(lastTweet.translations!=null ? String.valueOf(lastTweet.translations.size()) : "0"));
+                if(!holder.tweetDetailCard.getTranslatedText().isEmpty()) {
+                    if (isConnected) new Thread(() -> {
+                        String result = context.getString(R.string.failure);
+                        try {
+                            String data = "translationContent="
+                                    + URLEncoder.encode(holder.tweetDetailCard.getTranslatedText(), "UTF-8")
+                                    + "&sessionGroupID=" + Timeline.getCurrentGroup().id;
+                            Response response = Timeline.connection.webService.request(
+                                    "PUT", WebService.SERVER_API + "/tweet/" + lastTweet.id + "/translation", data, WebService.FORM_URLENCODED);
+                            if (response.code() == 200) {
+                                JSONObject resJson = new JSONObject(response.body().string());
+                                response.close();
+                                if (resJson.getBoolean("success")) {
+                                    result = context.getString(R.string.success);
+                                    lastTweet.queryTranslations(handler, holder.tweetDetailCard);
+                                    handler.post(() -> holder.tweetDetailCard.historyButton.setText(lastTweet.translations != null ? String.valueOf(lastTweet.translations.size()) : "0"));
+                                } else {
+                                    Log.e("uploadTranslation", resJson.toString());
+                                }
                             } else {
-                                Log.e("uploadTranslation", resJson.toString());
+                                Log.e("uploadTranslation", response.message());
+                                response.close();
                             }
-                        } else {
-                            Log.e("uploadTranslation", response.message());
-                            response.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        } finally {
+                            final String finalResult = result;
+                            handler.post(() -> Snackbar.make(view, context.getString(R.string.upload_translation) + finalResult, 1000).show());
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    } finally {
-                        final String finalResult = result;
-                        handler.post(() -> Snackbar.make(view, context.getString(R.string.upload_translation)+ finalResult, 1000).show());
-                    }
-                }).start();
-                else Snackbar.make(view, context.getString(R.string.please_check_the_Internet), 1000).show();
+                    }).start();
+                    else
+                        Snackbar.make(view, context.getString(R.string.please_check_the_Internet), 1000).show();
+                } else {
+                    handler.post(() -> Snackbar.make(view, "请输入翻译", 1000).show());
+                }
             });
         } else { // 刷新UI需要隐藏之前显示的翻译区
             holder.tweetDetailCard.setTranslationMode(false);
